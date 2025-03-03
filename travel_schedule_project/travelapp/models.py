@@ -10,7 +10,7 @@ class User(models.Model):
     update_at = models.DateTimeField(auto_now_add=True)  # auto_now_add=Trueでaudate日がnowでDB保存
 
     def __str__(self):
-        return self.title
+        return self.username
 
     class Meta:     
         db_table='User'

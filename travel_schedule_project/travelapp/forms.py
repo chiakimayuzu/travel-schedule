@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from travelapp.models import User
 
 class UserLoginForm(AuthenticationForm):
-    username = forms.EmailField(label='メールアドレス')
+    email = forms.EmailField(label='メールアドレス')
     password = forms.CharField(label='パスワード', widget=forms.PasswordInput())
 
 class RegistAccountForm(forms.ModelForm):
@@ -15,8 +15,15 @@ class RegistAccountForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username','email','password','confirm_password']
-        
+        fields = ['username','email','password']
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password'])  # パスワードをハッシュ化
+        if commit:
+            user.save()
+        return user
+
     def clean(self):
         cleaned_data = super().clean()
         password = cleaned_data.get('password')
