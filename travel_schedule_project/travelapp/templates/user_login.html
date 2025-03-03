@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+
+<form method="post">
+    {% csrf_token %}    
+    
+    {{ form.as_p }} <!-- フォームの各フィールドを段落（<p>）として表示します -->
+    
+    <button type="submit">ログイン</button>
+</form>

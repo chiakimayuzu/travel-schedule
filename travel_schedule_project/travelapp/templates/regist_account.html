@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+   <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">登録</button>
+   </form>
+  
+  <div id="error-message" style="color: red;"></div>
+  
+  <script>
+  document.getElementById('register-form').addEventListener('submit', function(event) {
+      event.preventDefault();  // フォームの通常の送信を防ぐ
+  
+      var formData = new FormData(this);
+  
+      fetch("{% url 'your_register_url' %}", {
+          method: 'POST',
+          body: formData,
+          headers: {
+              'X-Requested-With': 'XMLHttpRequest'  // AJAXリクエストであることを示す
+          }
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              alert('登録成功!');
+          } else {
+              // エラーメッセージの表示
+              document.getElementById('error-message').innerHTML = '';  // 既存のエラーメッセージをクリア
+              for (const error of Object.values(data.errors)) {
+                  document.getElementById('error-message').innerHTML += error[0].message + '<br>';
+              }
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+      });
+  });
+  </script>
