@@ -10,11 +10,11 @@
     <form method="post">
         {% csrf_token %}
         <div>
-            メールアドレス
+            メールアドレス:
             {{ form.email }}
         </div>
         <div>
-            パスワード
+            パスワード:
             {{ form.password }}
         </div>
         <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">

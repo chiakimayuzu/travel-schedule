@@ -3,8 +3,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic.edit import FormView
-
-
+from django.views.generic.edit import CreateView
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from .forms import RegistAccountForm, UserLoginForm
 
@@ -21,28 +21,42 @@ class LoginView(View):
 
     def post(self, request, *args, **kwargs):
         form = self.authentication_form(request.POST)  # POSTデータを使ってフォームを作成
-        if form.is_valid():
-            # フォームが有効ならば、ログイン処理などを追加する
-            return redirect(self.success_url)  # 成功した場合は指定されたURLにリダイレクト
+        if form.is_valid():  # フォームが有効なら
+            email = form.cleaned_data.get("email")
+            password = form.cleaned_data.get("password")
+            
+            # ユーザーの認証を行う
+            user = authenticate(request, email=email, password=password)
+            
+            if user is not None:  # 認証に成功した場合
+                login(request, user)  # ログイン処理
+                return redirect(self.success_url)  # 成功した場合、指定されたURLにリダイレクト
+            else:
+                form.add_error(None, "認証に失敗しました")  # 認証失敗時のエラーメッセージ
         return render(request, self.template_name, {'form': form})  # フォームにエラーがあれば再表示
-
 
 
 class UserLogoutView(View):
     pass
 
 
-class RegistAccountView(FormView):
+class RegistAccountView(CreateView):
     model = User
     template_name = 'regist_account.html'
     form_class = RegistAccountForm
     success_url = reverse_lazy('travelapp:login')
 
-    def get(self, request, *args, **kwargs):
-        form = self.form_class()
-        return render(request, self.template_name, {'form': form})
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
-def regist_view(request):
+
+def check_username(request): #入力されたusernameが既に存在するかを確認
+        username = request.GET.get('username')  # フォームの入力値を取得
+        exists = User.objects.filter(username=username).exists()  # usernameがすでに存在するか確認
+        return JsonResponse({'exists':exists})  # exists が True ならusernameが存在、エラー表示
+
+
+def regist_view(request): #入力PWとcomfirm PWが同一かチェック
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' and request.method == "POST":
         form = RegistAccountForm(request.POST)
         if form.is_valid():

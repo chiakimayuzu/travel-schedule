@@ -1,40 +1,213 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新規登録</title>
+</head>
 
-<form id="register-form" method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">登録</button>
-</form>
+<body>
+    <h1>新規アカウント登録</h1>
 
-<div id="error-message" style="color: red;"></div>
+    <form id="register-form" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">登録</button>
+
+        <a class="navbar-brand" href="{% url 'travelapp:login' %}">ログイン画面へ戻る</a>
+    </form>
+
+    <div id="error-message" style="color: red;"></div>
+
+    <!-- ユーザー名の重複エラー表示 -->
+    <span id="username_error" style="color: red; display: none;">このユーザー名は既に登録されています</span>
+
+    <!-- パスワード一致エラー表示 -->
+    <span id="password_error" style="color: red; display: none;">パスワードが一致しません</span>
+
+    <!-- パスワード長さエラー表示 -->
+    <span id="password_length_error" style="color: red; display: none;">パスワードは8文字以上で入力してください</span>
+</body>
 
 <script>
-document.getElementById('register-form').addEventListener('submit', function(event) {
-    event.preventDefault();  // フォームの通常の送信を防ぐ
-
-    var formData = new FormData(this);
-
-    fetch("{% url 'travelapp:regist_ajax' %}", {  // 修正: regist_ajax に変更
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'  // AJAXリクエストであることを示す
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('登録成功!');
-        } else {
-            // エラーメッセージの表示
-            document.getElementById('error-message').innerHTML = '';  // 既存のエラーメッセージをクリア
-            for (const error of Object.values(data.errors)) {
-                document.getElementById('error-message').innerHTML += error[0].message + '<br>';
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('register-form').addEventListener('submit', function(event) {
+            event.preventDefault();  // フォームの通常の送信を防ぐ
+        
+            var formData = new FormData(this);
+        
+            fetch("{% url 'travelapp:regist_ajax' %}", {  // regist_ajax に送信
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'  // AJAXリクエスト
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('登録成功!');
+                } else {
+                    document.getElementById('error-message').innerHTML = '';  // 既存エラークリア
+                    for (const [key, errors] of Object.entries(data.errors)) {
+                        document.getElementById('error-message').innerHTML += errors.join('<br>') + '<br>';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
     });
-});
 </script>
+
+<script>
+    document.getElementById('id_username').addEventListener('input', function() {
+        var username = this.value;
+        
+        if (username) {
+            // サーバーにタイトルの重複を確認するリクエストを送信
+            fetch(`/app/check_username/?username=${encodeURIComponent(username)}`)
+                // check_titleでviews.pyの関数を呼び出している
+                // ユーザーが入力したタイトルをサーバーに送って、そのタイトルがすでに存在するかどうかを確認する
+                // encodeURIComponentはhtmlとして適切な形にtitleを変換するという意味
+                // クエリパラメータとはwebサーバーに情報を伝えるためにURLに付加する文字列
+                // 基本構造は「?」+「変数名(title)」+「=」+「変数の値」で、複数のパラメータがある場合は「&」でつなげる
+                .then(response => response.json())  // サーバーから返ってきたデータをJSON形式に変換して、次の処理に渡す
+                .then(data => { // サーバーから返ってきたデータ（data）を使って、エラー表示の処理をする
+                    const errorSpan = document.getElementById('username_error');
+                    // エラーメッセージを表示するためのHTML要素を取得して変数に保存する
+
+                    // サーバーが data.exists を True で返した場合（タイトルが重複している）
+                    if (data.exists) {
+                        errorSpan.style.display = 'block'; // existsがtrue(同一データ有)ならエラー表示
+                    } else {
+                        errorSpan.style.display = 'none'; // エラー非表示
+                    }
+                })
+                .catch(error => console.error('Error:', error));  // エラー処理
+        }
+    });
+
+    // ② パスワードと確認用パスワードの一致チェック
+    document.getElementById('id_password').addEventListener('input', checkPasswordMatch);
+    document.getElementById('id_confirm_password').addEventListener('input', checkPasswordMatch);
+
+    function checkPasswordMatch() {
+        const password = document.getElementById('id_password').value;
+        const confirmPassword = document.getElementById('id_confirm_password').value;
+        const errorSpan = document.getElementById('password_error');
+
+        if (password !== confirmPassword) {
+            errorSpan.style.display = 'block';  // パスワードが一致しない場合、エラー表示
+        } else {
+            errorSpan.style.display = 'none';  // 一致している場合、エラー非表示
+        }
+    }
+
+    // ③ パスワードの長さチェック（8文字以上）
+    document.getElementById('id_password').addEventListener('input', checkPasswordLength);
+
+    function checkPasswordLength() {
+        const password = document.getElementById('id_password').value;
+        const errorSpan = document.getElementById('password_length_error');
+
+        if (password.length < 8) {
+            errorSpan.style.display = 'block';  // 8文字未満の場合、エラー表示
+        } else {
+            errorSpan.style.display = 'none';  // 8文字以上の場合、エラー非表示
+        }
+    }
+</script>
+
+</html>
+
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8em;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        form {
+            width: 400px;
+            padding: 20px;
+            border: 1px solid #000;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: gray;
+        }
+
+        form div {
+            margin-bottom: 15px;
+        }
+
+        form div label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            color: white;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 14px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+
