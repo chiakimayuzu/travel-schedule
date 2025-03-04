@@ -15,8 +15,14 @@ class User(models.Model):
     class Meta:     
         db_table='User'
 
-    def clean_title(self): #username(ユーザーID)の重複登録不可
-        if User.objects.filter(title=self.username).exclude(pk=self.pk).exists():
+    def clean_username(self): #username(ユーザーID)の重複登録不可
+        if User.objects.filter(username=self.username).exclude(pk=self.pk).exists():
             raise ValidationError("このユーザー名は既に登録されています。")
-        
 
+
+
+
+#つづきはあとで
+# class Tourist_spot(models.Model):
+#     spot_name = models.CharField(max_length=50)
+#     prefecture =

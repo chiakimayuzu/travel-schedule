@@ -6,8 +6,11 @@ from django.views.generic.edit import FormView
 from django.views.generic.edit import CreateView
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from .forms import RegistAccountForm, UserLoginForm
-
+from .forms import ChangeEmailForm, PasswordChangeForm, RegistAccountForm, UserLoginForm
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages  
+from django.contrib.auth import authenticate, login, logout as auth_logout, update_session_auth_hash
+from django.contrib.auth.hashers import check_password
 # Create your views here.
 
 class LoginView(View):
@@ -56,7 +59,7 @@ def check_username(request): #入力されたusernameが既に存在するかを
         return JsonResponse({'exists':exists})  # exists が True ならusernameが存在、エラー表示
 
 
-def regist_view(request): #入力PWとcomfirm PWが同一かチェック
+def check_password(request): #入力PWとcomfirm PWが同一かチェック
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' and request.method == "POST":
         form = RegistAccountForm(request.POST)
         if form.is_valid():
@@ -72,5 +75,39 @@ def regist_view(request): #入力PWとcomfirm PWが同一かチェック
 
     return render(request, 'regist_form.html', {'form': form})
 
+@login_required
+def change_email(request):
+    if request.method == 'POST':
+        form = ChangeEmailForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            # メールアドレスの更新処理
+            request.user.email = form.cleaned_data['new_email']
+            request.user.save()
+            # 成功メッセージを追加してリダイレクト
+            messages.success(request, 'メールアドレスが更新されました。')
+            return redirect('email_change')  # プロフィールページなどの適切なリダイレクト先に変更してください
+    else:
+        form = ChangeEmailForm(user=request.user)
+    
+    return render(request, 'email_change.html', {'form': form})
+
+
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)  # パスワード変更後もログイン状態を保持
+            messages.success(request, 'パスワードが更新されました。')
+            return redirect('password_change')  # 成功メッセージが同じページに表示されるようにします
+    else:
+        form = PasswordChangeForm(user=request.user)
+    return render(request, 'password_change.html', {'form': form})
+
+
+
 class HomeView(View):
     template_name = 'home.html'
+

@@ -11,7 +11,35 @@
 
     <form id="register-form" method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        
+        <div>
+            名前(ユーザーID/変更不可):
+            {{ form.username }}
+            <!-- ユーザー名の重複エラー表示 -->
+            <span id="username_error" style="color: red; display: none;">このユーザー名は既に登録されています</span>
+        </div>
+
+        <div>
+            メールアドレス:
+            {{ form.email }}
+        </div>
+
+        <div>
+            パスワード:
+            {{ form.password }}
+        </div>
+
+        <div>
+            パスワード再入力:
+            {{ form.confirm_password }}
+        </div>
+
+        <!-- パスワード一致エラー表示 -->
+        <span id="password_error" style="color: red; display: none;">パスワードが一致しません</span>
+
+        <!-- パスワード長さエラー表示 -->
+        <span id="password_length_error" style="color: red; display: none;">パスワードは8文字以上で入力してください</span>
+
         <button type="submit">登録</button>
 
         <a class="navbar-brand" href="{% url 'travelapp:login' %}">ログイン画面へ戻る</a>
@@ -19,14 +47,6 @@
 
     <div id="error-message" style="color: red;"></div>
 
-    <!-- ユーザー名の重複エラー表示 -->
-    <span id="username_error" style="color: red; display: none;">このユーザー名は既に登録されています</span>
-
-    <!-- パスワード一致エラー表示 -->
-    <span id="password_error" style="color: red; display: none;">パスワードが一致しません</span>
-
-    <!-- パスワード長さエラー表示 -->
-    <span id="password_length_error" style="color: red; display: none;">パスワードは8文字以上で入力してください</span>
 </body>
 
 <script>
@@ -36,7 +56,7 @@
         
             var formData = new FormData(this);
         
-            fetch("{% url 'travelapp:regist_ajax' %}", {  // regist_ajax に送信
+            fetch("{% url 'travelapp:check_password' %}", {  // regist_ajax に送信
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -61,13 +81,13 @@
     });
 </script>
 
-<script>
+<script> //重複usernameのチェック用java
     document.getElementById('id_username').addEventListener('input', function() {
         var username = this.value;
         
         if (username) {
             // サーバーにタイトルの重複を確認するリクエストを送信
-            fetch(`/app/check_username/?username=${encodeURIComponent(username)}`)
+            fetch(`/travel_schedule/check_username/?username=${encodeURIComponent(username)}`)
                 // check_titleでviews.pyの関数を呼び出している
                 // ユーザーが入力したタイトルをサーバーに送って、そのタイトルがすでに存在するかどうかを確認する
                 // encodeURIComponentはhtmlとして適切な形にtitleを変換するという意味
@@ -78,7 +98,7 @@
                     const errorSpan = document.getElementById('username_error');
                     // エラーメッセージを表示するためのHTML要素を取得して変数に保存する
 
-                    // サーバーが data.exists を True で返した場合（タイトルが重複している）
+                    // サーバーが data.exists を True で返した場合（usernameが重複している）
                     if (data.exists) {
                         errorSpan.style.display = 'block'; // existsがtrue(同一データ有)ならエラー表示
                     } else {
@@ -89,7 +109,7 @@
         }
     });
 
-    // ② パスワードと確認用パスワードの一致チェック
+    // パスワードと確認用パスワードの一致チェック
     document.getElementById('id_password').addEventListener('input', checkPasswordMatch);
     document.getElementById('id_confirm_password').addEventListener('input', checkPasswordMatch);
 
@@ -105,7 +125,7 @@
         }
     }
 
-    // ③ パスワードの長さチェック（8文字以上）
+    // パスワードの長さチェック（8文字以上）
     document.getElementById('id_password').addEventListener('input', checkPasswordLength);
 
     function checkPasswordLength() {
