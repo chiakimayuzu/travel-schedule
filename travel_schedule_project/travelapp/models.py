@@ -18,3 +18,5 @@ class User(models.Model):
     def clean_title(self): #username(ユーザーID)の重複登録不可
         if User.objects.filter(title=self.username).exclude(pk=self.pk).exists():
             raise ValidationError("このユーザー名は既に登録されています。")
+        
+

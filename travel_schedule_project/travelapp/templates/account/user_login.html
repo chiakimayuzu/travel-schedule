@@ -19,13 +19,15 @@
         </div>
         <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
         <button type="submit">ログイン</button>
+
+        <a href="{% url 'travelapp:regist_account' %}">新規登録画面へ</a>
     </form>
     {% if form.non_field_errors %}
         <div class="error">
             {{ form.non_field_errors }}
         </div>
     {% endif %}
-    <a href="{% url 'travelapp:regist_account' %}">新規登録画面へ</a>
+
 </body>
 </html>
 

@@ -19,5 +19,6 @@ from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('app/', include('travelapp.urls')),  # travelappのURLをインクルード
+    path('travel_schedule/', include('travelapp.urls')),  # travelappのURLをインクルード
 ]
+

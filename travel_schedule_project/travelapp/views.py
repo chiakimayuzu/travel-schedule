@@ -11,9 +11,9 @@ from .forms import RegistAccountForm, UserLoginForm
 # Create your views here.
 
 class LoginView(View):
-    template_name = 'user_login.html'
+    template_name = 'account/user_login.html'
     authentication_form = UserLoginForm
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('travelapp:home')
 
     def get(self, request, *args, **kwargs):
         form = self.authentication_form()  # フォームのインスタンスを作成
@@ -42,7 +42,7 @@ class UserLogoutView(View):
 
 class RegistAccountView(CreateView):
     model = User
-    template_name = 'regist_account.html'
+    template_name = 'account/regist_account.html'
     form_class = RegistAccountForm
     success_url = reverse_lazy('travelapp:login')
 

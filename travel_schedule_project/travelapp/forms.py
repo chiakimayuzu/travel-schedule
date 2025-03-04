@@ -5,8 +5,8 @@ from travelapp.models import User
 from django.core.validators import MinLengthValidator
 
 class UserLoginForm(AuthenticationForm):
-    email = forms.EmailField(label='メールアドレス')
-    password = forms.CharField(label='パスワード', widget=forms.PasswordInput())
+    email = forms.EmailField(label='メールアドレス',widget=forms.TextInput(attrs={'placeholder': '例:xxx@example.com'}))
+    password = forms.CharField(label='パスワード', widget=forms.PasswordInput(attrs={'placeholder': '英数字8桁以上で入力してください'}))
 
 class RegistAccountForm(forms.ModelForm):
     username = forms.CharField(
