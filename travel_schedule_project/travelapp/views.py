@@ -16,7 +16,7 @@ from django.contrib.auth.hashers import check_password
 class LoginView(View):
     template_name = 'account/user_login.html'
     authentication_form = UserLoginForm
-    success_url = reverse_lazy('travelapp:home')
+    success_url = reverse_lazy('travelapp:home')  # ここでURLを解決
 
     def get(self, request, *args, **kwargs):
         form = self.authentication_form()  # フォームのインスタンスを作成
@@ -33,11 +33,12 @@ class LoginView(View):
             
             if user is not None:  # 認証に成功した場合
                 login(request, user)  # ログイン処理
-                return redirect(self.success_url)  # 成功した場合、指定されたURLにリダイレクト
+                next_url = request.GET.get('next', self.success_url)
+                print(f"Redirecting to: {next_url}")  # ログを確認
+                return redirect(next_url)  # リダイレクト
             else:
                 form.add_error(None, "認証に失敗しました")  # 認証失敗時のエラーメッセージ
         return render(request, self.template_name, {'form': form})  # フォームにエラーがあれば再表示
-
 
 class UserLogoutView(View):
     pass
@@ -49,8 +50,13 @@ class RegistAccountView(CreateView):
     form_class = RegistAccountForm
     success_url = reverse_lazy('travelapp:login')
 
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+    # def form_valid(self, form):
+    #     # フォームが有効な場合、保存してからリダイレクト
+    #     response = super().form_valid(form)
+    #     return response  # success_url にリダイレクトされます
+
+    # def dispatch(self, request, *args, **kwargs):
+    #     return super().dispatch(request, *args, **kwargs)
 
 
 def check_username(request): #入力されたusernameが既に存在するかを確認
