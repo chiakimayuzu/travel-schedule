@@ -11,14 +11,19 @@
 
     <form id="register-form" method="POST">
         {% csrf_token %}
-        
+
+    {% if messages %}
+        <ul style="color: red;">
+        {% for message in messages %}
+            <li>{{ message }}</li>  <!-- 各メッセージをリストで表示 -->
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+
         <div>
             名前(ユーザーID/変更不可):
             {{ form.username }}
-            <!-- ユーザー名の重複エラー表示 -->
-            <span id="username_error" style="color: red; display: none;">このユーザー名は既に登録されています</span>
-        </div>
-
         <div>
             メールアドレス:
             {{ form.email }}
@@ -26,19 +31,14 @@
 
         <div>
             パスワード:
-            {{ form.password }}
+            {{ form.password1 }}
         </div>
 
         <div>
             パスワード再入力:
-            {{ form.confirm_password }}
+            {{ form.password2 }}
         </div>
 
-        <!-- パスワード一致エラー表示 -->
-        <span id="password_error" style="color: red; display: none;">パスワードが一致しません</span>
-
-        <!-- パスワード長さエラー表示 -->
-        <span id="password_length_error" style="color: red; display: none;">パスワードは8文字以上で入力してください</span>
 
         <button type="submit">登録</button>
 
@@ -49,96 +49,6 @@
 
 </body>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('register-form').addEventListener('submit', function(event) {
-            event.preventDefault();  // フォームの通常の送信を防ぐ
-        
-            var formData = new FormData(this);
-        
-            fetch("{% url 'travelapp:check_password' %}", {  // regist_ajax に送信
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'  // AJAXリクエスト
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('登録成功!');
-                } else {
-                    document.getElementById('error-message').innerHTML = '';  // 既存エラークリア
-                    for (const [key, errors] of Object.entries(data.errors)) {
-                        document.getElementById('error-message').innerHTML += errors.join('<br>') + '<br>';
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        });
-    });
-</script>
-
-<script> //重複usernameのチェック用java
-    document.getElementById('id_username').addEventListener('input', function() {
-        var username = this.value;
-        
-        if (username) {
-            // サーバーにタイトルの重複を確認するリクエストを送信
-            fetch(`/travel_schedule/check_username/?username=${encodeURIComponent(username)}`)
-                // check_titleでviews.pyの関数を呼び出している
-                // ユーザーが入力したタイトルをサーバーに送って、そのタイトルがすでに存在するかどうかを確認する
-                // encodeURIComponentはhtmlとして適切な形にtitleを変換するという意味
-                // クエリパラメータとはwebサーバーに情報を伝えるためにURLに付加する文字列
-                // 基本構造は「?」+「変数名(title)」+「=」+「変数の値」で、複数のパラメータがある場合は「&」でつなげる
-                .then(response => response.json())  // サーバーから返ってきたデータをJSON形式に変換して、次の処理に渡す
-                .then(data => { // サーバーから返ってきたデータ（data）を使って、エラー表示の処理をする
-                    const errorSpan = document.getElementById('username_error');
-                    // エラーメッセージを表示するためのHTML要素を取得して変数に保存する
-
-                    // サーバーが data.exists を True で返した場合（usernameが重複している）
-                    if (data.exists) {
-                        errorSpan.style.display = 'block'; // existsがtrue(同一データ有)ならエラー表示
-                    } else {
-                        errorSpan.style.display = 'none'; // エラー非表示
-                    }
-                })
-                .catch(error => console.error('Error:', error));  // エラー処理
-        }
-    });
-
-    // パスワードと確認用パスワードの一致チェック
-    document.getElementById('id_password').addEventListener('input', checkPasswordMatch);
-    document.getElementById('id_confirm_password').addEventListener('input', checkPasswordMatch);
-
-    function checkPasswordMatch() {
-        const password = document.getElementById('id_password').value;
-        const confirmPassword = document.getElementById('id_confirm_password').value;
-        const errorSpan = document.getElementById('password_error');
-
-        if (password !== confirmPassword) {
-            errorSpan.style.display = 'block';  // パスワードが一致しない場合、エラー表示
-        } else {
-            errorSpan.style.display = 'none';  // 一致している場合、エラー非表示
-        }
-    }
-
-    // パスワードの長さチェック（8文字以上）
-    document.getElementById('id_password').addEventListener('input', checkPasswordLength);
-
-    function checkPasswordLength() {
-        const password = document.getElementById('id_password').value;
-        const errorSpan = document.getElementById('password_length_error');
-
-        if (password.length < 8) {
-            errorSpan.style.display = 'block';  // 8文字未満の場合、エラー表示
-        } else {
-            errorSpan.style.display = 'none';  // 8文字以上の場合、エラー非表示
-        }
-    }
-</script>
 
 </html>
 

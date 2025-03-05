@@ -5,64 +5,53 @@ from travelapp.models import User
 from django.core.validators import MinLengthValidator
 from django.contrib.auth.forms import PasswordChangeForm as AuthPasswordChangeForm
 from django.core.exceptions import ValidationError
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import authenticate
 
-
-
-class UserLoginForm(AuthenticationForm):
-    email = forms.EmailField(label='メールアドレス',widget=forms.TextInput(attrs={'placeholder': '例:xxx@example.com'}))
+class UserLoginForm(forms.Form):
+    email = forms.EmailField(label='メールアドレス', widget=forms.TextInput(attrs={'placeholder': '例:xxx@example.com'}))
     password = forms.CharField(label='パスワード', widget=forms.PasswordInput(attrs={'placeholder': '英数字8桁以上で入力してください'}))
-
-class RegistAccountForm(forms.ModelForm):
-    username = forms.CharField(
-                label='名前(ユーザーID/変更不可)',
-                widget=forms.TextInput(attrs={'placeholder': '例:travelchan1234'}))
-    email = forms.EmailField(
-                label='メールアドレス',
-                widget=forms.TextInput(attrs={'placeholder': '例:xxx@example.com'}))
-    password = forms.CharField(
-                label='パスワード',
-                widget=forms.PasswordInput(attrs={'placeholder': '英数字8桁以上で入力してください'}),
-                validators=[MinLengthValidator(8)])
-    confirm_password = forms.CharField(
-                label='パスワード再入力',
-                widget=forms.PasswordInput(attrs={'placeholder': '英数字8桁以上で入力してください'}))
-
-    class Meta:
-        model = User
-        fields = ['username','email','password','confirm_password']
-    
-    def save(self, commit=True):
-        user = super().save(commit=True)  # 保存処理を1回で済ませる
-        return user
-
-        
-    # def save(self, commit=True):
-    #     user = super().save(commit=False)
-    #     user.set_password(self.cleaned_data['password'])  # パスワードをハッシュ化
-    #     if commit:
-    #         user.save()
-    #     return user
 
     def clean(self):
         cleaned_data = super().clean()
-        password = cleaned_data.get('password')
-        confirm_password = cleaned_data.get('confirm_password')
+        email = cleaned_data.get("email")
+        password = cleaned_data.get("password")
 
-        # パスワードと再入力されたパスワードが一致するかを確認
-        if password != confirm_password:
-            raise forms.ValidationError('パスワードが一致しません。')
-        
-        # ユーザー名の重複をチェック（ユーザー名がすでに登録されていないか）
-        username = cleaned_data.get('username')
-        if User.objects.filter(username=username).exists():
-            raise forms.ValidationError('このユーザー名は既に登録されています。')
-        
-         # メールアドレスの重複をチェック（メールアドレスがすでに登録されていないか）
-        email = cleaned_data.get('email')
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError('このメールアドレスは既に登録されています。')
-        
-        return cleaned_data
+        try:
+            # メールアドレスを使ってユーザーを取得
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise ValidationError("ユーザーが見つかりません。")
+
+        # パスワードを確認
+        if not user.check_password(password):
+            raise ValidationError("パスワードが間違っています。")
+
+        self.user = user  # 認証されたユーザーをフォームにセット
+        return cleaned_data     
+    
+class RegistAccountForm(UserCreationForm):
+    email = forms.EmailField(max_length=50, required=True)
+    
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2']
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)  # 一旦DBに保存しない
+        user.email = self.cleaned_data['email']  # フォームからemailを取得
+        user.username = self.cleaned_data['username']  # フォームからusernameを取得
+        if commit:
+            user.save()  # 明示的に保存
+        return user
+
+
+
+
+
+
+
+
 
 class ChangeEmailForm(forms.Form):
     current_email = forms.EmailField(

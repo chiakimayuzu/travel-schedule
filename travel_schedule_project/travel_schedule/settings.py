@@ -50,6 +50,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# 3. メッセージ設定を追加
+MESSAGE_LEVEL = 20  # DEBUG メッセージレベル（エラーを表示）
+
 ROOT_URLCONF = 'travel_schedule.urls'
 
 TEMPLATES = [

@@ -1,27 +1,28 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import AbstractUser
 # Create your models here.
 
-class User(models.Model):
-    username = models.CharField(max_length=50)
-    email = models.EmailField(max_length=50)
-    password = models.CharField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)  # auto_now_add=Trueで登録日がnowでDB保存
-    update_at = models.DateTimeField(auto_now=True)  # auto_now_add=Trueでaudate日がnowでDB保存
+class User(AbstractUser):
+    username = models.CharField(max_length=50, unique=True)  # 重複不可にする
+    email = models.EmailField(max_length=50, unique=True)  # 重複不可にする
+    created_at = models.DateTimeField(auto_now_add=True)  # 登録日
+    updated_at = models.DateTimeField(auto_now=True)  # 更新日
 
+    #AbstractUser内で競合するためnoneで設定しておく
+    groups = None
+    user_permissions = None
+
+    USERNAME_FIELD = "email"  # メールアドレスでログイン
+    REQUIRED_FIELDS = ["username"]  # `username` を必須フィールドに追加
+        
     def __str__(self):
         return self.username
 
     class Meta:     
-        db_table='User'
+        db_table='Users'
 
-    def clean_username(self): #username(ユーザーID)の重複登録不可
-        if User.objects.filter(username=self.username).exclude(pk=self.pk).exists():
-            raise ValidationError("このユーザー名は既に登録されています。")
-    
-    def set_password(self, raw_password):  # パスワードをハッシュ化
-        self.password = make_password(raw_password)
 
 
 
