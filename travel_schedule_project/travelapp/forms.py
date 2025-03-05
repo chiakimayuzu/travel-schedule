@@ -29,14 +29,19 @@ class RegistAccountForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username','email','password']
+        fields = ['username','email','password','confirm_password']
     
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data['password'])  # パスワードをハッシュ化
-        if commit:
-            user.save()
+        user = super().save(commit=True)  # 保存処理を1回で済ませる
         return user
+
+        
+    # def save(self, commit=True):
+    #     user = super().save(commit=False)
+    #     user.set_password(self.cleaned_data['password'])  # パスワードをハッシュ化
+    #     if commit:
+    #         user.save()
+    #     return user
 
     def clean(self):
         cleaned_data = super().clean()
@@ -46,7 +51,17 @@ class RegistAccountForm(forms.ModelForm):
         # パスワードと再入力されたパスワードが一致するかを確認
         if password != confirm_password:
             raise forms.ValidationError('パスワードが一致しません。')
-
+        
+        # ユーザー名の重複をチェック（ユーザー名がすでに登録されていないか）
+        username = cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError('このユーザー名は既に登録されています。')
+        
+         # メールアドレスの重複をチェック（メールアドレスがすでに登録されていないか）
+        email = cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError('このメールアドレスは既に登録されています。')
+        
         return cleaned_data
 
 class ChangeEmailForm(forms.Form):

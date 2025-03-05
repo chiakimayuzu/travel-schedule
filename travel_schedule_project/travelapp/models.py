@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.contrib.auth.hashers import make_password
 # Create your models here.
 
 class User(models.Model):
@@ -7,7 +8,7 @@ class User(models.Model):
     email = models.EmailField(max_length=50)
     password = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)  # auto_now_add=Trueで登録日がnowでDB保存
-    update_at = models.DateTimeField(auto_now_add=True)  # auto_now_add=Trueでaudate日がnowでDB保存
+    update_at = models.DateTimeField(auto_now=True)  # auto_now_add=Trueでaudate日がnowでDB保存
 
     def __str__(self):
         return self.username
@@ -18,7 +19,9 @@ class User(models.Model):
     def clean_username(self): #username(ユーザーID)の重複登録不可
         if User.objects.filter(username=self.username).exclude(pk=self.pk).exists():
             raise ValidationError("このユーザー名は既に登録されています。")
-
+    
+    def set_password(self, raw_password):  # パスワードをハッシュ化
+        self.password = make_password(raw_password)
 
 
 

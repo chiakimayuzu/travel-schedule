@@ -52,11 +52,11 @@ class RegistAccountView(CreateView):
     form_class = RegistAccountForm
     success_url = reverse_lazy('travelapp:login')
 
-    # def form_valid(self, form):
-    #     # フォームが有効な場合、保存してからリダイレクト
-    #     response = super().form_valid(form)
-    #     return response  # success_url にリダイレクトされます
-
+    def form_valid(self, form):
+        # フォームが有効な場合、保存してからリダイレクト
+        response = super().form_valid(form)
+        return response  # success_url にリダイレクトされます
+    
     # def dispatch(self, request, *args, **kwargs):
     #     return super().dispatch(request, *args, **kwargs)
 
