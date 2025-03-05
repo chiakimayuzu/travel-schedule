@@ -31,6 +31,8 @@ class LoginView(View):
             # ユーザーの認証を行う
             user = authenticate(request, email=email, password=password)
             
+
+            #★ここも機能していない★
             if user is not None:  # 認証に成功した場合
                 login(request, user)  # ログイン処理
                 next_url = request.GET.get('next', self.success_url)
@@ -81,7 +83,7 @@ def check_password(request): #入力PWとcomfirm PWが同一かチェック
 
     return render(request, 'regist_form.html', {'form': form})
 
-@login_required
+#@login_required
 def change_email(request):
     if request.method == 'POST':
         form = ChangeEmailForm(user=request.user, data=request.POST)
@@ -95,11 +97,11 @@ def change_email(request):
     else:
         form = ChangeEmailForm(user=request.user)
     
-    return render(request, 'email_change.html', {'form': form})
+    return render(request, 'account/change_email.html', {'form': form})
 
 
 
-@login_required
+#@login_required
 def change_password(request):
     if request.method == 'POST':
         form = PasswordChangeForm(user=request.user, data=request.POST)
@@ -110,7 +112,7 @@ def change_password(request):
             return redirect('password_change')  # 成功メッセージが同じページに表示されるようにします
     else:
         form = PasswordChangeForm(user=request.user)
-    return render(request, 'password_change.html', {'form': form})
+    return render(request, 'account/change_password.html', {'form': form})
 
 
 
