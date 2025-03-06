@@ -48,7 +48,7 @@ class LoginView(View):
         return render(request, "account/user_login.html", {"form": form})
 
 
-class UserLogoutView(View):
+class LogoutView(View):
     pass
 
 
@@ -93,6 +93,6 @@ def change_password(request):
 
 
 
-class HomeView(View):
-    template_name = 'home.html'
 
+def homeview(request):
+    return render(request, 'home.html')

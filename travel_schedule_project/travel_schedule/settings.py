@@ -48,7 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
+]   
 
 # 3. メッセージ設定を追加
 MESSAGE_LEVEL = 20  # DEBUG メッセージレベル（エラーを表示）
@@ -125,3 +125,17 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+LOGIN_REDIRECT_URL = 'travelapp:home'  # ログイン成功後のリダイレクト先
+LOGOUT_REDIRECT_URL = 'travelapp:home'  # ログアウト後のリダイレクト先
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# セッション有効期限（秒単位、例: 1日）
+SESSION_COOKIE_AGE = 86400  # 1日
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # ブラウザ終了時にセッション削除

@@ -4,27 +4,42 @@
       <meta charset="utf-8">
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
       <style>
          .navbar-brand {
             margin-bottom: 10px;  /* リンクの間にスペースを追加 */
          }
       </style>
-      <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
    </head>
 
    <body>
       <header>
-         <h1>トラベルスケジュール</h1>
+         <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="{% url 'travelapp:home' %}">トラベルスケジュール</a>
+            <div class="collapse navbar-collapse">
+               <ul class="navbar-nav ml-auto">
+                  {% if request.user.is_authenticated %}
+                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'travelapp:logout' %}">ログアウト</a>
+                     </li>
+                  {% else %}
+                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'travelapp:login' %}">ログイン</a>
+                     </li>
+                  {% endif %}
+               </ul>
+            </div>
+         </nav>
       </header>
 
-      <main>
+      <main class="container mt-4">
          {% block content %}{% endblock %}
       </main>
 
-      <footer>
-         <p>©トラベルスケジュール</p>
+      <footer class="text-center mt-4">
+         <p>© トラベルスケジュール</p>
       </footer>
    </body>
 </html>

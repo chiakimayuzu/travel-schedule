@@ -48,11 +48,6 @@ class RegistAccountForm(UserCreationForm):
 
 
 
-
-
-
-
-
 class ChangeEmailForm(forms.Form):
     current_email = forms.EmailField(
         label='現在のメールアドレス',
