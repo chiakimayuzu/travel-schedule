@@ -5,4 +5,7 @@
     <p>これは共通のホーム画面です。</p>
 
     <p>現在のユーザー: {{ request.user }}</p>
+    <p>認証状態: {{ request.user.is_authenticated }}</p>
+
+
 {% endblock %}

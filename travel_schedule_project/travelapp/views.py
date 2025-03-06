@@ -32,7 +32,10 @@ class RegistAccountView(View):
                 for error in field.errors:  # 各フィールドのエラーを取り出して表示
                     messages.error(request, error)  # エラーをメッセージとして表示
             return render(request, 'account/regist_account.html', {'form': form})  # フォームを再表示
-        
+
+
+
+
 class LoginView(View):
     def get(self, request):
         form = UserLoginForm()
