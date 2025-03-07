@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages  
 from django.contrib.auth import authenticate, login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth import authenticate,login,logout
 # Create your views here.
 
 
@@ -52,8 +53,13 @@ class LoginView(View):
 
 
 class LogoutView(View):
-    pass
+    def get(self, request, *args, **kwargs):
+        logout(request)  # GET でもログアウト処理を実行
+        return redirect('travelapp:home')  # 直接ホームにリダイレクト
 
+    def post(self, request, *args, **kwargs):
+        logout(request)
+        return redirect('travelapp:home')
 
 
 
@@ -95,7 +101,9 @@ def change_password(request):
     return render(request, 'account/change_password.html', {'form': form})
 
 
-
+class PortfolioView(View):
+    def get(self, request):
+        return render(request, "portfolio.html")
 
 def homeview(request):
     return render(request, 'home.html')
