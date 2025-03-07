@@ -99,21 +99,52 @@ PARKING_CHOICES = [
     (3, '不明'),
     (4, '注意(公式HP参照)'),]
 
-class Tourist_spot(models.Model):
+class TouristSpot(models.Model):
     spot_name = models.CharField(max_length=50)
     prefecture = models.CharField(max_length=20, choices=PREFECTURES)
     address = models.CharField(max_length=100)
     tel = models.CharField(max_length=50)
     category = models.IntegerField(choices=CATEGORY_CHOICES)
-    workingday = models.IntegerField(choices=WORKINGDAY_CHOICES)
+    workingday = models.IntegerField(choices=WORKINGDAY_CHOICES,null=True, blank=True)
     parking = models.IntegerField(choices=PARKING_CHOICES)
-    opening_at = models.TimeField()
-    closing_at = models.TimeField()
+    opening_at = models.TimeField(null=True, blank=True)
+    closing_at = models.TimeField(null=True, blank=True)
     picture_url = models.CharField(max_length=100)
     description = models.TextField()
     offical_url = models.CharField(max_length=100)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)  # 登録日
     updated_at = models.DateTimeField(auto_now=True)  # 更新日
 
     def __str__(self):
         return self.spot_name
+
+
+class Keyword(models.Model):
+    keyword = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.keyword
+
+class TouristSpotKeyword(models.Model):
+    tourist_spot = models.ForeignKey(TouristSpot, on_delete=models.CASCADE)
+    keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('tourist_spot', 'keyword')
+
+    def keywords_list(self):
+        return ", ".join(self.touristspotkeyword_set.values_list("keyword__name", flat=True))
+
+    def __str__(self):
+        return f"{self.spot_name} ({self.keywords_list()})"
+
+    def save(self, *args, **kwargs): #１つの観光地(touristspot)には10個のキーワードしか登録できない
+        if TouristSpotKeyword.objects.filter(tourist_spot=self.tourist_spot).count() >= 10:
+            raise ValidationError("1つの観光地に登録できるキーワードは10個までです")
+        super().save(*args, **kwargs)   

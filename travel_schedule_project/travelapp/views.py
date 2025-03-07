@@ -69,7 +69,7 @@ def check_username(request): #入力されたusernameが既に存在するかを
         return JsonResponse({'exists':exists})  # exists が True ならusernameが存在、エラー表示
 
 
-#@login_required
+@login_required
 def change_email(request):
     if request.method == 'POST':
         form = ChangeEmailForm(user=request.user, data=request.POST)
@@ -79,7 +79,7 @@ def change_email(request):
             request.user.save()
             # 成功メッセージを追加してリダイレクト
             messages.success(request, 'メールアドレスが更新されました。')
-            return redirect('email_change')  # プロフィールページなどの適切なリダイレクト先に変更してください
+            return redirect('travelapp:change_email')  # プロフィールページなどの適切なリダイレクト先に変更してください
     else:
         form = ChangeEmailForm(user=request.user)
     
@@ -87,7 +87,7 @@ def change_email(request):
 
 
 
-#@login_required
+@login_required
 def change_password(request):
     if request.method == 'POST':
         form = PasswordChangeForm(user=request.user, data=request.POST)
@@ -95,7 +95,7 @@ def change_password(request):
             form.save()
             update_session_auth_hash(request, form.user)  # パスワード変更後もログイン状態を保持
             messages.success(request, 'パスワードが更新されました。')
-            return redirect('password_change')  # 成功メッセージが同じページに表示されるようにします
+            return redirect('travelapp:change_password')  # 成功メッセージが同じページに表示されるようにします
     else:
         form = PasswordChangeForm(user=request.user)
     return render(request, 'account/change_password.html', {'form': form})

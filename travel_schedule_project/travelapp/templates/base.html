@@ -21,8 +21,17 @@
             <div class="collapse navbar-collapse">
                <ul class="navbar-nav ml-auto">
                   {% if request.user.is_authenticated %}
+                  <li class="nav-item">
+                     <a class="nav-link" href="{% url 'travelapp:home' %}">ホーム</a>
+                  </li>
                      <li class="nav-item">
                         <a class="nav-link" href="{% url 'travelapp:logout' %}">ログアウト</a>
+                     </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'travelapp:change_email' %}">メールアドレス変更</a>
+                     </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'travelapp:change_password' %}">パスワード変更</a>
                      </li>
                   {% else %}
                      <li class="nav-item">
