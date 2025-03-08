@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">送信</button>
+  </form>
+
+  <!-- select2 を適用 -->
+  <script>
+    $(document).ready(function() {
+      // select2 を適用したいセレクトボックスにクラスを付けます
+      $('.select2').select2();  // クラス名 .select2 を持つすべての <select> 要素に適用
+    });
+  </script>
+{% endblock %}

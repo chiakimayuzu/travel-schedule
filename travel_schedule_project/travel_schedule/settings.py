@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -120,7 +121,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
+# 静的ファイルがプロジェクト内のどこにあるか指定するオプション
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # プロジェクトの static フォルダ
+]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -141,3 +145,25 @@ SESSION_COOKIE_AGE = 86400  # 1日
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # ブラウザ終了時にセッション削除
 
 AUTH_USER_MODEL = "travelapp.User"
+
+LOGGING = {
+    "version": 1,  # ログ設定のバージョン（基本的に1のままでOK）
+    "disable_existing_loggers": False,  # 既存のログ設定を無効化しない
+
+    "handlers": {  # ログの出力方法（ハンドラー）を定義
+        "console": {  # "console" という名前のハンドラーを作成
+            "level": "DEBUG",  # DEBUG レベル以上のログを記録
+            "class": "logging.StreamHandler",  # ログを標準出力（ターミナル）に表示
+        },
+    },
+
+    "loggers": {  # どの種類のログを記録するかを設定
+        "django.db.backends": {  # データベース関連のログを記録
+            "handlers": ["console"],  # 上で定義した "console" ハンドラーを使用
+            "level": "DEBUG",  # DEBUG レベル以上のログを記録
+        },
+    },
+}
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

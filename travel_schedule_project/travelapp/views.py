@@ -12,6 +12,9 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import authenticate,login,logout
+from django.shortcuts import render, redirect
+from .forms import TouristSpotForm
+from .models import Keyword, TouristSpot, TouristSpotKeyword
 # Create your views here.
 
 
@@ -107,3 +110,23 @@ class PortfolioView(View):
 
 def homeview(request):
     return render(request, 'home.html')
+
+def regist_touristspot(request):
+    if request.method == "POST":
+        form = TouristSpotForm(request.POST)
+        if form.is_valid():
+            tourist_spot = form.save(commit=False)  # ★一旦保存を遅らせる
+            tourist_spot.save()
+
+            # ★キーワードの保存処理（新しいキーワードをDBに登録）
+            keywords_text = form.cleaned_data.get("keywords")
+            for keyword_text in keywords_text:
+                keyword, created = Keyword.objects.get_or_create(keyword=keyword_text)
+                TouristSpotKeyword.objects.create(tourist_spot=tourist_spot, keyword=keyword)
+
+            return redirect('success_page')
+
+    else:
+        form = TouristSpotForm()
+
+    return render(request, 'regist_touristspot.html', {'form': form})

@@ -7,6 +7,8 @@ from django.contrib.auth.forms import PasswordChangeForm as AuthPasswordChangeFo
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate
+from django import forms
+from .models import TouristSpot, TouristSpotKeyword, Keyword, PREFECTURES, CATEGORY_CHOICES, WORKINGDAY_CHOICES, PARKING_CHOICES
 
 class UserLoginForm(forms.Form):
     email = forms.EmailField(label='メールアドレス', widget=forms.TextInput(attrs={'placeholder': '例:xxx@example.com'}))
@@ -44,8 +46,6 @@ class RegistAccountForm(UserCreationForm):
         if commit:
             user.save()  # 明示的に保存
         return user
-
-
 
 
 class ChangeEmailForm(forms.Form):
@@ -101,3 +101,47 @@ class PasswordChangeForm(AuthPasswordChangeForm):
         if not self.user.check_password(old_password):
             raise ValidationError("現在のパスワードが一致しません。")
         return old_password
+    
+class TouristSpotForm(forms.ModelForm):
+    prefecture = forms.ChoiceField(
+        choices=PREFECTURES,
+        widget=forms.Select(attrs={'class': 'select2'})  # 検索機能付きセレクトボックス
+    )
+    #Djangoのフォームフィールド に HTMLのクラス属性 (class="select2") を追加するもの
+    #select2 は Django の標準機能ではなく、Select2 という JavaScript ライブラリのクラス名
+    category = forms.ChoiceField(
+        choices=CATEGORY_CHOICES,
+        widget=forms.Select(attrs={'class': 'select2'})  # 検索機能付きセレクトボックス
+    )
+    workingday = forms.MultipleChoiceField(
+        choices=WORKINGDAY_CHOICES,
+        widget=forms.CheckboxSelectMultiple,  # 複数チェック可能
+        required=False
+    )
+    parking = forms.ChoiceField(
+        choices=PARKING_CHOICES,
+        widget=forms.Select  # プルダウン
+    )
+    picture = forms.ImageField(required=False)
+    
+    keywords = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例: 海, 山, 温泉'}),  # ★自由入力可能なテキストボックスに変更
+        required=True,  # ★1つ以上のキーワードが必須
+        help_text="カンマ（,）区切りで複数のキーワードを入力できます"
+    )
+
+
+    class Meta:
+        model = TouristSpot
+        fields = ['spot_name', 'prefecture', 'address', 'tel', 'category', 'workingday', 'parking', 
+                  'opening_at', 'closing_at', 'picture', 'description', 'offical_url', 'latitude', 'longitude', 'keywords']
+
+
+    def clean_keywords(self):
+        keywords_text = self.cleaned_data.get('keywords')
+        keywords_list = [kw.strip() for kw in keywords_text.split(',') if kw.strip()]  # ★カンマ区切りでリスト化
+        if len(keywords_list) == 0:
+            raise forms.ValidationError("少なくとも1つのキーワードを入力してください")  # ★1つ以上のキーワードが必要
+        if len(keywords_list) > 10:
+            raise forms.ValidationError("1つの観光地に登録できるキーワードは10個までです")  # ★最大10個まで
+        return keywords_list  # ★cleaned_data にリストとして保存

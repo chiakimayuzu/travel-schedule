@@ -109,7 +109,7 @@ class TouristSpot(models.Model):
     parking = models.IntegerField(choices=PARKING_CHOICES)
     opening_at = models.TimeField(null=True, blank=True)
     closing_at = models.TimeField(null=True, blank=True)
-    picture_url = models.CharField(max_length=100)
+    picture = models.ImageField(upload_to='tourist_spot_images/', null=True, blank=True)  
     description = models.TextField()
     offical_url = models.CharField(max_length=100)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
@@ -135,7 +135,7 @@ class TouristSpotKeyword(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
+    class Meta: #一つの観光地に同じkeywordが登録されないよう設定
         unique_together = ('tourist_spot', 'keyword')
 
     def keywords_list(self):
