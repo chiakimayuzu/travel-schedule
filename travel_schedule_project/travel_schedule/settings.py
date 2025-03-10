@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -167,3 +168,18 @@ LOGGING = {
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# .envファイルを明示的に指定
+dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+load_dotenv()
+
+# 環境変数からAPIキーを取得
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
+
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+print("APIキー:", os.getenv("GOOGLE_MAPS_API_KEY"))  # 追加して確認

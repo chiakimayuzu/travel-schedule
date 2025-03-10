@@ -7,11 +7,37 @@
     <button type="submit">送信</button>
   </form>
 
-  <!-- select2 を適用 -->
-  <script>
+
+  <script> //select2 を適用
     $(document).ready(function() {
       // select2 を適用したいセレクトボックスにクラスを付けます
       $('.select2').select2();  // クラス名 .select2 を持つすべての <select> 要素に適用
     });
   </script>
+
+  <script> //spot_name＆addressのdupe用script
+    $(document).ready(function() {
+      function checkDuplicate() {
+        var spotName = $('#id_spot_name').val().trim();
+        var address = $('#id_address').val().trim();
+  
+        if (spotName !== "" || address !== "") {
+          $.ajax({
+            url: "{% url 'travelapp:check_dupe_tourist_spot' %}",
+            data: { spot_name: spotName, address: address },
+            dataType: "json",
+            success: function(response) {
+              $("#spot_name_error").toggle(response.spot_name_exists).text("この観光地名は既に登録されています");
+              $("#address_error").toggle(response.address_exists).text("この住所は既に登録されています");
+            }
+          });
+        }
+      }
+  
+      $("#id_spot_name, #id_address").on("input", function() {
+        checkDuplicate();
+      });
+    });
+  </script>
+
 {% endblock %}

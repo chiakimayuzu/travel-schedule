@@ -15,6 +15,11 @@ from django.contrib.auth import authenticate,login,logout
 from django.shortcuts import render, redirect
 from .forms import TouristSpotForm
 from .models import Keyword, TouristSpot, TouristSpotKeyword
+from django.shortcuts import render, redirect
+from .forms import TouristSpotForm
+from .models import Keyword, TouristSpotKeyword
+from geopy.geocoders import GoogleV3
+from django.conf import settings
 # Create your views here.
 
 
@@ -97,8 +102,8 @@ def change_password(request):
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)  # パスワード変更後もログイン状態を保持
-            messages.success(request, 'パスワードが更新されました。')
-            return redirect('travelapp:change_password')  # 成功メッセージが同じページに表示されるようにします
+            messages.success(request, 'パスワードが更新されました。') # 成功メッセージが同じページに表示されるようにします
+            return redirect('travelapp:change_password')  
     else:
         form = PasswordChangeForm(user=request.user)
     return render(request, 'account/change_password.html', {'form': form})
@@ -116,17 +121,51 @@ def regist_touristspot(request):
         form = TouristSpotForm(request.POST)
         if form.is_valid():
             tourist_spot = form.save(commit=False)  # ★一旦保存を遅らせる
-            tourist_spot.save()
+            
+            # 住所から緯度・経度を取得の処理
+            if tourist_spot.address:  # 住所が入力されている場合
+                geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_API_KEY)
+                location = geolocator.geocode(tourist_spot.address)  # 住所から緯度・経度を取得
+                if location:
+                    tourist_spot.latitude = location.latitude
+                    tourist_spot.longitude = location.longitude
+                else:
+                    # 住所が無効な場合にエラーメッセージを追加するなどの処理を行う
+                    form.add_error('address', '住所に対応する位置情報が見つかりませんでした。')
+            
+            # workingday をカンマ区切りの文字列に変換
+            workingdays = form.cleaned_data.get("workingday")
+            if workingdays:
+                tourist_spot.workingday = ",".join(map(str, workingdays))
 
+            tourist_spot.save()  # ★保存
+            messages.success(request, '観光地登録できました')
+            return redirect('travelapp:regist_touristspot.html')
+        
             # ★キーワードの保存処理（新しいキーワードをDBに登録）
             keywords_text = form.cleaned_data.get("keywords")
-            for keyword_text in keywords_text:
-                keyword, created = Keyword.objects.get_or_create(keyword=keyword_text)
-                TouristSpotKeyword.objects.create(tourist_spot=tourist_spot, keyword=keyword)
-
-            return redirect('success_page')
+            if keywords_text:
+                # もしカンマ区切りで複数キーワードを入力する場合はリストに分割
+                keywords_list = [kw.strip() for kw in keywords_text.split(',') if kw.strip()]
+                for keyword_text in keywords_text:
+                    keyword, created = Keyword.objects.get_or_create(keyword=keyword_text)
+                    TouristSpotKeyword.objects.create(tourist_spot=tourist_spot, keyword=keyword)
+            
+            tourist_spot.save()  # 保存する
+            messages.success(request, '観光地登録できました') # 成功メッセージが同じページに表示されるようにします
+            return redirect('travelapp:regist_touristspot.html')
 
     else:
         form = TouristSpotForm()
 
     return render(request, 'regist_touristspot.html', {'form': form})
+
+def check_dupe_tourist_spot(request):
+    spot_name = request.GET.get('spot_name', '').strip()
+    address = request.GET.get('address', '').strip()
+     #strip()があることで空白があってもスルーしてエラー発生させてくれる
+
+    return JsonResponse({
+        'spot_name_exists': TouristSpot.objects.filter(spot_name=spot_name).exists() if spot_name else False,
+        'address_exists': TouristSpot.objects.filter(address=address).exists() if address else False
+    })

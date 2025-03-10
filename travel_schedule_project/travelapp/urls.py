@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    RegistAccountView, homeview,LoginView,LogoutView,change_password,change_email,PortfolioView,regist_touristspot)
+    RegistAccountView, homeview,LoginView,LogoutView,change_password,change_email,PortfolioView,regist_touristspot,check_dupe_tourist_spot)
 
 
 
@@ -14,5 +14,5 @@ urlpatterns = [
     path('change_password/', change_password, name='change_password'),  # パスワード変更view
     path('portfolio/', PortfolioView.as_view(), name='portfolio'),
     path('regist_touristspot/', regist_touristspot, name='regist_touristspot'),
-    
+    path('check_dupe_tourist_spot/', check_dupe_tourist_spot, name='check_dupe_tourist_spot'),
     ]

@@ -2,6 +2,8 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser
+from geopy.geocoders import GoogleV3
+from django.conf import settings
 # Create your models here.
 
 class User(AbstractUser):
@@ -89,7 +91,8 @@ WORKINGDAY_CHOICES = [
     (5,'金曜'),
     (6,'土曜'),
     (7,'日曜'),
-    (8,'不定休'),
+    (8,'年中無休'),
+    (9,'不定休'),
 ]
 
 
@@ -105,7 +108,7 @@ class TouristSpot(models.Model):
     address = models.CharField(max_length=100)
     tel = models.CharField(max_length=50)
     category = models.IntegerField(choices=CATEGORY_CHOICES)
-    workingday = models.IntegerField(choices=WORKINGDAY_CHOICES,null=True, blank=True)
+    workingday = models.CharField(max_length=50, blank=True, null=True)
     parking = models.IntegerField(choices=PARKING_CHOICES)
     opening_at = models.TimeField(null=True, blank=True)
     closing_at = models.TimeField(null=True, blank=True)
@@ -116,7 +119,17 @@ class TouristSpot(models.Model):
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)  # 登録日
     updated_at = models.DateTimeField(auto_now=True)  # 更新日
+    
 
+    def save(self, *args, **kwargs):
+        if self.address:  # 住所が入力されている場合
+            geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_API_KEY)
+            location = geolocator.geocode(self.address)  # 住所から緯度・経度を取得
+            if location:
+                self.latitude = location.latitude
+                self.longitude = location.longitude
+        super().save(*args, **kwargs)  # 通常の保存処理を実行
+    
     def __str__(self):
         return self.spot_name
 

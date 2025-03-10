@@ -122,8 +122,16 @@ class TouristSpotForm(forms.ModelForm):
         choices=PARKING_CHOICES,
         widget=forms.Select  # プルダウン
     )
+    opening_at = forms.TimeField(
+        widget=forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+        required=False
+    )
+    closing_at = forms.TimeField(
+        widget=forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+        required=False)
+
     picture = forms.ImageField(required=False)
-    
+
     keywords = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例: 海, 山, 温泉'}),  # ★自由入力可能なテキストボックスに変更
         required=True,  # ★1つ以上のキーワードが必須
@@ -134,8 +142,14 @@ class TouristSpotForm(forms.ModelForm):
     class Meta:
         model = TouristSpot
         fields = ['spot_name', 'prefecture', 'address', 'tel', 'category', 'workingday', 'parking', 
-                  'opening_at', 'closing_at', 'picture', 'description', 'offical_url', 'latitude', 'longitude', 'keywords']
+                  'opening_at', 'closing_at', 'picture', 'description', 'offical_url', 'keywords']
 
+    
+    def clean_workingday(self):
+        workingdays = self.cleaned_data.get('workingday')
+        if workingdays:
+            return [int(day) for day in workingdays]  # 数値のリストに変換
+        return []
 
     def clean_keywords(self):
         keywords_text = self.cleaned_data.get('keywords')
@@ -145,3 +159,22 @@ class TouristSpotForm(forms.ModelForm):
         if len(keywords_list) > 10:
             raise forms.ValidationError("1つの観光地に登録できるキーワードは10個までです")  # ★最大10個まで
         return keywords_list  # ★cleaned_data にリストとして保存
+    
+
+    def clean(self): # フロントエンドでの非同期チェックが無効な場合も機能するために記載
+        cleaned_data = super().clean()
+        spot_name = cleaned_data.get("spot_name")
+        address = cleaned_data.get("address")
+
+        errors = {}
+
+        if spot_name and TouristSpot.objects.filter(spot_name=spot_name).exists():
+            errors["spot_name"] = "この観光地名は既に登録されています"
+        
+        if address and TouristSpot.objects.filter(address=address).exists():
+            errors["address"] = "この住所は既に登録されています"
+
+        if errors:
+            raise forms.ValidationError(errors)
+
+        return cleaned_data
