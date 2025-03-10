@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate
 from django import forms
-from .models import TouristSpot, TouristSpotKeyword, Keyword, PREFECTURES, CATEGORY_CHOICES, WORKINGDAY_CHOICES, PARKING_CHOICES
+from .models import TouristSpot, TouristSpotKeyword, Keyword, PREFECTURE_CHOICES, CATEGORY_CHOICES, WORKINGDAY_CHOICES, PARKING_CHOICES
 
 class UserLoginForm(forms.Form):
     email = forms.EmailField(label='メールアドレス', widget=forms.TextInput(attrs={'placeholder': '例:xxx@example.com'}))
@@ -104,7 +104,7 @@ class PasswordChangeForm(AuthPasswordChangeForm):
     
 class TouristSpotForm(forms.ModelForm):
     prefecture = forms.ChoiceField(
-        choices=PREFECTURES,
+        choices=PREFECTURE_CHOICES,
         widget=forms.Select(attrs={'class': 'select2'})  # 検索機能付きセレクトボックス
     )
     #Djangoのフォームフィールド に HTMLのクラス属性 (class="select2") を追加するもの

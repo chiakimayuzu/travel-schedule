@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic.edit import FormView
 from django.views.generic.edit import CreateView
@@ -121,7 +121,7 @@ def regist_touristspot(request):
         form = TouristSpotForm(request.POST)
         if form.is_valid():
             tourist_spot = form.save(commit=False)  # ★一旦保存を遅らせる
-            
+
             # 住所から緯度・経度を取得の処理
             if tourist_spot.address:  # 住所が入力されている場合
                 geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_API_KEY)
@@ -138,22 +138,34 @@ def regist_touristspot(request):
             if workingdays:
                 tourist_spot.workingday = ",".join(map(str, workingdays))
 
-            tourist_spot.save()  # ★保存
-            messages.success(request, '観光地登録できました')
-            return redirect('travelapp:regist_touristspot.html')
-        
-            # ★キーワードの保存処理（新しいキーワードをDBに登録）
+            # キーワードの保存処理
             keywords_text = form.cleaned_data.get("keywords")
-            if keywords_text:
-                # もしカンマ区切りで複数キーワードを入力する場合はリストに分割
+
+            if isinstance(keywords_text, list):  
+                keywords_list = [kw.strip() for kw in keywords_text if kw.strip()]
+            elif isinstance(keywords_text, str):  
                 keywords_list = [kw.strip() for kw in keywords_text.split(',') if kw.strip()]
-                for keyword_text in keywords_text:
-                    keyword, created = Keyword.objects.get_or_create(keyword=keyword_text)
-                    TouristSpotKeyword.objects.create(tourist_spot=tourist_spot, keyword=keyword)
-            
-            tourist_spot.save()  # 保存する
+            else:  
+                keywords_list = []
+
+            # キーワードを保存
+            for keyword_text in keywords_list:
+                keyword, created = Keyword.objects.get_or_create(keyword=keyword_text)
+
+                 # 新規作成の場合でも保存する
+                keyword.save()  # ここで毎回保存
+
+                # ★ tourist_spot が未保存なら先に保存
+                if not tourist_spot.pk:
+                    tourist_spot.save()
+
+                 # TouristSpotKeyword に関連付け
+                TouristSpotKeyword.objects.create(tourist_spot=tourist_spot, keyword=keyword)  # ここで関連付け
+
+            tourist_spot.save()  # 観光地情報を保存する
+
             messages.success(request, '観光地登録できました') # 成功メッセージが同じページに表示されるようにします
-            return redirect('travelapp:regist_touristspot.html')
+            return redirect(reverse('travelapp:regist_touristspot'))  # ビュー名でリダイレクト
 
     else:
         form = TouristSpotForm()
