@@ -1,9 +1,27 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+<!-- extra_tags='regist_touristspot' を使ったメッセージ のみ regist_touristspot.html で表示 --> 
+{% if messages %} 
+<ul class="messages">
+  {% for message in messages %}
+    {% if 'regist_touristspot' in message.tags %}
+      <li class="{{ message.tags }}">{{ message }}</li>
+    {% endif %}
+  {% endfor %}
+</ul>
+{% endif %}
+
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
+
+
+    <!-- エラーメッセージ表示用の要素を追加 -->
+    <span id="spot_name_error" style="display:none; color: red;"></span>
+    <span id="address_error" style="display:none; color: red;"></span>
+
     <button type="submit">送信</button>
   </form>
 
@@ -17,42 +35,44 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      function checkDuplicate() {
-        const spotName = document.getElementById('id_spot_name').value.trim();
-        const address = document.getElementById('id_address').value.trim();
-        
-        if (spotName || address) {
-          const url = `{% url 'travelapp:check_dupe_tourist_spot' %}?spot_name=${encodeURIComponent(spotName)}&address=${encodeURIComponent(address)}`;
-  
-          fetch(url)
-            .then(response => response.json())
-            .then(data => {
-              const spotNameError = document.getElementById('spot_name_error');
-              const addressError = document.getElementById('address_error');
-  
-              if (data.spot_name_exists) {
-                spotNameError.textContent = "この観光地名は既に登録されています";
-                spotNameError.style.display = 'block';
-              } else {
-                spotNameError.style.display = 'none';
-              }
-  
-              if (data.address_exists) {
-                addressError.textContent = "この住所は既に登録されています";
-                addressError.style.display = 'block';
-              } else {
-                addressError.style.display = 'none';
-              }
-            })
-            .catch(error => console.error('Error:', error));
+        function checkDuplicate() {
+          const spotName = document.getElementById('id_spot_name').value.trim();
+          const address = document.getElementById('id_address').value.trim();
+      
+          if (spotName || address) {
+            const url = `{% url 'travelapp:check_dupe_tourist_spot' %}?spot_name=${encodeURIComponent(spotName)}&address=${encodeURIComponent(address)}`;
+      
+            fetch(url)
+              .then(response => response.json())
+              .then(data => {
+                const spotNameError = document.getElementById('spot_name_error');
+                const addressError = document.getElementById('address_error');
+      
+                // titleだけが重複している場合
+                if (data.spot_name_exists) {
+                  spotNameError.textContent = "この観光地名は既に登録されています";
+                  spotNameError.style.display = 'block';
+                } else {
+                  spotNameError.style.display = 'none';
+                }
+      
+                // addressだけが重複している場合
+                if (data.address_exists) {
+                  addressError.textContent = "この住所は既に登録されています";
+                  addressError.style.display = 'block';
+                } else {
+                  addressError.style.display = 'none';
+                }
+              })
+              .catch(error => console.error('Error:', error));
+          }
         }
-      }
-  
-      document.getElementById('id_spot_name').addEventListener("input", checkDuplicate);
-      document.getElementById('id_address').addEventListener("input", checkDuplicate);
-    });
+      
+        document.getElementById('id_spot_name').addEventListener("input", checkDuplicate);
+        document.getElementById('id_address').addEventListener("input", checkDuplicate);
+      });
   </script>
-  
+
 </body>
 </html>
 

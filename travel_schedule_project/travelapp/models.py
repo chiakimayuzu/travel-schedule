@@ -114,7 +114,7 @@ class TouristSpot(models.Model):
     parking = models.IntegerField(choices=PARKING_CHOICES)
     opening_at = models.TimeField(null=True, blank=True)
     closing_at = models.TimeField(null=True, blank=True)
-    picture = models.ImageField(upload_to='tourist_spot_images/', null=True, blank=True)  
+    picture = models.ImageField(upload_to='tourist_spot_images/')  
     description = models.TextField()
     offical_url = models.CharField(max_length=100)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)

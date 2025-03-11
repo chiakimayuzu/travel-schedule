@@ -11,15 +11,7 @@
 
     <form id="register-form" method="POST">
         {% csrf_token %}
-
-    {% if messages %}
-        <ul style="color: red;">
-        {% for message in messages %}
-            <li>{{ message }}</li>  <!-- 各メッセージをリストで表示 -->
-        {% endfor %}
-        </ul>
-    {% endif %}
-
+    
 
         <div>
             名前(ユーザーID/変更不可):

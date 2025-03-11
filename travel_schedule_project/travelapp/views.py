@@ -86,7 +86,7 @@ def change_email(request):
             request.user.email = form.cleaned_data['new_email']
             request.user.save()
             # 成功メッセージを追加してリダイレクト
-            messages.success(request, 'メールアドレスが更新されました。')
+            messages.success(request, '観光地登録できました', extra_tags='change_email')
             return redirect('travelapp:change_email')  # プロフィールページなどの適切なリダイレクト先に変更してください
     else:
         form = ChangeEmailForm(user=request.user)
@@ -102,7 +102,7 @@ def change_password(request):
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)  # パスワード変更後もログイン状態を保持
-            messages.success(request, 'パスワードが更新されました。') # 成功メッセージが同じページに表示されるようにします
+            messages.success(request, '観光地登録できました', extra_tags='change_password') # 成功メッセージが同じページに表示されるようにします
             return redirect('travelapp:change_password')  
     else:
         form = PasswordChangeForm(user=request.user)
@@ -118,7 +118,7 @@ def homeview(request):
 
 def regist_touristspot(request):
     if request.method == "POST":
-        form = TouristSpotForm(request.POST)
+        form = TouristSpotForm(request.POST, request.FILES)
         if form.is_valid():
             tourist_spot = form.save(commit=False)  # ★一旦保存を遅らせる
 
@@ -163,8 +163,7 @@ def regist_touristspot(request):
                 TouristSpotKeyword.objects.create(tourist_spot=tourist_spot, keyword=keyword)  # ここで関連付け
 
             tourist_spot.save()  # 観光地情報を保存する
-
-            messages.success(request, '観光地登録できました') # 成功メッセージが同じページに表示されるようにします
+            messages.success(request, '観光地登録できました', extra_tags='regist_touristspot') # 成功メッセージが同じページに表示されるようにします
             return redirect(reverse('travelapp:regist_touristspot'))  # ビュー名でリダイレクト
 
     else:
@@ -175,9 +174,16 @@ def regist_touristspot(request):
 def check_dupe_tourist_spot(request):
     spot_name = request.GET.get('spot_name', '').strip()
     address = request.GET.get('address', '').strip()
-     #strip()があることで空白があってもスルーしてエラー発生させてくれる
+
+    # 条件に基づいてエラーを設定
+    spot_name_exists = False
+    address_exists = False
+    if spot_name:
+        spot_name_exists = TouristSpot.objects.filter(spot_name=spot_name).exists()
+    if address:
+        address_exists = TouristSpot.objects.filter(address=address).exists()
 
     return JsonResponse({
-        'spot_name_exists': TouristSpot.objects.filter(spot_name=spot_name).exists() if spot_name else False,
-        'address_exists': TouristSpot.objects.filter(address=address).exists() if address else False
+        'spot_name_exists': spot_name_exists,
+        'address_exists': address_exists
     })
