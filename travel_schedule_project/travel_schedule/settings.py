@@ -177,9 +177,3 @@ load_dotenv()
 # 環境変数からAPIキーを取得
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 
-
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-print("APIキー:", os.getenv("GOOGLE_MAPS_API_KEY"))  # 追加して確認

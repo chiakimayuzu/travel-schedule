@@ -161,20 +161,20 @@ class TouristSpotForm(forms.ModelForm):
         return keywords_list  # ★cleaned_data にリストとして保存
     
 
-    def clean(self): # フロントエンドでの非同期チェックが無効な場合も機能するために記載
-        cleaned_data = super().clean()
-        spot_name = cleaned_data.get("spot_name")
-        address = cleaned_data.get("address")
+    # def clean(self): # フロントエンドでの非同期チェックが無効な場合も機能するために記載
+    #     cleaned_data = super().clean()
+    #     spot_name = cleaned_data.get("spot_name")
+    #     address = cleaned_data.get("address")
 
-        errors = {}
+    #     errors = {}
 
-        if spot_name and TouristSpot.objects.filter(spot_name=spot_name).exists():
-            errors["spot_name"] = "この観光地名は既に登録されています"
+    #     if spot_name and TouristSpot.objects.filter(spot_name=spot_name).exists():
+    #         errors["spot_name"] = "この観光地名は既に登録されています"
         
-        if address and TouristSpot.objects.filter(address=address).exists():
-            errors["address"] = "この住所は既に登録されています"
+    #     if address and TouristSpot.objects.filter(address=address).exists():
+    #         errors["address"] = "この住所は既に登録されています"
 
-        if errors:
-            raise forms.ValidationError(errors)
+    #     if errors:
+    #         raise forms.ValidationError(errors)
 
-        return cleaned_data
+    #     return cleaned_data

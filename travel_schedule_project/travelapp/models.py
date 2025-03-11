@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser
+from django.forms import FloatField
 from geopy.geocoders import GoogleV3
 from django.conf import settings
 # Create your models here.
@@ -118,10 +119,12 @@ class TouristSpot(models.Model):
     description = models.TextField()
     offical_url = models.CharField(max_length=100)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True) 
     created_at = models.DateTimeField(auto_now_add=True)  # 登録日
     updated_at = models.DateTimeField(auto_now=True)  # 更新日
-    
+    review_score_average = models.FloatField(null=True, blank=True)
+    price_average = models.IntegerField(null=True, blank=True)
+    staytime_average = models.IntegerField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.address:  # 住所が入力されている場合

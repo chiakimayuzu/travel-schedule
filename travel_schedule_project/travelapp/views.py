@@ -1,6 +1,6 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.http import JsonResponse
-from django.shortcuts import redirect, render
+from django.http import Http404, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic.edit import FormView
@@ -116,6 +116,7 @@ class PortfolioView(View):
 def homeview(request):
     return render(request, 'home.html')
 
+@login_required
 def regist_touristspot(request):
     if request.method == "POST":
         form = TouristSpotForm(request.POST, request.FILES)
@@ -187,3 +188,28 @@ def check_dupe_tourist_spot(request):
         'spot_name_exists': spot_name_exists,
         'address_exists': address_exists
     })
+
+
+
+def detail_touristspot(request, pk):
+    # 観光地情報をID（pk）で取得
+    tourist_spot = get_object_or_404(TouristSpot, pk=pk)
+    
+    # 観光地情報をテンプレートに渡して表示
+    return render(request, 'detail_touristspot.html', {'tourist_spot': tourist_spot})
+
+
+@login_required
+def edit_touristspot(request, pk):
+    tourist_spot = get_object_or_404(TouristSpot, pk=pk)  # 編集するスポットを取得
+    
+    if request.method == 'POST':
+        form = TouristSpotForm(request.POST, request.FILES, instance=tourist_spot)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '観光地編集できました', extra_tags='detail_touristspot') # 成功メッセージが同じページに表示されるようにします
+            return redirect(reverse('travelapp:detail_touristspot', pk=tourist_spot.pk))
+    else:
+        form = TouristSpotForm(instance=tourist_spot)  # GETリクエストの場合、フォームを表示
+
+    return render(request, 'edit_touristspot.html', {'form': form, 'tourist_spot': tourist_spot})

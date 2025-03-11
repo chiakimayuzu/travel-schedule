@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<p><a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">詳細ページに戻る</a></p>
+
+  <h1>観光地を編集: {{ tourist_spot.spot_name }}</h1>
+
+  <!-- フォーム -->
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}  <!-- フォームフィールドを <p> タグで表示 -->
+    
+    <button type="submit">保存</button>
+  </form>
+
+{% endblock %}
