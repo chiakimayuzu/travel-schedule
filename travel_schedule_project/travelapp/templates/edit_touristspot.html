@@ -3,14 +3,85 @@
 {% block content %}
 <p><a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">詳細ページに戻る</a></p>
 
-  <h1>観光地を編集: {{ tourist_spot.spot_name }}</h1>
+<h1>観光地を編集: {{ tourist_spot.spot_name }}</h1>
 
-  <!-- フォーム -->
-  <form method="POST" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}  <!-- フォームフィールドを <p> タグで表示 -->
-    
-    <button type="submit">保存</button>
-  </form>
 
+    <div>
+        <label for="spot_name">スポット名:</label>
+        {{ form.spot_name }}
+    </div>
+
+    <div>
+        <label for="prefecture">都道府県:</label>
+        {{ form.prefecture }}
+    </div>
+
+    <div>
+        <label for="address">住所:</label>
+        {{ form.address }}
+    </div>
+
+    <div>
+        <label for="tel">電話番号:</label>
+        {{ form.tel }}
+    </div>
+
+    <div>
+        <label for="category">カテゴリー:</label>
+        {{ form.category }}
+    </div>
+
+    <!-- 現在のワーキングデイを表示し、チェックボックスで編集 -->
+    <div>
+        <label for="workingday">ワーキングデイ:</label>
+        {% for day, label in form.workingday.field.choices %}
+            <input type="checkbox" name="workingday" value="{{ day }}"
+                {% if day|stringformat:"i" in current_workingdays %}checked{% endif %}>
+            {{ label }}
+        {% endfor %}
+    </div>
+
+    <div>
+        <label for="parking">駐車場:</label>
+        {{ form.parking }}
+    </div>
+
+    <div>
+        <label for="opening_at">開店時間:</label>
+        {{ form.opening_at }}
+    </div>
+
+    <div>
+        <label for="closing_at">閉店時間:</label>
+        {{ form.closing_at }}
+    </div>
+
+    <div>
+        <label for="picture">画像:</label>
+        {{ form.picture }}
+        {% if tourist_spot.picture %}
+            <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}" width="100">
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="description">説明:</label>
+        {{ form.description }}
+    </div>
+
+    <div>
+        <label for="offical_url">公式URL:</label>
+        {{ form.offical_url }}
+    </div>
+
+    <!-- 現在のキーワードを表示して編集 -->
+    <div>
+        <label for="keywords">キーワード (カンマ区切りで編集):</label>
+        <input type="text" name="keywords" id="keywords" value="{% for keyword in current_keywords %}{{ keyword.keyword }}{% if not forloop.last %}, {% endif %}{% endfor %}" placeholder="キーワードをカンマ区切りで入力">
+    </div>
+
+    <button type="submit">保存</button>
+</form>
 {% endblock %}

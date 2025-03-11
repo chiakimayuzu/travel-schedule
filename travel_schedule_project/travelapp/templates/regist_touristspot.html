@@ -15,15 +15,117 @@
 
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
+    
+    <div>
+        <label for="{{ form.spot_name.id_for_label }}">観光地名：</label>
+        {{ form.spot_name }}
+        {% if form.spot_name.errors %}
+            <div class="error">{{ form.spot_name.errors }}</div>
+        {% endif %}
+    </div>
+    <p><span id="spot_name_error" style="display:none; color: red;"></span></p>
+    <div>
+        <label for="{{ form.prefecture.id_for_label }}">都道府県：</label>
+        {{ form.prefecture }}
+        {% if form.prefecture.errors %}
+            <div class="error">{{ form.prefecture.errors }}</div>
+        {% endif %}
+    </div>
 
+    <div>
+        <label for="{{ form.address.id_for_label }}">住所：</label>
+        {{ form.address }}
+        {% if form.address.errors %}
+            <div class="error">{{ form.address.errors }}</div>
+        {% endif %}
+    </div>
+    <p><span id="address_error" style="display:none; color: red;"></span></p>
+    <div>
+        <label for="{{ form.tel.id_for_label }}">電話番号：</label>
+        {{ form.tel }}
+        {% if form.tel.errors %}
+            <div class="error">{{ form.tel.errors }}</div>
+        {% endif %}
+    </div>
 
-    <!-- エラーメッセージ表示用の要素を追加 -->
-    <span id="spot_name_error" style="display:none; color: red;"></span>
-    <span id="address_error" style="display:none; color: red;"></span>
+    <div>
+        <label for="{{ form.category.id_for_label }}">カテゴリ：</label>
+        {{ form.category }}
+        {% if form.category.errors %}
+            <div class="error">{{ form.category.errors }}</div>
+        {% endif %}
+    </div>
 
-    <button type="submit">送信</button>
-  </form>
+    <div>
+        <label for="{{ form.workingday.id_for_label }}">営業日：</label>
+        {{ form.workingday }}
+        {% if form.workingday.errors %}
+            <div class="error">{{ form.workingday.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="{{ form.parking.id_for_label }}">駐車場：</label>
+        {{ form.parking }}
+        {% if form.parking.errors %}
+            <div class="error">{{ form.parking.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="{{ form.opening_at.id_for_label }}">営業開始時間：</label>
+        {{ form.opening_at }}
+        {% if form.opening_at.errors %}
+            <div class="error">{{ form.opening_at.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="{{ form.closing_at.id_for_label }}">営業終了時間：</label>
+        {{ form.closing_at }}
+        {% if form.closing_at.errors %}
+            <div class="error">{{ form.closing_at.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="{{ form.picture.id_for_label }}">画像：</label>
+        {{ form.picture }}
+        {% if form.picture.errors %}
+            <div class="error">{{ form.picture.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="{{ form.description.id_for_label }}">説明：</label>
+        {{ form.description }}
+        {% if form.description.errors %}
+            <div class="error">{{ form.description.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="{{ form.offical_url.id_for_label }}">公式URL:</label>
+        {{ form.offical_url }}
+        {% if form.offical_url.errors %}
+            <div class="error">{{ form.offical_url.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="{{ form.keywords.id_for_label }}">キーワード：</label>
+        {{ form.keywords }}
+        <small>{{ form.keywords.help_text }}</small>
+        {% if form.keywords.errors %}
+            <div class="error">{{ form.keywords.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div>
+        <button type="submit" class="btn btn-primary">登録</button>
+    </div>
+</form>
+
 
 
   <script> //select2 を適用

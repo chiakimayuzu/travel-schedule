@@ -201,15 +201,45 @@ def detail_touristspot(request, pk):
 
 @login_required
 def edit_touristspot(request, pk):
-    tourist_spot = get_object_or_404(TouristSpot, pk=pk)  # 編集するスポットを取得
+    tourist_spot = get_object_or_404(TouristSpot, pk=pk)
     
+    # 現在登録されているキーワードを取得
+    current_keywords = tourist_spot.touristspotkeyword_set.all()
+
+    # 現在登録されているワーキングデイをリスト化
+    current_workingdays = tourist_spot.workingday.split(",") if tourist_spot.workingday else []
+
     if request.method == 'POST':
         form = TouristSpotForm(request.POST, request.FILES, instance=tourist_spot)
-        if form.is_valid():
-            form.save()
-            messages.success(request, '観光地編集できました', extra_tags='detail_touristspot') # 成功メッセージが同じページに表示されるようにします
-            return redirect(reverse('travelapp:detail_touristspot', pk=tourist_spot.pk))
-    else:
-        form = TouristSpotForm(instance=tourist_spot)  # GETリクエストの場合、フォームを表示
 
-    return render(request, 'edit_touristspot.html', {'form': form, 'tourist_spot': tourist_spot})
+        if form.is_valid():
+            # 新しいキーワードの処理
+            new_keywords = request.POST.get('keywords').split(',')
+            new_keywords = [kw.strip() for kw in new_keywords if kw.strip()]
+            
+            # 現在のキーワードを削除
+            tourist_spot.touristspotkeyword_set.all().delete()
+
+            # 新しいキーワードを追加
+            for keyword in new_keywords:
+                keyword_obj, created = Keyword.objects.get_or_create(keyword=keyword)
+                TouristSpotKeyword.objects.create(tourist_spot=tourist_spot, keyword=keyword_obj)
+
+            # ワーキングデイの処理
+            workingdays = request.POST.getlist('workingday')
+            tourist_spot.workingday = ",".join(workingdays)
+
+            # フォームを保存
+            tourist_spot.save()
+            messages.success(request, '観光地編集できました', extra_tags='detail_touristspot')
+            return redirect(reverse('travelapp:detail_touristspot', kwargs={'pk': pk}))
+
+    else:
+        form = TouristSpotForm(instance=tourist_spot)
+
+    return render(request, 'edit_touristspot.html', {
+        'form': form,
+        'tourist_spot': tourist_spot,
+        'current_keywords': current_keywords,
+        'current_workingdays': current_workingdays,
+    })
