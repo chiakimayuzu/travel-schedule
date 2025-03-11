@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
+<p>
+    <a href="{% url 'travelapp:edit_touristspot' pk=tourist_spot.pk %}">
+        この観光地を編集
+    </a>
+</p>
 
-<p><a href="{% url 'travelapp:edit_touristspot' pk=tourist_spot.pk %}">この観光地を編集</a></p>
-
-
-{% if messages %} 
+{% if messages %}
 <ul class="messages">
   {% for message in messages %}
     {% if 'detail_touristspot' in message.tags %}
@@ -15,16 +17,42 @@
 </ul>
 {% endif %}
 
-  <h2>{{ tourist_spot.spot_name }}</h2>
-  <p>所在地: {{ tourist_spot.address }}</p>
-  <p>カテゴリ: {{ tourist_spot.get_category_display }}</p>
-  <p>電話番号: {{ tourist_spot.tel }}</p>
-  <p>駐車場: {{ tourist_spot.get_parking_display }}</p>
-  <p>営業日: {{ tourist_spot.workingday }}</p>
-  <p>営業時間: {{ tourist_spot.opening_at }} - {{ tourist_spot.closing_at }}</p>
-  <p>公式URL: <a href="{{ tourist_spot.offical_url }}" target="_blank">{{ tourist_spot.offical_url }}</a></p>
-  <p>評価平均: {{ tourist_spot.review_score_average }}</p>
-  <p>料金平均: {{ tourist_spot.price_average }}</p>
-  <p>滞在時間平均: {{ tourist_spot.staytime_average }} 分</p>
-  <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}">
+<h2>{{ tourist_spot.spot_name }}</h2>
+<p>所在地: {{ tourist_spot.address }}</p>
+<p>カテゴリ: {{ tourist_spot.get_category_display }}</p>
+<p>電話番号: {{ tourist_spot.tel }}</p>
+<p>駐車場: {{ tourist_spot.get_parking_display }}</p>
+
+<!-- 営業日をリスト表示 -->
+{% if working_days %}
+<p>営業日:</p>
+<ul>
+    {% for day in working_days %}
+        <li>{{ day }}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>営業日: 未設定</p>
+{% endif %}
+
+<p>営業時間: {{ tourist_spot.opening_at }} - {{ tourist_spot.closing_at }}</p>
+<p>公式URL: <a href="{{ tourist_spot.offical_url }}" target="_blank">{{ tourist_spot.offical_url }}</a></p>
+<p>評価平均: {{ tourist_spot.review_score_average }}</p>
+<p>料金平均: {{ tourist_spot.price_average }}</p>
+<p>滞在時間平均: {{ tourist_spot.staytime_average }} 分</p>
+<p>施設説明: {{ tourist_spot.description }} </p>
+<!-- キーワードをリスト表示 -->
+{% if keywords %}
+<p>キーワード:</p>
+<ul>
+    {% for keyword in keywords %}
+        <li>{{ keyword }}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>キーワードなし</p>
+{% endif %}
+
+<img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}">
+
 {% endblock %}

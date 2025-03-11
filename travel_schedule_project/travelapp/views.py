@@ -20,6 +20,7 @@ from .forms import TouristSpotForm
 from .models import Keyword, TouristSpotKeyword
 from geopy.geocoders import GoogleV3
 from django.conf import settings
+from .models import TouristSpot, TouristSpotKeyword, WORKINGDAY_CHOICES
 # Create your views here.
 
 
@@ -194,10 +195,24 @@ def check_dupe_tourist_spot(request):
 def detail_touristspot(request, pk):
     # 観光地情報をID（pk）で取得
     tourist_spot = get_object_or_404(TouristSpot, pk=pk)
-    
-    # 観光地情報をテンプレートに渡して表示
-    return render(request, 'detail_touristspot.html', {'tourist_spot': tourist_spot})
 
+    # workingday を曜日名に変換
+    day_mapping = dict(WORKINGDAY_CHOICES)  # TouristSpot.WORKINGDAY_CHOICES を参照
+    working_days = []
+    if tourist_spot.workingday:
+        working_days = [day_mapping.get(int(day), day) for day in tourist_spot.workingday.split(",")]
+
+    # TouristSpotKeyword から keyword を取得
+    keywords = TouristSpotKeyword.objects.filter(tourist_spot=tourist_spot).values_list('keyword__keyword', flat=True)
+
+    # テンプレートに渡すコンテキスト
+    context = {
+        'tourist_spot': tourist_spot,
+        'working_days': working_days,
+        'keywords': keywords,
+    }
+
+    return render(request, 'detail_touristspot.html', context)
 
 @login_required
 def edit_touristspot(request, pk):
@@ -232,7 +247,7 @@ def edit_touristspot(request, pk):
             # フォームを保存
             tourist_spot.save()
             messages.success(request, '観光地編集できました', extra_tags='detail_touristspot')
-            return redirect(reverse('travelapp:detail_touristspot', kwargs={'pk': pk}))
+            return redirect(reverse('travelapp:detail_touristspot', pk=tourist_spot.pk))
 
     else:
         form = TouristSpotForm(instance=tourist_spot)
