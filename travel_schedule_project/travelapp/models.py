@@ -193,8 +193,8 @@ class TouristSpotKeyword(models.Model):
 
 
 class UserReview(models.Model):
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    tourist_spot_id = models.ForeignKey(TouristSpot,on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    tourist_spot = models.ForeignKey(TouristSpot,on_delete=models.CASCADE)
     review_score = models.IntegerField()
     review_title = models.CharField(max_length=50)
     review_description = models.TextField()
@@ -204,4 +204,4 @@ class UserReview(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Review by {self.user_id} for {self.tourist_spot_id}: {self.review_title}"
+        return f"Review by {self.user} for {self.tourist_spot}: {self.review_title}"

@@ -261,23 +261,30 @@ def edit_touristspot(request, pk):
     })
 
 
-@login_required
-def create_review(request, pk):
-    tourist_spot = get_object_or_404(TouristSpot, pk=pk)
 
+@login_required
+def create_review(request, pk):  # 🔹 引数名を pk に変更
+    tourist_spot = get_object_or_404(TouristSpot, id=pk)
     if request.method == 'POST':
         form = UserReviewForm(request.POST)
         if form.is_valid():
-            review = form.save(commit=False)
-            review.user = request.user
-            review.tourist_spot = tourist_spot
-            review.save()
+            # commit=False で一旦保存を止める
+            user_review = form.save(commit=False)
+            user_review.user = request.user
+            user_review.tourist_spot = tourist_spot
+            user_review.save()  # 最終的に保存
+
             messages.success(request, 'レビュー投稿できました', extra_tags='detail_touristspot')
-            return redirect('travelapp:detail_touristspot', pk=tourist_spot.pk)
+            return redirect(reverse('travelapp:detail_touristspot', kwargs={'pk': tourist_spot.pk}))
+        else:
+            print(form.errors)  # フォームエラーを表示（デバッグ用）
     else:
         form = UserReviewForm()
-
-    return render(request, 'create_review.html', {'form': form, 'tourist_spot': tourist_spot})
+    context = {
+        'form': form,
+        'tourist_spot': tourist_spot
+    }
+    return render(request, 'create_review.html', context)  
 
 # 既存レビュー編集ビュー
 @login_required

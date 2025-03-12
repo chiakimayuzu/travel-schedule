@@ -179,28 +179,33 @@ class TouristSpotForm(forms.ModelForm):
     #     return cleaned_data
 
 
+from django import forms
+from .models import UserReview
+
 class UserReviewForm(forms.ModelForm):
     stay_time_hours = forms.ChoiceField(
-        choices=[(i, f"{i}時間") for i in range(0, 25)],  # 0～24時間
+        choices=[(i, str(i)) for i in range(0, 25)],  # 0～24時間
         label="滞在時間（時間）"
     )
     stay_time_minutes = forms.ChoiceField(
-        choices=[(i, f"{i}分") for i in range(0, 60, 10)],  # 0～50分まで10分刻み
+        choices=[(i, str(i)) for i in range(0, 60, 10)],  # 0～50分（10分刻み）
         label="滞在時間（分）"
     )
-        # 星評価を表示するためのカスタムウィジェット
-    review_score = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'rating'}))
     
+    review_score = forms.IntegerField(widget=forms.HiddenInput())
+
     class Meta:
         model = UserReview
         fields = [
-            'user_id', 'tourist_spot_id', 'review_score', 'review_title',
+            'review_score', 'review_title',
             'review_description', 'review_price', 'stay_time_hours', 'stay_time_minutes'
         ]
 
-    def clean(self):
-        cleaned_data = super().clean()
-        hours = int(cleaned_data.get('stay_time_hours', 0))
-        minutes = int(cleaned_data.get('stay_time_minutes', 0))
-        cleaned_data['stay_time_min'] = hours * 60 + minutes
-        return cleaned_data
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        hours = int(self.cleaned_data.get('stay_time_hours', 0))
+        minutes = int(self.cleaned_data.get('stay_time_minutes', 0))
+        instance.stay_time_min = hours * 60 + minutes
+        if commit:
+            instance.save()
+        return instance

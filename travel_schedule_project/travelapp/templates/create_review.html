@@ -2,16 +2,24 @@
 
 {% block content %}
   <h1>新規レビューの作成</h1>
+
+  <!-- 🔹 観光地名と画像を表示 -->
+  <div class="spot-info">
+    <h2>{{ tourist_spot.spot_name }}</h2>
+      <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}"> 
+  </div>
+
+  <a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">戻る</a>
   <form method="post">
     {% csrf_token %}
+
+
     <div>
       <label for="{{ form.review_score.id_for_label }}">評価スコア*:</label>
-      <div class="rating-stars">
-        <span class="star" data-value="1">&#9733;</span>
-        <span class="star" data-value="2">&#9733;</span>
-        <span class="star" data-value="3">&#9733;</span>
-        <span class="star" data-value="4">&#9733;</span>
-        <span class="star" data-value="5">&#9733;</span>
+      <div class="rating-stars" id="rating-stars">
+        {% for i in "12345" %}
+          <span class="star" data-value="{{ i }}">&#9733;</span>
+        {% endfor %}
       </div>
       <input type="hidden" name="review_score" value="{{ form.review_score.value|default:1 }}">
       {% if form.review_score.errors %}
@@ -60,63 +68,72 @@
     </div>
 
     <div>
-      <label for="{{ form.hours.id_for_label }}">滞在時間（時間）*:</label>
-      {{ form.hours }}
-      {% if form.hours.errors %}
+      <label>滞在時間*:</label>
+      {{ form.stay_time_hours }} 時 {{ form.stay_time_minutes }} 分
+      {% if form.stay_time_hours.errors or form.stay_time_minutes.errors %}
         <div class="error">
-          {% for error in form.hours.errors %}
+          {% for error in form.stay_time_hours.errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+          {% for error in form.stay_time_minutes.errors %}
             <p>{{ error }}</p>
           {% endfor %}
         </div>
       {% endif %}
     </div>
 
-    <div>
-      <label for="{{ form.minutes.id_for_label }}">滞在時間（分）*:</label>
-      {{ form.minutes }}
-      {% if form.minutes.errors %}
-        <div class="error">
-          {% for error in form.minutes.errors %}
-            <p>{{ error }}</p>
-          {% endfor %}
-        </div>
-      {% endif %}
-    </div>
-
-    <button type="submit">レビューを作成</button>
+    <button type="submit">{% if form.instance.pk %}更新{% else %}作成{% endif %}</button>
   </form>
-  {% comment %} <a href="{% url 'travelapp:detail_tourist_spot' pk=tourist_spot.pk %}">戻る</a> {% endcomment %}
-{% endblock %}
 
+  <!-- ⭐ JS for star rating -->
   <script>
-    const stars = document.querySelectorAll('.star');
-    const reviewScoreInput = document.querySelector('input[name="review_score"]');
+    document.addEventListener('DOMContentLoaded', () => {
+      const stars = document.querySelectorAll('.star');
+      const ratingInput = document.querySelector('input[name="review_score"]');
 
-    stars.forEach(star => {
-      star.addEventListener('click', function() {
-        const rating = this.getAttribute('data-value');
-        reviewScoreInput.value = rating;
+      function setRating(rating) {
+        stars.forEach((star, index) => {
+          if (index < rating) {
+            star.classList.add('selected');
+          } else {
+            star.classList.remove('selected');
+          }
+        });
+        ratingInput.value = rating;
+      }
 
-        // スターの表示を更新
-        stars.forEach(s => s.classList.remove('selected'));
-        for (let i = 0; i < rating; i++) {
-          stars[i].classList.add('selected');
-        }
+      stars.forEach((star, index) => {
+        star.addEventListener('click', () => setRating(index + 1));
+        star.addEventListener('mouseover', () => setRating(index + 1));
+        star.addEventListener('mouseleave', () => setRating(ratingInput.value || 1));
       });
+
+      setRating(ratingInput.value || 1);
     });
   </script>
 
+  <!-- ⭐ CSS for styling -->
+  <style>
+    .rating-stars {
+      display: flex;
+      gap: 4px;
+    }
 
-.rating-stars {
-    display: inline-block;
-  }
-  
-  .star {
-    font-size: 2rem;
-    cursor: pointer;
-    color: #ddd; /* 未選択時の色 */
-  }
-  
-  .star.selected {
-    color: yellow; /* 選択時の色 */
-  }
+    .star {
+      font-size: 30px;
+      color: #ccc;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .star.selected {
+      color: gold;
+    }
+
+    .star:hover {
+      color: gold;
+    }
+
+    
+  </style>
+{% endblock %}
