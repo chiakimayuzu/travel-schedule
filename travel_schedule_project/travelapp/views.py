@@ -4,9 +4,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic.edit import FormView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView,UpdateView
 from django.contrib.auth.models import User
-from .forms import ChangeEmailForm, PasswordChangeForm, RegistAccountForm, UserLoginForm
+from .forms import ChangeEmailForm, PasswordChangeForm, RegistAccountForm, UserLoginForm, UserReviewForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages  
 from django.contrib.auth import authenticate, login, logout as auth_logout, update_session_auth_hash
@@ -14,13 +14,14 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth import authenticate,login,logout
 from django.shortcuts import render, redirect
 from .forms import TouristSpotForm
-from .models import Keyword, TouristSpot, TouristSpotKeyword
+from .models import Keyword, TouristSpot, TouristSpotKeyword, UserReview
 from django.shortcuts import render, redirect
-from .forms import TouristSpotForm
+from .forms import TouristSpotForm, UserReviewForm
 from .models import Keyword, TouristSpotKeyword
 from geopy.geocoders import GoogleV3
 from django.conf import settings
-from .models import TouristSpot, TouristSpotKeyword, WORKINGDAY_CHOICES
+from .models import TouristSpot, TouristSpotKeyword, WORKINGDAY_CHOICES, UserReview
+from django.views import View
 # Create your views here.
 
 
@@ -258,3 +259,47 @@ def edit_touristspot(request, pk):
         'current_keywords': current_keywords,
         'current_workingdays': current_workingdays,
     })
+
+
+@login_required
+class UserReviewCreateView(View):
+    def get(self, request, pk):
+        tourist_spot = get_object_or_404(TouristSpot, pk=pk)
+        form = UserReviewForm()  # 新規作成用フォーム
+        return render(request, 'create_review.html', {'form': form, 'tourist_spot': tourist_spot})
+
+    def post(self, request, pk):
+        tourist_spot = get_object_or_404(TouristSpot, pk=pk)
+        form = UserReviewForm(request.POST)  # 新規作成用フォーム
+
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user = request.user  # 現在のユーザーを設定
+            review.tourist_spot = tourist_spot  # 観光スポットを設定
+            review.save()  # 保存
+            
+            messages.success(request, 'レビュー投稿できました', extra_tags='detail_touristspot')
+            return redirect('travelapp:detail_touristspot', pk=tourist_spot.pk)
+
+        return render(request, 'create_review.html', {'form': form, 'tourist_spot': tourist_spot})
+
+# 既存レビュー編集ビュー
+@login_required
+class UserReviewEditView(View):
+    def get(self, request, pk):
+        review = get_object_or_404(UserReview, pk=pk, user=request.user)
+        form = UserReviewForm(instance=review)  # 既存レビューを編集するフォーム
+        return render(request, 'edit_review.html', {'form': form, 'review': review})
+
+    def post(self, request, pk):
+        review = get_object_or_404(UserReview, pk=pk, user=request.user)
+        form = UserReviewForm(request.POST, instance=review)  # 既存レビューを編集するフォーム
+
+        if form.is_valid():
+            form.save()  # 編集内容を保存
+
+            return redirect('travelapp:detail_touristspot', pk=review.tourist_spot.pk)
+
+        return render(request, 'edit_review.html', {'form': form, 'review': review})
+    
+

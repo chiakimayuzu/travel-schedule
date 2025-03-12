@@ -1,9 +1,9 @@
 from django.urls import path
 from .views import (
-    RegistAccountView, homeview,LoginView,LogoutView,change_password,change_email,
+    RegistAccountView, UserReviewCreateView, UserReviewEditView, homeview,LoginView,LogoutView,change_password,change_email,
     PortfolioView,regist_touristspot,check_dupe_tourist_spot,
     detail_touristspot,edit_touristspot
-    )
+    )   
 
 
 
@@ -20,4 +20,6 @@ urlpatterns = [
     path('check_dupe_tourist_spot/', check_dupe_tourist_spot, name='check_dupe_tourist_spot'),
     path('detail_touristspot/<int:pk>/', detail_touristspot, name='detail_touristspot'),
     path('edit_touristspot/<int:pk>/', edit_touristspot, name='edit_touristspot'),
+    path('create_review/<int:pk>/', UserReviewCreateView.as_view(), name='create_review'),
+    path('edit_review/<int:pk>/', UserReviewEditView.as_view(), name='edit_review'),    
     ]

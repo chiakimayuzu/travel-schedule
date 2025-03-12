@@ -105,6 +105,29 @@ PARKING_CHOICES = [
     (3, '不明'),
     (4, '注意(公式HP参照)'),]
 
+REVIEW_PRICE_CHOICES = [
+    (1, '0～1,000円'),
+    (2, '1,000～2,000円'),
+    (3, '2,000～3,000円'),
+    (4, '3,000～4,000円'),
+    (5, '4,000～5,000円'),
+    (6, '5,000～6,000円'),
+    (7, '6,000～7,000円'),
+    (8, '7,000～8,000円'),
+    (9, '8,000～9,000円'),
+    (10, '9,000～10,000円'),
+    (11, '10,000～20,000円'),
+    (12, '20,000～30,000円'),
+    (13, '30,000～40,000円'),
+    (14, '40,000～50,000円'),
+    (15, '50,000～60,000円'),
+    (16, '60,000～70,000円'),
+    (17, '70,000～80,000円'),
+    (18, '80,000～90,000円'),
+    (19, '90,000～100,000円'),
+    (20, '100,000円以上'),
+]
+
 class TouristSpot(models.Model):
     spot_name = models.CharField(max_length=50)
     prefecture = models.IntegerField(choices=PREFECTURE_CHOICES)
@@ -147,6 +170,7 @@ class Keyword(models.Model):
     def __str__(self):
         return self.keyword
 
+
 class TouristSpotKeyword(models.Model):
     tourist_spot = models.ForeignKey(TouristSpot, on_delete=models.CASCADE)
     keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE)
@@ -166,3 +190,18 @@ class TouristSpotKeyword(models.Model):
         if TouristSpotKeyword.objects.filter(tourist_spot=self.tourist_spot).count() >= 10:
             raise ValidationError("1つの観光地に登録できるキーワードは10個までです")
         super().save(*args, **kwargs)   
+
+
+class UserReview(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    tourist_spot_id = models.ForeignKey(TouristSpot,on_delete=models.CASCADE)
+    review_score = models.IntegerField()
+    review_title = models.CharField(max_length=50)
+    review_description = models.TextField()
+    review_price = models.IntegerField(choices=REVIEW_PRICE_CHOICES) #1人当たりの費用
+    stay_time_min = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Review by {self.user_id} for {self.tourist_spot_id}: {self.review_title}"

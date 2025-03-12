@@ -6,6 +6,11 @@
         この観光地を編集
     </a>
 </p>
+<p>
+    <a href="{% url 'travelapp:create_review' pk=tourist_spot.pk %}">
+        この観光地のレビューをかく
+    </a>
+</p>
 
 {% if messages %}
 <ul class="messages">
@@ -18,7 +23,7 @@
 {% endif %}
 
 <h2>{{ tourist_spot.spot_name }}</h2>
-<p>所在地: {{ tourist_spot.address }}</p>
+<p>住所: {{ tourist_spot.address }}</p>
 <p>カテゴリ: {{ tourist_spot.get_category_display }}</p>
 <p>電話番号: {{ tourist_spot.tel }}</p>
 <p>駐車場: {{ tourist_spot.get_parking_display }}</p>

@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate
 from django import forms
-from .models import TouristSpot, TouristSpotKeyword, Keyword, PREFECTURE_CHOICES, CATEGORY_CHOICES, WORKINGDAY_CHOICES, PARKING_CHOICES
+from .models import TouristSpot, TouristSpotKeyword, Keyword, PREFECTURE_CHOICES, CATEGORY_CHOICES, WORKINGDAY_CHOICES, PARKING_CHOICES, UserReview
 
 class UserLoginForm(forms.Form):
     email = forms.EmailField(label='メールアドレス', widget=forms.TextInput(attrs={'placeholder': '例:xxx@example.com'}))
@@ -135,7 +135,7 @@ class TouristSpotForm(forms.ModelForm):
     keywords = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例: 海, 山, 温泉'}),  # ★自由入力可能なテキストボックスに変更
         required=True,  # ★1つ以上のキーワードが必須
-        help_text="カンマ（,）区切りで複数のキーワードを入力できます"
+        help_text="カンマ（,）区切りで複数のキーワードを入力できます / 1つの観光地に登録できるキーワードは10個までです"
     )
 
 
@@ -176,5 +176,31 @@ class TouristSpotForm(forms.ModelForm):
 
     #     if errors:
     #         raise forms.ValidationError(errors)
-
     #     return cleaned_data
+
+
+class UserReviewForm(forms.ModelForm):
+    stay_time_hours = forms.ChoiceField(
+        choices=[(i, f"{i}時間") for i in range(0, 25)],  # 0～24時間
+        label="滞在時間（時間）"
+    )
+    stay_time_minutes = forms.ChoiceField(
+        choices=[(i, f"{i}分") for i in range(0, 60, 10)],  # 0～50分まで10分刻み
+        label="滞在時間（分）"
+    )
+        # 星評価を表示するためのカスタムウィジェット
+    review_score = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'rating'}))
+    
+    class Meta:
+        model = UserReview
+        fields = [
+            'user_id', 'tourist_spot_id', 'review_score', 'review_title',
+            'review_description', 'review_price', 'stay_time_hours', 'stay_time_minutes'
+        ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        hours = int(cleaned_data.get('stay_time_hours', 0))
+        minutes = int(cleaned_data.get('stay_time_minutes', 0))
+        cleaned_data['stay_time_min'] = hours * 60 + minutes
+        return cleaned_data
