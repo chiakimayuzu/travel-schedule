@@ -297,7 +297,8 @@ class UserReviewEditView(View):
 
         if form.is_valid():
             form.save()  # 編集内容を保存
-
+            #extra_tags='detail_touristspot'はクチコミリストのhtmlのところへ
+            # messages.success(request, 'レビュー投稿編集できました', extra_tags='detail_touristspot')
             return redirect('travelapp:detail_touristspot', pk=review.tourist_spot.pk)
 
         return render(request, 'edit_review.html', {'form': form, 'review': review})
