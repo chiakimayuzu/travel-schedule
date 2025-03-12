@@ -85,7 +85,7 @@
 
     <button type="submit">レビューを作成</button>
   </form>
-  <a href="{% url 'travelapp:detail_tourist_spot' pk=tourist_spot.pk %}">戻る</a>
+  {% comment %} <a href="{% url 'travelapp:detail_tourist_spot' pk=tourist_spot.pk %}">戻る</a> {% endcomment %}
 {% endblock %}
 
   <script>
@@ -105,7 +105,7 @@
       });
     });
   </script>
-{% endblock %}
+
 
 .rating-stars {
     display: inline-block;

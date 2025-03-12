@@ -262,45 +262,36 @@ def edit_touristspot(request, pk):
 
 
 @login_required
-class UserReviewCreateView(View):
-    def get(self, request, pk):
-        tourist_spot = get_object_or_404(TouristSpot, pk=pk)
-        form = UserReviewForm()  # 新規作成用フォーム
-        return render(request, 'create_review.html', {'form': form, 'tourist_spot': tourist_spot})
+def create_review(request, pk):
+    tourist_spot = get_object_or_404(TouristSpot, pk=pk)
 
-    def post(self, request, pk):
-        tourist_spot = get_object_or_404(TouristSpot, pk=pk)
-        form = UserReviewForm(request.POST)  # 新規作成用フォーム
-
+    if request.method == 'POST':
+        form = UserReviewForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
-            review.user = request.user  # 現在のユーザーを設定
-            review.tourist_spot = tourist_spot  # 観光スポットを設定
-            review.save()  # 保存
-            
+            review.user = request.user
+            review.tourist_spot = tourist_spot
+            review.save()
             messages.success(request, 'レビュー投稿できました', extra_tags='detail_touristspot')
             return redirect('travelapp:detail_touristspot', pk=tourist_spot.pk)
+    else:
+        form = UserReviewForm()
 
-        return render(request, 'create_review.html', {'form': form, 'tourist_spot': tourist_spot})
+    return render(request, 'create_review.html', {'form': form, 'tourist_spot': tourist_spot})
 
 # 既存レビュー編集ビュー
 @login_required
-class UserReviewEditView(View):
-    def get(self, request, pk):
-        review = get_object_or_404(UserReview, pk=pk, user=request.user)
-        form = UserReviewForm(instance=review)  # 既存レビューを編集するフォーム
-        return render(request, 'edit_review.html', {'form': form, 'review': review})
+def edit_review(request, pk):
+    review = get_object_or_404(UserReview, pk=pk, user=request.user)
 
-    def post(self, request, pk):
-        review = get_object_or_404(UserReview, pk=pk, user=request.user)
-        form = UserReviewForm(request.POST, instance=review)  # 既存レビューを編集するフォーム
-
+    if request.method == 'POST':
+        form = UserReviewForm(request.POST, instance=review)
         if form.is_valid():
-            form.save()  # 編集内容を保存
-            #extra_tags='detail_touristspot'はクチコミリストのhtmlのところへ
-            # messages.success(request, 'レビュー投稿編集できました', extra_tags='detail_touristspot')
+            form.save()
+            messages.success(request, 'レビュー投稿編集できました', extra_tags='detail_touristspot')
             return redirect('travelapp:detail_touristspot', pk=review.tourist_spot.pk)
+    else:
+        form = UserReviewForm(instance=review)
 
-        return render(request, 'edit_review.html', {'form': form, 'review': review})
-    
+    return render(request, 'edit_review.html', {'form': form, 'review': review})
 
