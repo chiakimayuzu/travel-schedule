@@ -207,7 +207,7 @@ class UserReview(models.Model):
         return f"Review by {self.user} for {self.tourist_spot}: {self.review_title}"
 
 class WantedSpot(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name="wanted_spots")
     tourist_spot = models.ForeignKey(TouristSpot,on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

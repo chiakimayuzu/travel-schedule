@@ -209,13 +209,14 @@ def detail_touristspot(request, pk):
     # その観光地に関連するクチコミを作成日時順に並べ替えて最新の3件を取得
     reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')[:3]
 
-
+    is_wanted = WantedSpot.objects.filter(user=request.user, tourist_spot=tourist_spot).exists()
     # テンプレートに渡すコンテキスト
     context = {
         'tourist_spot': tourist_spot,
         'working_days': working_days,
         'keywords': keywords,
         'reviews': reviews,
+        'is_wanted': is_wanted,
     }
 
     return render(request, 'detail_touristspot.html', context)
@@ -357,7 +358,7 @@ def review_list(request, pk):
 
     return render(request, 'reviews/review_list.html', context)
 
-@login_required
+
 @login_required
 def wanted_spot(request, tourist_spot_id):
     tourist_spot = TouristSpot.objects.get(id=tourist_spot_id)

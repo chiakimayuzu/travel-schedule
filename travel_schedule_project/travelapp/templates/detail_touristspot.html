@@ -81,7 +81,7 @@
 
 
 
-{% if not tourist_spot in request.user.wanted_spot.all %}
+{% if not is_wanted %}
   <form method="post" action="{% url 'travelapp:wanted_spot' tourist_spot.id %}">
     {% csrf_token %}
     <button type="submit" class="heart-button">❤ 行きたい</button>
