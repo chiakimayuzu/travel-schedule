@@ -7,12 +7,13 @@
   <ul class="review-list">
     {% for review in reviews %}
       <li class="review-item">
-        <a href="{% url 'travelapp:my_review_detail' review_id=review.id %}">
+        <!-- 画像クリックで観光施設の詳細ページに遷移 -->
+        <a href="{% url 'travelapp:detail_touristspot' pk=review.tourist_spot.id %}">
           {% if review.tourist_spot.picture %}
             <img src="{{ review.tourist_spot.picture.url }}" alt="{{ review.tourist_spot.spot_name }}" class="review-image">
           {% else %}
             <img src="/static/images/no-image.png" alt="No Image" class="review-image">
-          {% endif %} 
+          {% endif %}
         </a>
 
         <p>{{ review.tourist_spot.spot_name }}</p>

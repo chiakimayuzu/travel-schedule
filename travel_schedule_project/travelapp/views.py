@@ -325,7 +325,7 @@ def my_review_detail(request, review_id):
 
     if request.method == 'POST' and 'delete' in request.POST:
         review.delete()
-        return redirect(reverse('travelapp:review_list'))
+        return redirect(reverse('travelapp:my_review_list'))
 
     context = {
         'review': review
