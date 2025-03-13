@@ -19,6 +19,10 @@
           <p>{{ review.review_title }}</p>
           <p>更新日: {{ review.updated_at|date:"Y年m月d日 H:i" }}</p>
           <a href="{% url 'travelapp:edit_my_review' pk=review.id %}">編集</a>
+          <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" name="delete" value="{{ item.id }}">削除</button>
+          </form>
         </div>
       </li>
     {% endfor %}
@@ -26,6 +30,8 @@
 {% else %}
   <p>まだクチコミがありません。</p>
 {% endif %}
+
+
 
 {% endblock %}
 

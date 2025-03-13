@@ -296,6 +296,14 @@ def create_review(request, pk):  # 🔹 引数名を pk に変更
 def my_review_list(request):       
     reviews = UserReview.objects.filter(user=request.user).order_by('-created_at')  
                             #ログインユーザーのクチコミを取得・↑新い順に並べる/編集も可能なのでupdate_atにて
+
+    # レビュー削除処理
+    if request.method == "POST" and 'delete' in request.POST:
+        review_id = request.POST['delete']
+        review = get_object_or_404(UserReview, id=review_id, user=request.user)
+        review.delete()
+        return redirect(reverse('travelapp:my_review_list'))  # 削除後にリストページにリダイレクト
+
     for review in reviews:
         review.stay_time_hours = review.stay_time_min // 60
         review.stay_time_minutes = review.stay_time_min % 60
