@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     RegistAccountView, create_review, edit_my_review, homeview,LoginView,LogoutView,change_password,change_email,
     PortfolioView, my_review_detail, my_review_list,regist_touristspot,check_dupe_tourist_spot,
-    detail_touristspot,edit_touristspot, review_list, 
+    detail_touristspot,edit_touristspot, review_list, wanted_spot, wanted_spot_list, 
     )   
 
 
@@ -25,4 +25,6 @@ urlpatterns = [
     path('my_reviews_list/', my_review_list, name='my_review_list'),    
     path('my_reviews_detail/<int:review_id>', my_review_detail, name='my_review_detail'),    
     path('review_list/<int:pk>/', review_list, name='review_list'),
+    path('wanted_spot/<int:tourist_spot_id>/', wanted_spot, name='wanted_spot'),  # 行きたいリストに追加
+    path('wanted_spot_list/', wanted_spot_list, name='wanted_spot_list'),  # 行きたいリスト
     ]

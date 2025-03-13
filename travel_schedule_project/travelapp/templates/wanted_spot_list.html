@@ -1,0 +1,22 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>行きたいリスト</h1>
+  <ul>
+    {% for item in wanted_spots %}
+      <li>
+        <!-- 画像をクリックすると観光地の詳細ページに遷移 -->
+        <a href="{% url 'travelapp:detail_tourist_spot' pk=item.tourist_spot.id %}">
+          <img src="{{ item.tourist_spot.picture.url }}" alt="{{ item.tourist_spot.name }}" style="width: 100px; height: auto;">
+        </a>
+        <a href="{% url 'travelapp:detail_tourist_spot' pk=item.tourist_spot.id %}">{{ item.tourist_spot.name }}</a>
+        <form method="post" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" name="delete" value="{{ item.id }}">削除</button>
+        </form>
+      </li>
+    {% empty %}
+      <li>行きたいリストにまだアイテムがありません。</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views import View
@@ -14,7 +14,7 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth import authenticate,login,logout
 from django.shortcuts import render, redirect
 from .forms import TouristSpotForm
-from .models import Keyword, TouristSpot, TouristSpotKeyword, UserReview
+from .models import Keyword, TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
 from django.shortcuts import render, redirect
 from .forms import TouristSpotForm, UserReviewForm
 from .models import Keyword, TouristSpotKeyword
@@ -356,3 +356,33 @@ def review_list(request, pk):
     }
 
     return render(request, 'reviews/review_list.html', context)
+
+@login_required
+@login_required
+def wanted_spot(request, tourist_spot_id):
+    tourist_spot = TouristSpot.objects.get(id=tourist_spot_id)
+
+    if WantedSpot.objects.filter(user=request.user, tourist_spot=tourist_spot).exists():
+        return HttpResponse("すでに行きたいリストに追加されています。")
+
+    # 行きたいリストに追加
+    WantedSpot.objects.create(user=request.user, tourist_spot=tourist_spot)
+
+    # 詳細ページにリダイレクト
+    return redirect('travelapp:detail_touristspot', pk=tourist_spot.id)
+
+
+@login_required
+def wanted_spot_list(request):
+    # ログインしているユーザーの行きたいリストを取得
+    wanted_spots = WantedSpot.objects.filter(user=request.user)
+
+    if request.method == 'POST' and 'delete' in request.POST:
+        # 削除処理
+        wanted_spot_id = request.POST.get('delete')
+        wanted_spot = WantedSpot.objects.get(id=wanted_spot_id)
+        wanted_spot.delete()
+
+        return redirect('travelapp:wanted_spot_list')
+
+    return render(request, 'travelapp/wanted_spot_list.html', {'wanted_spots': wanted_spots})

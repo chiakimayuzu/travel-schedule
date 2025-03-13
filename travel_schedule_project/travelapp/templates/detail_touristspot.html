@@ -77,7 +77,19 @@
     </ul>
 {% else %}
     <p>まだクチコミはありません。</p>
-
-    
 {% endif %}
+
+
+
+{% if not tourist_spot in request.user.wanted_spot.all %}
+  <form method="post" action="{% url 'travelapp:wanted_spot' tourist_spot.id %}">
+    {% csrf_token %}
+    <button type="submit" class="heart-button">❤ 行きたい</button>
+  </form>
+{% else %}
+  <p>❤登録済み</p>
+{% endif %}
+
+
+
 {% endblock %}

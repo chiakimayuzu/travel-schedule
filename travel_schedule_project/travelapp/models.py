@@ -205,3 +205,12 @@ class UserReview(models.Model):
 
     def __str__(self):
         return f"Review by {self.user} for {self.tourist_spot}: {self.review_title}"
+
+class WantedSpot(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    tourist_spot = models.ForeignKey(TouristSpot,on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.tourist_spot.spot_name}"
