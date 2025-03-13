@@ -2,14 +2,10 @@
 
 {% block content %}
 <p>
-    <a href="{% url 'travelapp:edit_touristspot' pk=tourist_spot.pk %}">
-        この観光地を編集
-    </a>
+    <a href="{% url 'travelapp:edit_touristspot' pk=tourist_spot.pk %}">この観光地を編集</a>
 </p>
 <p>
-    <a href="{% url 'travelapp:create_review' pk=tourist_spot.pk %}">
-        この観光地のレビューをかく
-    </a>
+    <a href="{% url 'travelapp:create_review' pk=tourist_spot.pk %}">この観光地のレビューをかく</a>
 </p>
 
 {% if messages %}
@@ -46,6 +42,7 @@
 <p>料金平均: {{ tourist_spot.price_average }}</p>
 <p>滞在時間平均: {{ tourist_spot.staytime_average }} 分</p>
 <p>施設説明: {{ tourist_spot.description }} </p>
+
 <!-- キーワードをリスト表示 -->
 {% if keywords %}
 <p>キーワード:</p>
@@ -60,4 +57,27 @@
 
 <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}">
 
+<h3>最新のクチコミ</h3>
+<p>
+    <a href="{% url 'travelapp:review_list' pk=tourist_spot.pk %}">
+        この観光地のすべてのクチコミを見る
+    </a>
+</p>
+
+{% if reviews %}
+    <ul>
+        {% for review in reviews %}
+            <li>
+                <strong>{{ review.review_title }}</strong>
+                <p>{{ review.review_description }}</p>
+                <p>投稿者: {{ review.user.username }}</p>
+                <p>投稿日: {{ review.created_at|date:"Y年m月d日 H:i" }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>まだクチコミはありません。</p>
+
+    
+{% endif %}
 {% endblock %}

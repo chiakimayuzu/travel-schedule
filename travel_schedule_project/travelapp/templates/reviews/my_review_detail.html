@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>{{ review.user.username }} さんのレビュー詳細</h1>
+
+  <div>
+    <h2>{{ review.tourist_spot.spot_name }}</h2>
+    {% if review.tourist_spot.picture %}
+      <img src="{{ review.tourist_spot.picture.url }}" alt="{{ review.tourist_spot.spot_name }}" style="width: 300px; height: 200px; object-fit: cover;">
+    {% else %}
+      <img src="/static/images/no-image.png" alt="No Image" style="width: 300px; height: 200px; object-fit: cover;">
+    {% endif %}
+    <p>{{ review.review_title }}</p>
+    <p>{{ review.review_description }}</p>
+    <p>評価スコア: {{ review.review_score }} ★</p>
+    <p>費用: {{ review.get_review_price_display }}</p>
+    <p>滞在時間: {{ review.stay_time_hours }}時間 {{ review.stay_time_minutes }}分</p>
+    <p>投稿日: {{ review.created_at|date:"Y年m月d日 H:i" }}</p>
+    <p>更新日: {{ review.updated_at|date:"Y年m月d日 H:i" }}</p>
+  </div>
+  <a href="{% url 'travelapp:edit_my_review' pk=review.id %}">編集</a>
+  <a href="{% url 'travelapp:my_review_list' %}">レビュー一覧に戻る</a>
+{% endblock %}

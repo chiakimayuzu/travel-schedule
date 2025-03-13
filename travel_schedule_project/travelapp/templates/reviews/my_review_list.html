@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ request.user.username }}さんのレビュー一覧</h1>
+
+{% if reviews %}
+  <ul class="review-list">
+    {% for review in reviews %}
+      <li class="review-item">
+        <a href="{% url 'travelapp:my_review_detail' review_id=review.id %}">
+          {% if review.tourist_spot.picture %}
+            <img src="{{ review.tourist_spot.picture.url }}" alt="{{ review.tourist_spot.spot_name }}" class="review-image">
+          {% else %}
+            <img src="/static/images/no-image.png" alt="No Image" class="review-image">
+          {% endif %}
+        </a>
+        <div class="review-info">
+          <p>{{ review.tourist_spot.spot_name }}</p>
+          <p>{{ review.review_title }}</p>
+          <p>更新日: {{ review.updated_at|date:"Y年m月d日 H:i" }}</p>
+          <a href="{% url 'travelapp:edit_my_review' pk=review.id %}">編集</a>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>まだクチコミがありません。</p>
+{% endif %}
+
+{% endblock %}
+
+<style>
+  .review-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* アイテム間の間隔 */
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .review-item {
+    width: calc(33.33% - 20px); /* 3列表示にする */
+    box-sizing: border-box;
+  }
+
+  .review-image {
+    width: 25%; /* 画像の幅を親要素の25%に設定 */
+    height: auto; /* 高さは自動調整 */
+    object-fit: cover; /* 画像の切り抜き方を指定 */
+  }
+
+  .review-info {
+    margin-top: 10px;
+  }
+
+  /* スマホや小さい画面用にレスポンシブ調整 */
+  @media (max-width: 768px) {
+    .review-item {
+      width: calc(50% - 20px); /* 2列表示 */
+    }
+  }
+
+  @media (max-width: 480px) {
+    .review-item {
+      width: 100%; /* 1列表示 */
+    }
+  }
+</style>

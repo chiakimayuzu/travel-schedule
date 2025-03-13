@@ -206,11 +206,16 @@ def detail_touristspot(request, pk):
     # TouristSpotKeyword から keyword を取得
     keywords = TouristSpotKeyword.objects.filter(tourist_spot=tourist_spot).values_list('keyword__keyword', flat=True)
 
+    # その観光地に関連するクチコミを作成日時順に並べ替えて最新の3件を取得
+    reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')[:3]
+
+
     # テンプレートに渡すコンテキスト
     context = {
         'tourist_spot': tourist_spot,
         'working_days': working_days,
         'keywords': keywords,
+        'reviews': reviews,
     }
 
     return render(request, 'detail_touristspot.html', context)
@@ -284,7 +289,7 @@ def create_review(request, pk):  # 🔹 引数名を pk に変更
         'form': form,
         'tourist_spot': tourist_spot
     }
-    return render(request, 'create_review.html', context)  
+    return render(request, 'reviews/create_review.html', context)  
 
 @login_required
 def my_review_list(request):       
@@ -297,22 +302,57 @@ def my_review_list(request):
     context = {
         'reviews': reviews
     }   
-    return render(request, 'my_review_list.html', context)
+    return render(request, 'reviews/my_review_list.html', context)
+
+
+@login_required
+def my_review_detail(request, review_id):
+    # ユーザーが投稿したレビューを取得
+    review = get_object_or_404(UserReview, id=review_id, user=request.user)
+
+    # 滞在時間の変換（時間と分に分割）
+    review.stay_time_hours = review.stay_time_min // 60
+    review.stay_time_minutes = review.stay_time_min % 60
+
+    context = {
+        'review': review
+    }
+    return render(request, 'reviews/my_review_detail.html', context)
 
 
 # 既存レビュー編集ビュー
 @login_required
-def edit_review(request, pk):
-    review = get_object_or_404(UserReview, pk=pk, user=request.user)
-
+def edit_my_review(request, pk):  # 引数を review_id から pk に変更
+    review = get_object_or_404(UserReview, pk=pk, user=request.user)  # id を pk に変更
+    
+    # 既存のフォームにレビュー内容を設定
     if request.method == 'POST':
         form = UserReviewForm(request.POST, instance=review)
         if form.is_valid():
             form.save()
-            messages.success(request, 'レビュー投稿編集できました', extra_tags='detail_touristspot')
-            return redirect('travelapp:detail_touristspot', pk=review.tourist_spot.pk)
+            messages.success(request, 'レビュー投稿編集できました', extra_tags='review_list')
+            return redirect('travelapp:my_review_detail', review_id=review.id)  # リダイレクト先も review_id から pk に変更
     else:
         form = UserReviewForm(instance=review)
+    
+    context = {
+        'form': form,
+        'review': review
+    }
+    return render(request, 'reviews/edit_my_review.html', context)    
 
-    return render(request, 'edit_review.html', {'form': form, 'review': review})
 
+def review_list(request, pk):
+    # 観光地情報をID（pk）で取得
+    tourist_spot = get_object_or_404(TouristSpot, pk=pk)
+
+    # その観光地に関連するクチコミを作成日時順に並べ替えて全件取得
+    reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')
+
+    # テンプレートに渡すコンテキスト
+    context = {
+        'tourist_spot': tourist_spot,
+        'reviews': reviews,
+    }
+
+    return render(request, 'reviews/review_list.html', context)
