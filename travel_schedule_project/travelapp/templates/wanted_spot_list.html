@@ -1,4 +1,4 @@
-{% extends "base_generic.html" %}
+{% extends "base.html" %}
 
 {% block content %}
   <h1>行きたいリスト</h1>
@@ -6,10 +6,15 @@
     {% for item in wanted_spots %}
       <li>
         <!-- 画像をクリックすると観光地の詳細ページに遷移 -->
-        <a href="{% url 'travelapp:detail_tourist_spot' pk=item.tourist_spot.id %}">
-          <img src="{{ item.tourist_spot.picture.url }}" alt="{{ item.tourist_spot.name }}" style="width: 100px; height: auto;">
+        <a href="{% url 'travelapp:detail_touristspot' pk=item.tourist_spot.id %}">
+          {% if item.tourist_spot.picture %}
+            <img src="{{ item.tourist_spot.picture.url }}" alt="{{ item.tourist_spot.spot_name }}" style="width: 100px; height: auto;">
+          {% else %}
+            <img src="/static/images/no-image.png" alt="No Image" style="width: 100px; height: auto;">
+          {% endif %}
         </a>
-        <a href="{% url 'travelapp:detail_tourist_spot' pk=item.tourist_spot.id %}">{{ item.tourist_spot.name }}</a>
+
+        <p>{{ item.tourist_spot.spot_name }}</p>
         <form method="post" style="display:inline;">
           {% csrf_token %}
           <button type="submit" name="delete" value="{{ item.id }}">削除</button>
@@ -20,3 +25,5 @@
     {% endfor %}
   </ul>
 {% endblock %}
+
+

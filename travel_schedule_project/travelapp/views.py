@@ -386,4 +386,4 @@ def wanted_spot_list(request):
 
         return redirect('travelapp:wanted_spot_list')
 
-    return render(request, 'travelapp/wanted_spot_list.html', {'wanted_spots': wanted_spots})
+    return render(request, 'wanted_spot_list.html', {'wanted_spots': wanted_spots})
