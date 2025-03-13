@@ -286,6 +286,20 @@ def create_review(request, pk):  # 🔹 引数名を pk に変更
     }
     return render(request, 'create_review.html', context)  
 
+@login_required
+def my_review_list(request):       
+    reviews = UserReview.objects.filter(user=request.user).order_by('-created_at')  
+                            #ログインユーザーのクチコミを取得・↑新い順に並べる/編集も可能なのでupdate_atにて
+    for review in reviews:
+        review.stay_time_hours = review.stay_time_min // 60
+        review.stay_time_minutes = review.stay_time_min % 60
+
+    context = {
+        'reviews': reviews
+    }   
+    return render(request, 'my_review_list.html', context)
+
+
 # 既存レビュー編集ビュー
 @login_required
 def edit_review(request, pk):
