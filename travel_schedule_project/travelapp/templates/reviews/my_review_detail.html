@@ -19,5 +19,12 @@
     <p>更新日: {{ review.updated_at|date:"Y年m月d日 H:i" }}</p>
   </div>
   <a href="{% url 'travelapp:edit_my_review' pk=review.id %}">編集</a>
+  
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" name="delete" value="1">レビューを削除</button>
+  </form>
+
+
   <a href="{% url 'travelapp:my_review_list' %}">レビュー一覧に戻る</a>
 {% endblock %}

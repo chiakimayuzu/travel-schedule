@@ -323,6 +323,10 @@ def my_review_detail(request, review_id):
     review.stay_time_hours = review.stay_time_min // 60
     review.stay_time_minutes = review.stay_time_min % 60
 
+    if request.method == 'POST' and 'delete' in request.POST:
+        review.delete()
+        return redirect(reverse('travelapp:review_list'))
+
     context = {
         'review': review
     }
