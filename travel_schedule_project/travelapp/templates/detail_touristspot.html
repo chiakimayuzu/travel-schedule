@@ -38,10 +38,26 @@
 
 <p>営業時間: {{ tourist_spot.opening_at }} - {{ tourist_spot.closing_at }}</p>
 <p>公式URL: <a href="{{ tourist_spot.offical_url }}" target="_blank">{{ tourist_spot.offical_url }}</a></p>
-<p>評価平均: {{ tourist_spot.review_score_average }}</p>
-<p>料金平均: {{ tourist_spot.price_average }}</p>
-<p>滞在時間平均: {{ tourist_spot.staytime_average }} 分</p>
+<p>
+    評価スコア平均: 
+    {% for i in stars %}
+      <span class="star">&#9733;</span>  <!-- 黄色の星 -->
+    {% endfor %}
+    {% for i in remaining_stars %}
+      <span class="star-empty">&#9734;</span>  <!-- 白枠の星 -->
+    {% endfor %}
+    (クチコミ件数: {{ review_count }}件)  <!-- クチコミ件数を表示 -->
+  </p>  
+  <!-- 価格の最頻値 -->
+  <p>価格帯: {{ most_common_price }}</p>
+
+  <!-- 滞在時間平均 -->
+  <p>滞在時間平均: {{ stay_time_hours }} 時間 {{ stay_time_minutes }} 分</p>
+
 <p>施設説明: {{ tourist_spot.description }} </p>
+
+
+
 
 <!-- キーワードをリスト表示 -->
 {% if keywords %}

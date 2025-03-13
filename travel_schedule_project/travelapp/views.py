@@ -1,3 +1,4 @@
+from typing import Counter
 from django.contrib.auth.forms import UserCreationForm
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -14,7 +15,7 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth import authenticate,login,logout
 from django.shortcuts import render, redirect
 from .forms import TouristSpotForm
-from .models import Keyword, TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
+from .models import REVIEW_PRICE_CHOICES, Keyword, TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
 from django.shortcuts import render, redirect
 from .forms import TouristSpotForm, UserReviewForm
 from .models import Keyword, TouristSpotKeyword
@@ -22,6 +23,8 @@ from geopy.geocoders import GoogleV3
 from django.conf import settings
 from .models import TouristSpot, TouristSpotKeyword, WORKINGDAY_CHOICES, UserReview
 from django.views import View
+from django.db.models import Avg
+
 # Create your views here.
 
 
@@ -198,7 +201,7 @@ def detail_touristspot(request, pk):
     tourist_spot = get_object_or_404(TouristSpot, pk=pk)
 
     # workingday を曜日名に変換
-    day_mapping = dict(WORKINGDAY_CHOICES)  # TouristSpot.WORKINGDAY_CHOICES を参照
+    day_mapping = dict(WORKINGDAY_CHOICES)
     working_days = []
     if tourist_spot.workingday:
         working_days = [day_mapping.get(int(day), day) for day in tourist_spot.workingday.split(",")]
@@ -210,6 +213,41 @@ def detail_touristspot(request, pk):
     reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')[:3]
 
     is_wanted = WantedSpot.objects.filter(user=request.user, tourist_spot=tourist_spot).exists()
+
+    # 各平均値を計算
+    review_score_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('review_score'))['review_score__avg']
+    price_avg = UserReview.objects.filter(tourist_spot=tourist_spot).values('review_price')
+    stay_time_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('stay_time_min'))['stay_time_min__avg']
+
+    # もし平均値がNoneの場合は、0を代入
+    review_score_avg = int(review_score_avg) if review_score_avg is not None else 0
+    stay_time_avg = stay_time_avg if stay_time_avg is not None else 0
+
+    # 価格帯の最頻値を取得
+    price_counter = Counter([price['review_price'] for price in price_avg])
+    most_common_price = price_counter.most_common(1)
+    most_common_price = most_common_price[0][0] if most_common_price else None
+
+    # REVIEW_PRICE_CHOICES の dict を作成
+    price_choices_dict = dict(REVIEW_PRICE_CHOICES)
+
+    # 最頻値の価格帯を取得し、対応する価格帯の文字列に変換
+    most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
+
+    # 滞在時間の表示形式（時間と分）
+    stay_time_avg = stay_time_avg if stay_time_avg is not None else 0  # Noneの場合は0
+    
+    # 滞在時間の表示形式（時間と分）
+    stay_time_hours = int(stay_time_avg) // 60
+    stay_time_minutes = int(stay_time_avg) % 60
+
+    # 評価スコアの★を作成するためのリスト
+    stars = [i for i in range(review_score_avg)]  # ★を5個以下に制限する場合
+    remaining_stars = range(5 - review_score_avg)  # 残りの空星をリストとして作成
+
+    # クチコミ件数を取得
+    review_count = UserReview.objects.filter(tourist_spot=tourist_spot).count()
+
     # テンプレートに渡すコンテキスト
     context = {
         'tourist_spot': tourist_spot,
@@ -217,9 +255,21 @@ def detail_touristspot(request, pk):
         'keywords': keywords,
         'reviews': reviews,
         'is_wanted': is_wanted,
+        'review_score_avg': review_score_avg,
+        'price_avg': price_avg,
+        'stay_time_avg': stay_time_avg,
+        'stars': stars,  # ★リスト
+        'remaining_stars': remaining_stars,  # 残りの空星リスト
+        'stay_time_hours':stay_time_hours,
+        'stay_time_minutes':stay_time_minutes,
+        'most_common_price': most_common_price,
+        'most_common_price': most_common_price_str,
+        'review_count': review_count,
     }
 
     return render(request, 'detail_touristspot.html', context)
+
+
 
 @login_required
 def edit_touristspot(request, pk):
@@ -323,13 +373,21 @@ def my_review_detail(request, review_id):
     review.stay_time_hours = review.stay_time_min // 60
     review.stay_time_minutes = review.stay_time_min % 60
 
+    # 塗りつぶしと空の星のリストを作成
+    filled_stars = range(review.review_score)  # 塗りつぶしの星
+    empty_stars = range(5 - review.review_score)  # 空の星
+
+
     if request.method == 'POST' and 'delete' in request.POST:
         review.delete()
         return redirect(reverse('travelapp:my_review_list'))
 
     context = {
-        'review': review
+        'review': review,
+        'filled_stars': filled_stars,
+        'empty_stars': empty_stars,
     }
+    
     return render(request, 'reviews/my_review_detail.html', context)
 
 
