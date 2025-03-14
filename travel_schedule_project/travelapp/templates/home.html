@@ -11,6 +11,30 @@
       <label for="{{ form.category.id_for_label }}">カテゴリ:</label>
       {{ form.category }}
     </div>
-    <button type="submit">検索</button>
+    <button type="submit">検索</button><br><br>
   </form>
+
+  {% if tourist_spot %}
+  <div>
+    <a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">
+      <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}" width="200" height="150">
+    </a>
+    <div>
+      <strong>{{ tourist_spot.spot_name }}</strong><br>
+      <span>{{ tourist_spot.get_prefecture_display }}</span><br>
+      <span>{{ tourist_spot.address }}</span><br>
+    </div>
+    
+    {% if latest_review %}
+      <div>
+        <strong>最新のレビュー:</strong><br>
+        <span>{{ latest_review.review_title }}</span><br>
+        <span>{{ latest_review.review_description }}</span><br>
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
+
+
+  
 {% endblock %}

@@ -1,3 +1,4 @@
+import random
 from typing import Counter
 from django.contrib.auth.forms import UserCreationForm
 from django.http import Http404, HttpResponse, JsonResponse
@@ -33,6 +34,14 @@ from .models import TouristSpot
 from django.db.models import Q
 from .forms import TouristSpotSearchForm
 from .models import TouristSpot
+from collections import Counter
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404, render
+from .models import TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
+from collections import Counter
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404, render
+from .models import TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
 # Create your views here.
 
 
@@ -54,8 +63,6 @@ class RegistAccountView(View):
                 for error in field.errors:  # 各フィールドのエラーを取り出して表示
                     messages.error(request, error)  # エラーをメッセージとして表示
             return render(request, 'account/regist_account.html', {'form': form})  # フォームを再表示
-
-
 
 
 class LoginView(View):
@@ -133,8 +140,23 @@ def home(request):
     
     if request.GET and form.is_valid():
         return redirect('travelapp:search_touristspot')
+    
+    # ✅ 登録されているTouristSpotをランダムに1つ取得
+    tourist_spot = None
+    latest_review = None
 
-    return render(request, 'home.html', {'form': form})
+    spots = TouristSpot.objects.all()
+    if spots.exists():
+        tourist_spot = random.choice(spots)
+        # ✅ ランダムで取得したTouristSpotに関連する最新のレビューを取得
+        latest_review = tourist_spot.userreview_set.order_by('-created_at').first()
+
+    context = {
+        'form': form,
+        'tourist_spot': tourist_spot,
+        'latest_review': latest_review,
+    }
+    return render(request, 'home.html', context)
     
 
 
@@ -255,16 +277,6 @@ def check_dupe_tourist_spot(request):
     })
 
 
-
-from collections import Counter
-from django.db.models import Avg
-from django.shortcuts import get_object_or_404, render
-from .models import TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
-
-from collections import Counter
-from django.db.models import Avg
-from django.shortcuts import get_object_or_404, render
-from .models import TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
 
 def detail_touristspot(request, pk):
     # 観光地情報をID（pk）で取得
