@@ -4,16 +4,23 @@
   <h1>観光地を検索</h1>
   <form method="get">
     {{ form.query }}
-    
     {{ form.category }}
-    
-    {{ form.order_by }}
-    
     <button type="submit">再検索</button>
   </form>
 
   <h2>検索結果</h2>
+
   {% if tourist_spots %}
+    <!-- 並び順セレクトボックス -->
+    <div>
+      <label for="order-by">並び順:</label>
+      <select id="order-by" name="order_by">
+        <option value="review_score_average" {% if current_order_by == "review_score_average" %}selected{% endif %}>評価がいい順</option>
+        <option value="created_at" {% if current_order_by == "created_at" %}selected{% endif %}>新しい順</option>
+        <option value="-created_at" {% if current_order_by == "-created_at" %}selected{% endif %}>古い順</option>
+      </select>
+    </div>
+
     <ul>
       {% for spot in tourist_spots %}
         <li>
@@ -27,4 +34,13 @@
   {% else %}
     <p>結果がありませんでした。</p>
   {% endif %}
+
+  <script>
+    // 並び順セレクトボックスの変更時にクエリを更新してリロード
+    document.getElementById('order-by').addEventListener('change', function() {
+      const params = new URLSearchParams(window.location.search);
+      params.set('order_by', this.value);
+      window.location.search = params.toString();
+    });
+  </script>
 {% endblock %}

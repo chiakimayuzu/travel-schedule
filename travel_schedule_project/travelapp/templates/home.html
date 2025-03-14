@@ -2,8 +2,15 @@
 
 {% block content %}
   <h1>観光地を検索</h1>
-  <form method="get">
-    {{ form.as_p }}
+  <form method="get" action="{% url 'travelapp:search_touristspot' %}">
+    <div>
+      <label for="{{ form.query.id_for_label }}">検索キーワード:</label>
+      {{ form.query }}
+    </div>
+    <div>
+      <label for="{{ form.category.id_for_label }}">カテゴリ:</label>
+      {{ form.category }}
+    </div>
     <button type="submit">検索</button>
   </form>
-{% endblock %} 
+{% endblock %}

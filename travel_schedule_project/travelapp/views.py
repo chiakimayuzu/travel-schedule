@@ -127,33 +127,44 @@ def home(request):
     form = TouristSpotSearchForm(request.GET or None)
     
     if request.GET and form.is_valid():
-        return redirect('travelapp:search_touristspot')  # 検索フォーム送信後に遷移
-    
+        return redirect('travelapp:search_touristspot')
+
     return render(request, 'home.html', {'form': form})
+    
+
 
 def search_touristspot(request):
     form = TouristSpotSearchForm(request.GET)
-    tourist_spots = TouristSpot.objects.all()
+    tourist_spots = None  # デフォルトはNoneにして結果なしに
 
     if form.is_valid():
         query = form.cleaned_data.get('query', '')
         category = form.cleaned_data.get('category', '')
         order_by = form.cleaned_data.get('order_by', 'review_score_average')
 
-        if query:
-            tourist_spots = tourist_spots.filter(
-                Q(spot_name__icontains=query) | 
-                Q(description__icontains=query) | 
-                Q(address__icontains=query) | 
-                Q(touristspotkeyword__keyword__icontains=query)
-            )
+        # 検索条件が指定されている場合のみ絞り込みを行う
+        if query or category:
+            tourist_spots = TouristSpot.objects.all()
 
-        if category:  # カテゴリが空でない場合に絞り込み
-            tourist_spots = tourist_spots.filter(category=category)
+            if query:
+                tourist_spots = tourist_spots.filter(
+                    Q(spot_name__icontains=query) | 
+                    Q(description__icontains=query) | 
+                    Q(address__icontains=query) | 
+                    Q(touristspotkeyword__keyword__icontains=query)
+                )
 
-        tourist_spots = tourist_spots.order_by(order_by)
+            if category:
+                tourist_spots = tourist_spots.filter(category=category)
 
-    return render(request, 'search_touristspot.html', {'form': form, 'tourist_spots': tourist_spots})
+            # 並び順適用
+            tourist_spots = tourist_spots.order_by(order_by)
+
+    return render(request, 'search_touristspot.html', {
+        'form': form,
+        'tourist_spots': tourist_spots,
+        'current_order_by': request.GET.get('order_by', 'review_score_average')
+    })
 
 @login_required
 def regist_touristspot(request):

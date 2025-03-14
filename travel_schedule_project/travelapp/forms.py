@@ -205,8 +205,12 @@ class TouristSpotSearchForm(forms.Form):
         error_messages={'invalid_choice': 'カテゴリが無効です。'},  # カスタムエラーメッセージ (必要なら)
     )
    
-    order_by = forms.ChoiceField(choices=[
-        ('review_score_average', '評価がいい順'),
-        ('created_at', '新しい順'),
-        ('-created_at', '古い順'),
-    ], initial='review_score_average', label='並び順')
+    order_by = forms.ChoiceField(
+        choices=[
+            ('review_score_average', '評価がいい順'),
+            ('created_at', '新しい順'),
+            ('-created_at', '古い順'),
+        ], 
+        initial='review_score_average',  # デフォルトで「評価がいい順」
+        label='並び順'
+    )
