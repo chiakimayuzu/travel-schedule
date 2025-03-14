@@ -209,6 +209,7 @@ from .models import TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
 def detail_touristspot(request, pk):
     # 観光地情報をID（pk）で取得
     tourist_spot = get_object_or_404(TouristSpot, pk=pk)
+    google_maps_api_key = settings.GOOGLE_MAPS_API_KEY
 
     # workingday を曜日名に変換
     day_mapping = dict(WORKINGDAY_CHOICES)
@@ -278,6 +279,7 @@ def detail_touristspot(request, pk):
         'stay_time_minutes': stay_time_minutes, # 滞在時間（分）
         'most_common_price': most_common_price_str, # 価格帯（最頻値）
         'review_count': review_count,   # クチコミ件数
+        'google_maps_api_key': google_maps_api_key  # APIキーを渡す
     }
 
     return render(request, 'detail_touristspot.html', context)

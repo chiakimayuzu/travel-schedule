@@ -69,9 +69,6 @@
 
 <p>施設説明: {{ tourist_spot.description }} </p>
 
-
-
-
 <!-- キーワードをリスト表示 -->
 {% if keywords %}
 <p>キーワード:</p>
@@ -108,8 +105,7 @@
     <p>まだクチコミはありません。</p>
 {% endif %}
 
-
-
+<!-- 行きたいリストの操作 -->
 {% if not is_wanted %}
   <form method="post" action="{% url 'travelapp:wanted_spot' tourist_spot.id %}">
     {% csrf_token %}
@@ -119,12 +115,36 @@
   <p>❤登録済み</p>
 {% endif %}
 
+<!-- Google Maps APIの読み込み -->
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
 
+<!-- 地図表示のための div -->
+<div id="map" style="height: 400px; width: 100%;"></div>
+
+<!-- 地図を初期化するための JavaScript -->
+<script>
+  function initMap() {
+    // 観光地の緯度経度を設定
+    var location = { lat: {{ tourist_spot.latitude }}, lng: {{ tourist_spot.longitude }} };
+    
+    // 地図の設定
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 15,
+      center: location
+    });
+
+    // ピンを地図に追加
+    var marker = new google.maps.Marker({
+      position: location,
+      map: map,
+      title: "{{ tourist_spot.spot_name }}"
+    });
+  }
+</script>
 
 {% endblock %}
 
-
-/* 星の共通スタイル */
+<!-- 星の共通スタイル -->
 .star {
     font-size: 24px; /* 星のサイズ */
     display: inline-block;
@@ -159,3 +179,4 @@
     color: #ccc; /* 空の星の色 */
     right: 0;
 }
+</script>
