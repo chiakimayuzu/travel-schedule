@@ -196,6 +196,16 @@ def check_dupe_tourist_spot(request):
 
 
 
+from collections import Counter
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404, render
+from .models import TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
+
+from collections import Counter
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404, render
+from .models import TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
+
 def detail_touristspot(request, pk):
     # 観光地情報をID（pk）で取得
     tourist_spot = get_object_or_404(TouristSpot, pk=pk)
@@ -204,6 +214,7 @@ def detail_touristspot(request, pk):
     day_mapping = dict(WORKINGDAY_CHOICES)
     working_days = []
     if tourist_spot.workingday:
+        # workingdayのデータをカンマ区切りで分割して、曜日名に変換
         working_days = [day_mapping.get(int(day), day) for day in tourist_spot.workingday.split(",")]
 
     # TouristSpotKeyword から keyword を取得
@@ -212,6 +223,7 @@ def detail_touristspot(request, pk):
     # その観光地に関連するクチコミを作成日時順に並べ替えて最新の3件を取得
     reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')[:3]
 
+    # 行きたいリストに追加されているかを確認
     is_wanted = WantedSpot.objects.filter(user=request.user, tourist_spot=tourist_spot).exists()
 
     # 各平均値を計算
@@ -220,7 +232,7 @@ def detail_touristspot(request, pk):
     stay_time_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('stay_time_min'))['stay_time_min__avg']
 
     # もし平均値がNoneの場合は、0を代入
-    review_score_avg = int(review_score_avg) if review_score_avg is not None else 0
+    review_score_avg = review_score_avg if review_score_avg is not None else 0
     stay_time_avg = stay_time_avg if stay_time_avg is not None else 0
 
     # 価格帯の最頻値を取得
@@ -235,41 +247,40 @@ def detail_touristspot(request, pk):
     most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
 
     # 滞在時間の表示形式（時間と分）
-    stay_time_avg = stay_time_avg if stay_time_avg is not None else 0  # Noneの場合は0
-    
-    # 滞在時間の表示形式（時間と分）
     stay_time_hours = int(stay_time_avg) // 60
     stay_time_minutes = int(stay_time_avg) % 60
-
-    # 評価スコアの★を作成するためのリスト
-    stars = [i for i in range(review_score_avg)]  # ★を5個以下に制限する場合
-    remaining_stars = range(5 - review_score_avg)  # 残りの空星をリストとして作成
 
     # クチコミ件数を取得
     review_count = UserReview.objects.filter(tourist_spot=tourist_spot).count()
 
-    # テンプレートに渡すコンテキスト
+    # ★（塗りつぶし星・半分の星・空の星）の表示制御
+# 整数部分の塗りつぶし星
+    filled_stars = int(review_score_avg)  # 整数部分の塗りつぶし
+# 小数部分（0.5以上なら半分塗りつぶし）
+    half_star = round(review_score_avg - filled_stars, 1) >= 0.5
+# 空の星（5個になるように調整）
+    empty_stars = 5 - filled_stars - (1 if half_star else 0)
+
+# テンプレートに渡すコンテキスト
     context = {
-        'tourist_spot': tourist_spot,
-        'working_days': working_days,
-        'keywords': keywords,
-        'reviews': reviews,
-        'is_wanted': is_wanted,
-        'review_score_avg': review_score_avg,
-        'price_avg': price_avg,
-        'stay_time_avg': stay_time_avg,
-        'stars': stars,  # ★リスト
-        'remaining_stars': remaining_stars,  # 残りの空星リスト
-        'stay_time_hours':stay_time_hours,
-        'stay_time_minutes':stay_time_minutes,
-        'most_common_price': most_common_price,
-        'most_common_price': most_common_price_str,
-        'review_count': review_count,
-    }
+    'tourist_spot': tourist_spot,   # 観光地情報
+    'working_days': working_days,   # 営業曜日
+    'keywords': keywords,           # キーワード
+    'reviews': reviews,             # クチコミ一覧
+    'is_wanted': is_wanted,         # 行きたいリストに含まれているか
+    'review_score_avg': review_score_avg, # 評価スコア平均
+    'price_avg': price_avg,         # 価格帯
+    'stay_time_avg': stay_time_avg, # 滞在時間平均（分）
+    'filled_stars': [i for i in range(filled_stars)],   # 塗りつぶし星の数（リスト）
+    'half_star': half_star,         # 半分塗りつぶしの星
+    'empty_stars': [i for i in range(empty_stars)],     # 空の星の数（リスト）
+    'stay_time_hours': stay_time_hours, # 滞在時間（時間）
+    'stay_time_minutes': stay_time_minutes, # 滞在時間（分）
+    'most_common_price': most_common_price_str, # 価格帯（最頻値）
+    'review_count': review_count,   # クチコミ件数
+}
 
     return render(request, 'detail_touristspot.html', context)
-
-
 
 @login_required
 def edit_touristspot(request, pk):
@@ -387,7 +398,7 @@ def my_review_detail(request, review_id):
         'filled_stars': filled_stars,
         'empty_stars': empty_stars,
     }
-    
+
     return render(request, 'reviews/my_review_detail.html', context)
 
 

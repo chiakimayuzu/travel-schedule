@@ -5,7 +5,7 @@
     <a href="{% url 'travelapp:edit_touristspot' pk=tourist_spot.pk %}">この観光地を編集</a>
 </p>
 <p>
-    <a href="{% url 'travelapp:create_review' pk=tourist_spot.pk %}">この観光地のレビューをかく</a>
+    <a href="{% url 'travelapp:create_review' pk=tourist_spot.pk %}">この観光地のクチコミをかく</a>
 </p>
 
 {% if messages %}
@@ -38,14 +38,24 @@
 
 <p>営業時間: {{ tourist_spot.opening_at }} - {{ tourist_spot.closing_at }}</p>
 <p>公式URL: <a href="{{ tourist_spot.offical_url }}" target="_blank">{{ tourist_spot.offical_url }}</a></p>
-<p>
-    評価スコア平均: 
-    {% for i in stars %}
-      <span class="star">&#9733;</span>  <!-- 黄色の星 -->
-    {% endfor %}
-    {% for i in remaining_stars %}
-      <span class="star-empty">&#9734;</span>  <!-- 白枠の星 -->
-    {% endfor %}
+
+評価スコア平均: 
+<!-- 塗りつぶし星 -->
+{% for star in filled_stars %}
+  <span class="star filled">&#9733;</span>
+{% endfor %}
+
+<!-- 半分塗りつぶし星 -->
+{% if half_star %}
+  <span class="star half">&#9733;</span>
+{% endif %}
+
+<!-- 空の星 -->
+{% for star in empty_stars %}
+  <span class="star empty">&#9734;</span>
+{% endfor %}
+
+{{ review_score_avg }}  
     (クチコミ件数: {{ review_count }}件)  <!-- クチコミ件数を表示 -->
   </p>  
   <!-- 価格の最頻値 -->
@@ -109,3 +119,30 @@
 
 
 {% endblock %}
+
+
+/* 星の共通スタイル */
+.star {
+    font-size: 24px; /* 星のサイズ */
+    display: inline-block;
+    color: #ccc; /* 空の星の色 */
+}
+
+/* 塗りつぶし星 */
+.star.filled {
+    color: #f5a623; /* 塗りつぶし星の色 */
+}
+
+/* 半分塗りつぶしの星 */
+.star.half {
+    position: relative;
+    display: inline-block;
+}
+
+.star.half::before {
+    content: '\2605'; /* 星マーク */
+    position: absolute;
+    overflow: hidden;
+    width: 50%; /* 50%塗りつぶし */
+    color: #f5a623;
+}

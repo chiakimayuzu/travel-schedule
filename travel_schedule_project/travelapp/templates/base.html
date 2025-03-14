@@ -23,24 +23,13 @@
                   <p>こんにちは {{ request.user }}さん</p>
                   <p>認証状態: {{ request.user.is_authenticated }}</p>
                   <p><a class="nav-link" href="{% url 'travelapp:regist_touristspot' %}">観光地登録</a></p>
-                  <li class="nav-item">
-                     <a class="nav-link" href="{% url 'travelapp:home' %}">ホーム</a>
-                  </li>
-                  <li class="nav-item">
-                     <a class="nav-link" href="{% url 'travelapp:my_review_list' %}">レビューリスト</a>
-                  </li>
-                  <li class="nav-item">
-                     <a href="{% url 'travelapp:wanted_spot_list' %}">行きたいリスト</a>
-                  </li>
-                  <li class="nav-item">
-                     <a class="nav-link" href="{% url 'travelapp:logout' %}">ログアウト</a>
-                  </li>
-                  <li class="nav-item">
-                     <a class="nav-link" href="{% url 'travelapp:change_email' %}">メールアドレス変更</a>
-                  </li>
-                  <li class="nav-item">
-                     <a class="nav-link" href="{% url 'travelapp:change_password' %}">パスワード変更</a>
-                  </li>
+                  <p><a class="nav-link" href="{% url 'travelapp:home' %}">ホーム</a></p>
+                  <p><a class="nav-link" href="{% url 'travelapp:my_review_list' %}">クチコミリスト</a></p>
+                  <p><a href="{% url 'travelapp:wanted_spot_list' %}">行きたいリスト</a></p>
+                  <p><a class="nav-link" href="{% url 'travelapp:logout' %}">ログアウト</a></p>
+                  <p><a class="nav-link" href="{% url 'travelapp:change_email' %}">メールアドレス変更</a></p>
+                  <p><a class="nav-link" href="{% url 'travelapp:change_password' %}">パスワード変更</a></p>
+
                   {% else %}
                      <li class="nav-item">
                         <a class="nav-link" href="{% url 'travelapp:login' %}">ログイン</a>
