@@ -24,9 +24,9 @@
     <div>
       <label for="order_by">並び順:</label>
       <select name="order_by" id="order_by">
-        <option value="review_score_average" {% if request.GET.order_by == 'review_score_average' %}selected{% endif %}>評価順</option>
-        <option value="created_at" {% if request.GET.order_by == 'created_at' %}selected{% endif %}>新しい順</option>
-        <option value="updated_at" {% if request.GET.order_by == 'updated_at' %}selected{% endif %}>更新日順</option>
+        <option value="review_score_average" {% if request.GET.order_by == 'review_score_average' %}selected{% endif %}>評価がいい順</option>
+        <option value="-created_at" {% if request.GET.order_by == '-created_at' %}selected{% endif %}>登録が新しい順</option>
+        <option value="created_at" {% if request.GET.order_by == 'created_at' %}selected{% endif %}>登録が古い順</option>
       </select>
     </div>
 
@@ -47,9 +47,9 @@
             </div>
             <div>
               <strong>{{ spot.spot_name }}</strong><br>
-              <span>{{ spot.get_prefecture_display }}</span><br>
-              <span>{{ spot.address }}</span><br>
               <span>{{ spot.get_category_display }}</span><br>
+              <span>{{ spot.get_prefecture_display }}</span>
+              <span>{{ spot.address }}</span><br>
             </div>
           </li>
         {% endfor %}

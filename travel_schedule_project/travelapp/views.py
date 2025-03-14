@@ -179,7 +179,7 @@ class TouristSpotSearchView(ListView):
             # カテゴリによるフィルタリング
             queryset = queryset.filter(category=category)
         
-        return queryset
+        return queryset.distinct()
 
 @login_required
 def regist_touristspot(request):
