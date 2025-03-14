@@ -1,46 +1,69 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>観光地を検索</h1>
+  <h1>観光地検索</h1>
+  
+  <!-- 検索フォーム -->
   <form method="get">
-    {{ form.query }}
-    {{ form.category }}
-    <button type="submit">再検索</button>
-  </form>
+    <label for="query">キーワード:</label>
+    <input type="text" name="query" id="query" value="{{ request.GET.query }}">
+    
+    <label for="category">カテゴリ:</label>
+    <select name="category" id="category">
+        <option value="">カテゴリを選択</option>
+        <option value="1" {% if request.GET.category == '1' %}selected{% endif %}>神社/仏閣</option>
+        <option value="2" {% if request.GET.category == '2' %}selected{% endif %}>アクティビティ</option>
+        <option value="3" {% if request.GET.category == '3' %}selected{% endif %}>テーマパーク</option>
+        <option value="4" {% if request.GET.category == '4' %}selected{% endif %}>景勝</option>
+        <option value="5" {% if request.GET.category == '5' %}selected{% endif %}>その他</option>
+    </select>
+    
+    <button type="submit">検索</button>
+</form>
 
-  <h2>検索結果</h2>
-
-  {% if tourist_spots %}
-    <!-- 並び順セレクトボックス -->
     <div>
-      <label for="order-by">並び順:</label>
-      <select id="order-by" name="order_by">
-        <option value="review_score_average" {% if current_order_by == "review_score_average" %}selected{% endif %}>評価がいい順</option>
-        <option value="created_at" {% if current_order_by == "created_at" %}selected{% endif %}>新しい順</option>
-        <option value="-created_at" {% if current_order_by == "-created_at" %}selected{% endif %}>古い順</option>
+      <label for="order_by">並び順:</label>
+      <select name="order_by" id="order_by">
+        <option value="review_score_average" {% if request.GET.order_by == 'review_score_average' %}selected{% endif %}>評価順</option>
+        <option value="created_at" {% if request.GET.order_by == 'created_at' %}selected{% endif %}>新しい順</option>
+        <option value="updated_at" {% if request.GET.order_by == 'updated_at' %}selected{% endif %}>更新日順</option>
       </select>
     </div>
 
-    <ul>
-      {% for spot in tourist_spots %}
-        <li>
-          <h3>{{ spot.spot_name }} ({{ spot.prefecture }})</h3>
-          <p>{{ spot.description }}</p>
-          <p>評価: {{ spot.review_score_average }} / 5</p>
-          <p><a href="{% url 'travelapp:detail_touristspot' spot.pk %}">詳細</a></p>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>結果がありませんでした。</p>
-  {% endif %}
 
-  <script>
-    // 並び順セレクトボックスの変更時にクエリを更新してリロード
-    document.getElementById('order-by').addEventListener('change', function() {
-      const params = new URLSearchParams(window.location.search);
-      params.set('order_by', this.value);
-      window.location.search = params.toString();
-    });
-  </script>
+
+  <h2>検索結果:</h2>
+  
+  <!-- 観光地リスト -->
+  <div>
+    {% if tourist_spots %}
+        <ul>
+            {% for spot in tourist_spots %}
+                <li>{{ spot.spot_name }} - {{ spot.prefecture }} - {{ spot.address }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>該当する観光地はありません。</p>
+    {% endif %}
+</div>
+
+  <!-- ページネーション -->
+  <div class="pagination">
+    <span class="step-links">
+      {% if tourist_spots.has_previous %}
+        <a href="?page=1">&laquo; 最初</a>
+        <a href="?page={{ tourist_spots.previous_page_number }}">前へ</a>
+      {% endif %}
+
+      <span class="current">
+        ページ {{ tourist_spots.number }} / {{ tourist_spots.paginator.num_pages }}。
+      </span>
+
+      {% if tourist_spots.has_next %}
+        <a href="?page={{ tourist_spots.next_page_number }}">次へ</a>
+        <a href="?page={{ tourist_spots.paginator.num_pages }}">最後 &raquo;</a>
+      {% endif %}
+    </span>
+  </div>
+  
 {% endblock %}

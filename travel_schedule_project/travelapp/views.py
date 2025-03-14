@@ -25,6 +25,14 @@ from .models import TouristSpot, TouristSpotKeyword, WORKINGDAY_CHOICES, UserRev
 from django.views import View
 from django.db.models import Avg
 from django.db.models import Q
+from django.views.generic.list import ListView
+from django.shortcuts import render
+from django.db.models import Q
+from .forms import TouristSpotSearchForm
+from .models import TouristSpot
+from django.db.models import Q
+from .forms import TouristSpotSearchForm
+from .models import TouristSpot
 # Create your views here.
 
 
@@ -118,9 +126,6 @@ class PortfolioView(View):
     def get(self, request):
         return render(request, "portfolio.html")
 
-from django.db.models import Q
-from .forms import TouristSpotSearchForm
-from .models import TouristSpot
 
 
 def home(request):
@@ -133,39 +138,37 @@ def home(request):
     
 
 
-def search_touristspot(request):
-    form = TouristSpotSearchForm(request.GET)
-    tourist_spots = None  # デフォルトはNoneにして結果なしに
-
-    if form.is_valid():
-        query = form.cleaned_data.get('query', '')
-        category = form.cleaned_data.get('category', '')
-        order_by = form.cleaned_data.get('order_by', 'review_score_average')
-
-        # 検索条件が指定されている場合のみ絞り込みを行う
-        if query or category:
-            tourist_spots = TouristSpot.objects.all()
-
-            if query:
-                tourist_spots = tourist_spots.filter(
-                    Q(spot_name__icontains=query) | 
-                    Q(description__icontains=query) | 
-                    Q(address__icontains=query) | 
-                    Q(touristspotkeyword__keyword__icontains=query)
-                )
-
-            if category:
-                tourist_spots = tourist_spots.filter(category=category)
-
-            # 並び順適用
-            tourist_spots = tourist_spots.order_by(order_by)
-
-    return render(request, 'search_touristspot.html', {
-        'form': form,
-        'tourist_spots': tourist_spots,
-        'current_order_by': request.GET.get('order_by', 'review_score_average')
-    })
-
+class TouristSpotSearchView(ListView):
+    model = TouristSpot
+    template_name = 'search_touristspot.html'  # 必要に応じて変更
+    context_object_name = 'tourist_spots'
+    
+    def get_queryset(self):
+        queryset = TouristSpot.objects.all()
+        keyword = self.request.GET.get('query')  # 'query' パラメータを取得
+        category = self.request.GET.get('category')
+        
+        if not keyword:
+            # キーワードが空の場合、エラーメッセージを返すなどの処理を追加できます。
+            # ここで空の場合のエラー処理も可能ですが、エラーハンドリングを別途する場合もあります。
+            return queryset.none()  # もしキーワードが空なら結果を返さない
+        
+        # キーワードに対してフィルタリング
+        queryset = queryset.filter(
+            Q(spot_name__icontains=keyword) | 
+            Q(prefecture__icontains=keyword) | 
+            Q(address__icontains=keyword) | 
+            Q(description__icontains=keyword) |
+            Q(touristspotkeyword__keyword__keyword__icontains=keyword)  # TouristSpotKeywordを使ってキーワードを検索
+        )
+        
+        if category:
+            # カテゴリによるフィルタリング
+            queryset = queryset.filter(category=category)
+        
+        return queryset
+    
+    
 @login_required
 def regist_touristspot(request):
     if request.method == "POST":
