@@ -7,7 +7,7 @@ from django.views import View
 from django.views.generic.edit import FormView
 from django.views.generic.edit import CreateView,UpdateView
 from django.contrib.auth.models import User
-from .forms import ChangeEmailForm, PasswordChangeForm, RegistAccountForm, UserLoginForm, UserReviewForm
+from .forms import ChangeEmailForm, PasswordChangeForm, RegistAccountForm, TouristSpotSearchForm, UserLoginForm, UserReviewForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages  
 from django.contrib.auth import authenticate, login, logout as auth_logout, update_session_auth_hash
@@ -24,7 +24,7 @@ from django.conf import settings
 from .models import TouristSpot, TouristSpotKeyword, WORKINGDAY_CHOICES, UserReview
 from django.views import View
 from django.db.models import Avg
-
+from django.db.models import Q
 # Create your views here.
 
 
@@ -118,8 +118,42 @@ class PortfolioView(View):
     def get(self, request):
         return render(request, "portfolio.html")
 
-def homeview(request):
-    return render(request, 'home.html')
+from django.db.models import Q
+from .forms import TouristSpotSearchForm
+from .models import TouristSpot
+
+
+def home(request):
+    form = TouristSpotSearchForm(request.GET or None)
+    
+    if request.GET and form.is_valid():
+        return redirect('travelapp:search_touristspot')  # 検索フォーム送信後に遷移
+    
+    return render(request, 'home.html', {'form': form})
+
+def search_touristspot(request):
+    form = TouristSpotSearchForm(request.GET)
+    tourist_spots = TouristSpot.objects.all()
+
+    if form.is_valid():
+        query = form.cleaned_data.get('query', '')
+        category = form.cleaned_data.get('category', '')
+        order_by = form.cleaned_data.get('order_by', 'review_score_average')
+
+        if query:
+            tourist_spots = tourist_spots.filter(
+                Q(spot_name__icontains=query) | 
+                Q(description__icontains=query) | 
+                Q(address__icontains=query) | 
+                Q(touristspotkeyword__keyword__icontains=query)
+            )
+
+        if category:  # カテゴリが空でない場合に絞り込み
+            tourist_spots = tourist_spots.filter(category=category)
+
+        tourist_spots = tourist_spots.order_by(order_by)
+
+    return render(request, 'search_touristspot.html', {'form': form, 'tourist_spots': tourist_spots})
 
 @login_required
 def regist_touristspot(request):

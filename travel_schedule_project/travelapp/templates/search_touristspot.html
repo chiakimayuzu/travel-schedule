@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>観光地を検索</h1>
+  <form method="get">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">再検索</button>
+  </form>
+
+  <h2>検索結果</h2>
+  {% if tourist_spots %}
+    <ul>
+      {% for spot in tourist_spots %}
+        <li>
+          <h3>{{ spot.spot_name }} ({{ spot.prefecture }})</h3>
+          <p>{{ spot.description }}</p>
+          <p>評価: {{ spot.review_score_average }} / 5</p>
+          <p><a href="{% url 'travelapp:detail_touristspot' spot.pk %}">詳細</a></p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>結果がありませんでした。</p>
+  {% endif %}
+{% endblock %}

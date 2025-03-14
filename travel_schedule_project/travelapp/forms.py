@@ -159,24 +159,7 @@ class TouristSpotForm(forms.ModelForm):
         if len(keywords_list) > 10:
             raise forms.ValidationError("1つの観光地に登録できるキーワードは10個までです")  # ★最大10個まで
         return keywords_list  # ★cleaned_data にリストとして保存
-    
 
-    # def clean(self): # フロントエンドでの非同期チェックが無効な場合も機能するために記載
-    #     cleaned_data = super().clean()
-    #     spot_name = cleaned_data.get("spot_name")
-    #     address = cleaned_data.get("address")
-
-    #     errors = {}
-
-    #     if spot_name and TouristSpot.objects.filter(spot_name=spot_name).exists():
-    #         errors["spot_name"] = "この観光地名は既に登録されています"
-        
-    #     if address and TouristSpot.objects.filter(address=address).exists():
-    #         errors["address"] = "この住所は既に登録されています"
-
-    #     if errors:
-    #         raise forms.ValidationError(errors)
-    #     return cleaned_data
 
 
 from django import forms
@@ -209,3 +192,19 @@ class UserReviewForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+class TouristSpotSearchForm(forms.Form):
+    query = forms.CharField(required=False, label='検索キーワード', widget=forms.TextInput(attrs={'placeholder': 'スポット名、キーワード、説明、住所で検索'}))
+    
+    category = forms.ChoiceField(
+        required=False,
+        choices=[('', 'カテゴリを選択')] + CATEGORY_CHOICES,  # 参照方法を変更
+        label='カテゴリ'
+    )
+   
+    order_by = forms.ChoiceField(choices=[
+        ('review_score_average', '評価がいい順'),
+        ('created_at', '新しい順'),
+        ('-created_at', '古い順'),
+    ], initial='review_score_average', label='並び順')

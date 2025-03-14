@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>ようこそ！</h1>
-    <p>これは共通のホーム画面です。</p>
-
-
-
-{% endblock %}
+  <h1>観光地を検索</h1>
+  <form method="get">
+    {{ form.as_p }}
+    <button type="submit">検索</button>
+  </form>
+{% endblock %} 
