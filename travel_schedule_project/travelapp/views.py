@@ -296,8 +296,11 @@ def detail_touristspot(request, pk):
     # その観光地に関連するクチコミを作成日時順に並べ替えて最新の3件を取得
     reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')[:3]
 
-    # 行きたいリストに追加されているかを確認
-    is_wanted = WantedSpot.objects.filter(user=request.user, tourist_spot=tourist_spot).exists()
+    # ログインしていない場合は行きたいリストに追加されていないと見なす
+    is_wanted = False
+    if request.user.is_authenticated:
+        # ログインしている場合のみ行きたいリストを確認
+        is_wanted = WantedSpot.objects.filter(user=request.user, tourist_spot=tourist_spot).exists()
 
     # 各平均値を計算
     review_score_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('review_score'))['review_score__avg']
@@ -357,7 +360,7 @@ def detail_touristspot(request, pk):
     return render(request, 'detail_touristspot.html', context)
 
 
-@login_required
+
 def edit_touristspot(request, pk):
     tourist_spot = get_object_or_404(TouristSpot, pk=pk)
     
@@ -366,6 +369,18 @@ def edit_touristspot(request, pk):
 
     # 現在登録されているワーキングデイをリスト化
     current_workingdays = tourist_spot.workingday.split(",") if tourist_spot.workingday else []
+    reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')[:3]
+    google_maps_api_key = settings.GOOGLE_MAPS_API_KEY
+    
+    # ログインしていない場合、メッセージを渡す
+    if not request.user.is_authenticated:
+    # 同じページにメッセージを表示
+        return render(request, 'detail_touristspot.html', {
+            'tourist_spot': tourist_spot,
+            'reviews': reviews,  # クチコミを渡す
+            'google_maps_api_key': google_maps_api_key,  # APIキーを渡す
+            'error_message': "この機能を利用するにはログインしてください。",
+    })
 
     if request.method == 'POST':
         form = TouristSpotForm(request.POST, request.FILES, instance=tourist_spot)
@@ -404,9 +419,19 @@ def edit_touristspot(request, pk):
 
 
 
-@login_required
+
 def create_review(request, pk):  # 🔹 引数名を pk に変更
     tourist_spot = get_object_or_404(TouristSpot, id=pk)
+
+    # ログインしていない場合、メッセージを渡す
+    if not request.user.is_authenticated:
+        # 同じページにメッセージを表示
+        return render(request, 'detail_touristspot.html', {
+            'tourist_spot': tourist_spot,
+            'error_message': "この機能を利用するにはログインしてください。",
+        })
+
+
     if request.method == 'POST':
         form = UserReviewForm(request.POST)
         if form.is_valid():
@@ -515,9 +540,21 @@ def review_list(request, pk):
     return render(request, 'reviews/review_list.html', context)
 
 
-@login_required
+
 def wanted_spot(request, tourist_spot_id):
     tourist_spot = TouristSpot.objects.get(id=tourist_spot_id)
+    reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')[:3]
+    google_maps_api_key = settings.GOOGLE_MAPS_API_KEY
+
+    # ログインしていない場合、メッセージを渡す
+    if not request.user.is_authenticated:
+    # 同じページにメッセージを表示
+        return render(request, 'detail_touristspot.html', {
+            'tourist_spot': tourist_spot,
+            'reviews': reviews,  # クチコミを渡す
+            'google_maps_api_key': google_maps_api_key,  # APIキーを渡す
+            'error_message': "この機能を利用するにはログインしてください。",
+    })
 
     if WantedSpot.objects.filter(user=request.user, tourist_spot=tourist_spot).exists():
         return HttpResponse("すでに行きたいリストに追加されています。")

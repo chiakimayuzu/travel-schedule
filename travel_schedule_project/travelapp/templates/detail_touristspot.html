@@ -8,6 +8,20 @@
     <a href="{% url 'travelapp:create_review' pk=tourist_spot.pk %}">この観光地のクチコミをかく</a>
 </p>
 
+<!-- 行きたいリストの操作 -->
+{% if not is_wanted %}
+  <form method="post" action="{% url 'travelapp:wanted_spot' tourist_spot.id %}">
+    {% csrf_token %}
+    <button type="submit" class="heart-button">❤ 行きたい</button>
+  </form>
+{% else %}
+  <p>❤登録済み</p>
+{% endif %}
+
+{% if error_message %}
+  <p style="color: red;">{{ error_message }}</p>
+{% endif %}
+
 {% if messages %}
 <ul class="messages">
   {% for message in messages %}
@@ -105,15 +119,7 @@
     <p>まだクチコミはありません。</p>
 {% endif %}
 
-<!-- 行きたいリストの操作 -->
-{% if not is_wanted %}
-  <form method="post" action="{% url 'travelapp:wanted_spot' tourist_spot.id %}">
-    {% csrf_token %}
-    <button type="submit" class="heart-button">❤ 行きたい</button>
-  </form>
-{% else %}
-  <p>❤登録済み</p>
-{% endif %}
+
 
 <!-- Google Maps APIの読み込み -->
 <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
