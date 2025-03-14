@@ -254,33 +254,34 @@ def detail_touristspot(request, pk):
     review_count = UserReview.objects.filter(tourist_spot=tourist_spot).count()
 
     # ★（塗りつぶし星・半分の星・空の星）の表示制御
-# 整数部分の塗りつぶし星
+    # 整数部分の塗りつぶし星
     filled_stars = int(review_score_avg)  # 整数部分の塗りつぶし
-# 小数部分（0.5以上なら半分塗りつぶし）
-    half_star = round(review_score_avg - filled_stars, 1) >= 0.5
-# 空の星（5個になるように調整）
+    # 小数部分（0.25以上なら半分塗りつぶし）
+    half_star = (review_score_avg - filled_stars) >= 0.25  # 0.25以上で半分星
+    # 空の星（5個になるように調整）
     empty_stars = 5 - filled_stars - (1 if half_star else 0)
 
-# テンプレートに渡すコンテキスト
+    # テンプレートに渡すコンテキスト
     context = {
-    'tourist_spot': tourist_spot,   # 観光地情報
-    'working_days': working_days,   # 営業曜日
-    'keywords': keywords,           # キーワード
-    'reviews': reviews,             # クチコミ一覧
-    'is_wanted': is_wanted,         # 行きたいリストに含まれているか
-    'review_score_avg': review_score_avg, # 評価スコア平均
-    'price_avg': price_avg,         # 価格帯
-    'stay_time_avg': stay_time_avg, # 滞在時間平均（分）
-    'filled_stars': [i for i in range(filled_stars)],   # 塗りつぶし星の数（リスト）
-    'half_star': half_star,         # 半分塗りつぶしの星
-    'empty_stars': [i for i in range(empty_stars)],     # 空の星の数（リスト）
-    'stay_time_hours': stay_time_hours, # 滞在時間（時間）
-    'stay_time_minutes': stay_time_minutes, # 滞在時間（分）
-    'most_common_price': most_common_price_str, # 価格帯（最頻値）
-    'review_count': review_count,   # クチコミ件数
-}
+        'tourist_spot': tourist_spot,   # 観光地情報
+        'working_days': working_days,   # 営業曜日
+        'keywords': keywords,           # キーワード
+        'reviews': reviews,             # クチコミ一覧
+        'is_wanted': is_wanted,         # 行きたいリストに含まれているか
+        'review_score_avg': review_score_avg, # 評価スコア平均
+        'price_avg': price_avg,         # 価格帯
+        'stay_time_avg': stay_time_avg, # 滞在時間平均（分）
+        'filled_stars': [i for i in range(filled_stars)],   # 塗りつぶし星の数（リスト）
+        'half_star': half_star,         # 半分塗りつぶしの星
+        'empty_stars': [i for i in range(empty_stars)],     # 空の星の数（リスト）
+        'stay_time_hours': stay_time_hours, # 滞在時間（時間）
+        'stay_time_minutes': stay_time_minutes, # 滞在時間（分）
+        'most_common_price': most_common_price_str, # 価格帯（最頻値）
+        'review_count': review_count,   # クチコミ件数
+    }
 
     return render(request, 'detail_touristspot.html', context)
+
 
 @login_required
 def edit_touristspot(request, pk):

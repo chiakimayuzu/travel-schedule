@@ -39,7 +39,9 @@
 <p>営業時間: {{ tourist_spot.opening_at }} - {{ tourist_spot.closing_at }}</p>
 <p>公式URL: <a href="{{ tourist_spot.offical_url }}" target="_blank">{{ tourist_spot.offical_url }}</a></p>
 
-評価スコア平均: 
+<!-- 評価スコア平均: -->
+<p>評価スコア平均:
+
 <!-- 塗りつぶし星 -->
 {% for star in filled_stars %}
   <span class="star filled">&#9733;</span>
@@ -56,6 +58,7 @@
 {% endfor %}
 
 {{ review_score_avg }}  
+
     (クチコミ件数: {{ review_count }}件)  <!-- クチコミ件数を表示 -->
   </p>  
   <!-- 価格の最頻値 -->
@@ -145,4 +148,14 @@
     overflow: hidden;
     width: 50%; /* 50%塗りつぶし */
     color: #f5a623;
+    left: 0;
+}
+
+.star.half::after {
+    content: '\2605'; /* 星マーク */
+    position: absolute;
+    overflow: hidden;
+    width: 50%; /* 残りの半分は塗りつぶさない */
+    color: #ccc; /* 空の星の色 */
+    right: 0;
 }
