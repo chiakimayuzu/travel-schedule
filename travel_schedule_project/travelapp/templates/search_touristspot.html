@@ -3,8 +3,12 @@
 {% block content %}
   <h1>観光地を検索</h1>
   <form method="get">
-    {% csrf_token %}
-    {{ form.as_p }}
+    {{ form.query }}
+    
+    {{ form.category }}
+    
+    {{ form.order_by }}
+    
     <button type="submit">再検索</button>
   </form>
 

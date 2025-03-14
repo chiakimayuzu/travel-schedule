@@ -199,8 +199,10 @@ class TouristSpotSearchForm(forms.Form):
     
     category = forms.ChoiceField(
         required=False,
-        choices=[('', 'カテゴリを選択')] + CATEGORY_CHOICES,  # 参照方法を変更
-        label='カテゴリ'
+        choices=[('', 'カテゴリを選択')] + CATEGORY_CHOICES,
+        label='カテゴリ',
+        initial='',  # 空の選択を初期値に設定
+        error_messages={'invalid_choice': 'カテゴリが無効です。'},  # カスタムエラーメッセージ (必要なら)
     )
    
     order_by = forms.ChoiceField(choices=[
