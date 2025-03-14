@@ -36,11 +36,11 @@
 {% if messages %}
     <ul class="messages">
         {% for message in messages %}
-        {% if 'change_email' in message.tags %}
-            <li class="{{ message.tags }}">{{ message }}</li>
+            {% if 'change_email' in message.tags %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+            {% endif %}
         {% endfor %}
     </ul>
 {% endif %}
 
-
-{% endblock %}
+{% endblock %}  
