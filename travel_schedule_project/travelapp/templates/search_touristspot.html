@@ -34,36 +34,28 @@
 
   <h2>検索結果:</h2>
   
-  <!-- 観光地リスト -->
   <div>
     {% if tourist_spots %}
-        <ul>
-            {% for spot in tourist_spots %}
-                <li>{{ spot.spot_name }} - {{ spot.prefecture }} - {{ spot.address }}</li>
-            {% endfor %}
-        </ul>
+      <ul>
+        {% for spot in tourist_spots %}
+          <li>
+            <div>
+              <!-- pictureをクリックすると詳細ページに遷移 -->
+              <a href="{% url 'travelapp:detail_touristspot' pk=spot.pk %}">
+                <img src="{{ spot.picture.url }}" alt="{{ spot.spot_name }}" width="200" height="150">
+              </a>
+            </div>
+            <div>
+              <strong>{{ spot.spot_name }}</strong><br>
+              <span>{{ spot.get_prefecture_display }}</span><br>
+              <span>{{ spot.address }}</span><br>
+              <span>{{ spot.get_category_display }}</span><br>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
     {% else %}
-        <p>該当する観光地はありません。</p>
+      <p>検索結果はありませんでした。</p>
     {% endif %}
-</div>
-
-  <!-- ページネーション -->
-  <div class="pagination">
-    <span class="step-links">
-      {% if tourist_spots.has_previous %}
-        <a href="?page=1">&laquo; 最初</a>
-        <a href="?page={{ tourist_spots.previous_page_number }}">前へ</a>
-      {% endif %}
-
-      <span class="current">
-        ページ {{ tourist_spots.number }} / {{ tourist_spots.paginator.num_pages }}。
-      </span>
-
-      {% if tourist_spots.has_next %}
-        <a href="?page={{ tourist_spots.next_page_number }}">次へ</a>
-        <a href="?page={{ tourist_spots.paginator.num_pages }}">最後 &raquo;</a>
-      {% endif %}
-    </span>
   </div>
-  
 {% endblock %}

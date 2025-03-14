@@ -15,7 +15,7 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth import authenticate,login,logout
 from django.shortcuts import render, redirect
 from .forms import TouristSpotForm
-from .models import REVIEW_PRICE_CHOICES, Keyword, TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
+from .models import PREFECTURE_CHOICES, REVIEW_PRICE_CHOICES, Keyword, TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
 from django.shortcuts import render, redirect
 from .forms import TouristSpotForm, UserReviewForm
 from .models import Keyword, TouristSpotKeyword
@@ -153,22 +153,34 @@ class TouristSpotSearchView(ListView):
             # ここで空の場合のエラー処理も可能ですが、エラーハンドリングを別途する場合もあります。
             return queryset.none()  # もしキーワードが空なら結果を返さない
         
-        # キーワードに対してフィルタリング
-        queryset = queryset.filter(
-            Q(spot_name__icontains=keyword) | 
-            Q(prefecture__icontains=keyword) | 
-            Q(address__icontains=keyword) | 
-            Q(description__icontains=keyword) |
-            Q(touristspotkeyword__keyword__keyword__icontains=keyword)  # TouristSpotKeywordを使ってキーワードを検索
-        )
+        # PREFECTURE_CHOICESを辞書にして、入力されたキーワードを対応する値に変換
+        prefecture_dict = dict(PREFECTURE_CHOICES)
+        
+        # 県名（例：京都府）を入力された場合、その番号（例：26）を取得
+        prefecture_value = None
+        for value, name in prefecture_dict.items():
+            if name in keyword:
+                prefecture_value = value
+                break
+
+        # 県名が見つかった場合、prefectureでフィルタリング
+        if prefecture_value:
+            queryset = queryset.filter(prefecture=prefecture_value)
+        else:
+            # 県名に一致しない場合は、他のフィールドで検索を続ける
+            queryset = queryset.filter(
+                Q(spot_name__icontains=keyword) | 
+                Q(address__icontains=keyword) | 
+                Q(description__icontains=keyword) |
+                Q(touristspotkeyword__keyword__keyword__icontains=keyword)  # TouristSpotKeywordを使ってキーワードを検索
+            )
         
         if category:
             # カテゴリによるフィルタリング
             queryset = queryset.filter(category=category)
         
         return queryset
-    
-    
+
 @login_required
 def regist_touristspot(request):
     if request.method == "POST":
