@@ -1,8 +1,8 @@
 from django.urls import path
 from .views import (
-    RegistAccountView, TouristSpotSearchView, create_review, edit_my_review, home,LoginView,LogoutView,change_password,change_email,
+    RegistAccountView, TouristSpotSearchView, create_review, create_touristplan, edit_my_review, home,LoginView,LogoutView,change_password,change_email,
     PortfolioView, my_review_detail, my_review_list,regist_touristspot,check_dupe_tourist_spot,
-    detail_touristspot,edit_touristspot, review_list, wanted_spot, wanted_spot_list, 
+    detail_touristspot,edit_touristspot, review_list, search_touristspot_modal, wanted_spot, wanted_spot_list, wanted_spots_modal, 
     )   
 
 
@@ -28,4 +28,9 @@ urlpatterns = [
     path('review_list/<int:pk>/', review_list, name='review_list'),
     path('wanted_spot/<int:tourist_spot_id>/', wanted_spot, name='wanted_spot'),  # 行きたいリストに追加
     path('wanted_spot_list/', wanted_spot_list, name='wanted_spot_list'),  # 行きたいリスト
+    path('create/', create_touristplan, name='create_touristplan'),
+    # 観光地検索モーダル用URL
+    path('search_touristspot/', search_touristspot_modal, name='search_touristspot_modal'),
+    # 行きたいリストモーダル用URL
+    path('wanted_spots_modal/', wanted_spots_modal, name='wanted_spots_modal'),
     ]

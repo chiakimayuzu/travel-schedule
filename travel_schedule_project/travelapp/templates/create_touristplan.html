@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>旅行プラン作成</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    
+    <!-- 日付の選択 -->
+    <div id="calendar">
+      <label for="dates">旅行日程選択（最大5日間）</label>
+      <input type="date" name="dates" required>
+    </div>
+
+    <!-- モーダルリンク -->
+    <a href="#wanted-spots-modal" data-toggle="modal" class="btn btn-primary">行きたいリスト</a>
+    <a href="#search-touristspot-modal" data-toggle="modal" class="btn btn-primary">観光地を検索</a>
+
+    <!-- 行きたいリストのモーダル -->
+    <div class="modal" id="wanted-spots-modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">行きたいリスト</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <ul>
+              {% for spot in user_wanted_spots %}
+                <li>
+                  <img src="{{ spot.picture.url }}" alt="spot image">
+                  <span>{{ spot.spot_name }}</span>
+                  <button type="button" class="btn btn-success">追加</button>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 観光地検索モーダル -->
+    <div class="modal" id="search-touristspot-modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">観光地検索</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <form method="get" action="{% url 'travelapp:search_touristspot' %}">
+              <input type="text" name="search" placeholder="観光地を検索" required>
+              <button type="submit" class="btn btn-primary">検索</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-success">保存</button>
+  </form>
+{% endblock %}

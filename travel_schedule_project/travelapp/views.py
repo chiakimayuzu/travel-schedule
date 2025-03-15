@@ -42,6 +42,12 @@ from collections import Counter
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404, render
 from .models import TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import TouristSpot, TouristPlan, TouristPlan_Spot, WantedSpot
+from .forms import TouristPlanForm
+from datetime import datetime
+
 # Create your views here.
 
 
@@ -446,6 +452,7 @@ def edit_touristspot(request, pk):
             'most_common_price': most_common_price_str, # 価格帯（最頻値）
             'review_count': review_count,   # クチコミ件数
             'google_maps_api_key': google_maps_api_key,  # APIキーを渡す
+
             'error_message': "この機能を利用するにはログインしてください。",
     })
 
@@ -781,3 +788,42 @@ def wanted_spot_list(request):
         return redirect('travelapp:wanted_spot_list')
 
     return render(request, 'wanted_spot_list.html', {'wanted_spots': wanted_spots})
+
+
+
+@login_required
+def create_touristplan(request):
+    if request.method == 'POST':
+        form = TouristPlanForm(request.POST)
+        if form.is_valid():
+            # 旅行プランを保存
+            tourist_plan = form.save(commit=False)
+            tourist_plan.user = request.user
+            tourist_plan.save()
+
+            # 選ばれた観光地を保存
+            selected_spots = request.POST.getlist('tourist_spots')
+            for spot_id in selected_spots:
+                tourist_spot = TouristSpot.objects.get(id=spot_id)
+                for visit_date in form.cleaned_data['dates']:
+                    TouristPlan_Spot.objects.create(
+                        tourist_plan=tourist_plan,
+                        tourist_spot=tourist_spot,
+                        visit_date=visit_date
+                    )
+
+            return redirect('touristplan_detail', pk=tourist_plan.pk)
+    else:
+        form = TouristPlanForm()
+
+    return render(request, 'create_touristplan.html', {'form': form})
+
+def search_touristspot_modal(request):
+    query = request.GET.get('q', '')  # 検索クエリを取得
+    tourist_spots = TouristSpot.objects.filter(spot_name__icontains=query)  # 名前にクエリを含む観光地を取得
+    return render(request, 'search_touristspot_modal.html', {'tourist_spots': tourist_spots})
+
+def wanted_spots_modal(request):
+    user = request.user  # 現在のユーザーを取得
+    wanted_spots = WantedSpot.objects.filter(user=user)  # 現在のユーザーの行きたいリストを取得
+    return render(request, 'wanted_spots_modal.html', {'wanted_spots': wanted_spots})

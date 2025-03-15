@@ -8,7 +8,11 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate
 from django import forms
-from .models import TouristSpot, TouristSpotKeyword, Keyword, PREFECTURE_CHOICES, CATEGORY_CHOICES, WORKINGDAY_CHOICES, PARKING_CHOICES, UserReview
+from .models import TouristPlan_Spot, TouristSpot, TouristSpotKeyword, Keyword, PREFECTURE_CHOICES, CATEGORY_CHOICES, WORKINGDAY_CHOICES, PARKING_CHOICES, UserReview
+from .models import TouristPlan
+from django.forms import formset_factory
+
+
 
 class UserLoginForm(forms.Form):
     email = forms.EmailField(label='メールアドレス', widget=forms.TextInput(attrs={'placeholder': '例:xxx@example.com'}))
@@ -214,3 +218,13 @@ class TouristSpotSearchForm(forms.Form):
         initial='review_score_average',  # デフォルトで「評価がいい順」
         label='並び順'
     )
+
+class TouristPlanForm(forms.ModelForm):
+    dates = forms.DateField(widget=forms.SelectDateWidget(years=range(2025, 2030)), required=True)
+    
+    class Meta:
+        model = TouristPlan
+        fields = ['touristplan_name', 'start_date', 'end_date']
+
+# モーダルで選択する観光地のフォームセット
+TouristSpotFormSet = formset_factory(TouristPlan_Spot, extra=1)
