@@ -296,11 +296,94 @@ def detail_touristspot(request, pk):
     # その観光地に関連するクチコミを作成日時順に並べ替えて最新の3件を取得
     reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')[:3]
 
+    # 各平均値を計算
+    review_score_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('review_score'))['review_score__avg']
+    price_avg = UserReview.objects.filter(tourist_spot=tourist_spot).values('review_price')
+    stay_time_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('stay_time_min'))['stay_time_min__avg']
+
+    # もし平均値がNoneの場合は、0を代入
+    review_score_avg = review_score_avg if review_score_avg is not None else 0
+    stay_time_avg = stay_time_avg if stay_time_avg is not None else 0
+
+    # 価格帯の最頻値を取得
+    price_counter = Counter([price['review_price'] for price in price_avg])
+    most_common_price = price_counter.most_common(1)
+    most_common_price = most_common_price[0][0] if most_common_price else None
+
+    # REVIEW_PRICE_CHOICES の dict を作成
+    price_choices_dict = dict(REVIEW_PRICE_CHOICES)
+
+    # 最頻値の価格帯を取得し、対応する価格帯の文字列に変換
+    most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
+
+    # 滞在時間の表示形式（時間と分）
+    stay_time_hours = int(stay_time_avg) // 60
+    stay_time_minutes = int(stay_time_avg) % 60
+
+    # クチコミ件数を取得
+    review_count = UserReview.objects.filter(tourist_spot=tourist_spot).count()
+
+    # ★（塗りつぶし星・半分の星・空の星）の表示制御
+    # 整数部分の塗りつぶし星
+    filled_stars = int(review_score_avg)  # 整数部分の塗りつぶし
+    # 小数部分（0.25以上なら半分塗りつぶし）
+    half_star = (review_score_avg - filled_stars) >= 0.25  # 0.25以上で半分星
+    # 空の星（5個になるように調整）
+    empty_stars = 5 - filled_stars - (1 if half_star else 0)
+
     # ログインしていない場合は行きたいリストに追加されていないと見なす
     is_wanted = False
     if request.user.is_authenticated:
         # ログインしている場合のみ行きたいリストを確認
         is_wanted = WantedSpot.objects.filter(user=request.user, tourist_spot=tourist_spot).exists()
+
+    # テンプレートに渡すコンテキスト
+    context = {
+        'tourist_spot': tourist_spot,   # 観光地情報
+        'working_days': working_days,   # 営業曜日
+        'keywords': keywords,           # キーワード
+        'reviews': reviews,             # クチコミ一覧
+        'is_wanted': is_wanted,         # 行きたいリストに含まれているか
+        'review_score_avg': review_score_avg, # 評価スコア平均
+        'price_avg': price_avg,         # 価格帯
+        'stay_time_avg': stay_time_avg, # 滞在時間平均（分）
+        'filled_stars': [i for i in range(filled_stars)],   # 塗りつぶし星の数（リスト）
+        'half_star': half_star,         # 半分塗りつぶしの星
+        'empty_stars': [i for i in range(empty_stars)],     # 空の星の数（リスト）
+        'stay_time_hours': stay_time_hours, # 滞在時間（時間）
+        'stay_time_minutes': stay_time_minutes, # 滞在時間（分）
+        'most_common_price': most_common_price_str, # 価格帯（最頻値）
+        'review_count': review_count,   # クチコミ件数
+        'google_maps_api_key': google_maps_api_key  # APIキーを渡す
+    }
+
+    return render(request, 'detail_touristspot.html', context)
+
+
+
+def edit_touristspot(request, pk):
+    tourist_spot = get_object_or_404(TouristSpot, pk=pk)
+    
+    # 現在登録されているキーワードを取得
+    current_keywords = tourist_spot.touristspotkeyword_set.all()
+
+    # 現在登録されているワーキングデイをリスト化
+    current_workingdays = tourist_spot.workingday.split(",") if tourist_spot.workingday else []
+    reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')[:3]
+    google_maps_api_key = settings.GOOGLE_MAPS_API_KEY
+
+    # workingday を曜日名に変換
+    day_mapping = dict(WORKINGDAY_CHOICES)
+    working_days = []
+    if tourist_spot.workingday:
+        # workingdayのデータをカンマ区切りで分割して、曜日名に変換
+        working_days = [day_mapping.get(int(day), day) for day in tourist_spot.workingday.split(",")]
+
+    # TouristSpotKeyword から keyword を取得
+    keywords = TouristSpotKeyword.objects.filter(tourist_spot=tourist_spot).values_list('keyword__keyword', flat=True)
+
+    # その観光地に関連するクチコミを作成日時順に並べ替えて最新の3件を取得
+    reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')[:3]
 
     # 各平均値を計算
     review_score_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('review_score'))['review_score__avg']
@@ -337,47 +420,31 @@ def detail_touristspot(request, pk):
     # 空の星（5個になるように調整）
     empty_stars = 5 - filled_stars - (1 if half_star else 0)
 
-    # テンプレートに渡すコンテキスト
-    context = {
-        'tourist_spot': tourist_spot,   # 観光地情報
-        'working_days': working_days,   # 営業曜日
-        'keywords': keywords,           # キーワード
-        'reviews': reviews,             # クチコミ一覧
-        'is_wanted': is_wanted,         # 行きたいリストに含まれているか
-        'review_score_avg': review_score_avg, # 評価スコア平均
-        'price_avg': price_avg,         # 価格帯
-        'stay_time_avg': stay_time_avg, # 滞在時間平均（分）
-        'filled_stars': [i for i in range(filled_stars)],   # 塗りつぶし星の数（リスト）
-        'half_star': half_star,         # 半分塗りつぶしの星
-        'empty_stars': [i for i in range(empty_stars)],     # 空の星の数（リスト）
-        'stay_time_hours': stay_time_hours, # 滞在時間（時間）
-        'stay_time_minutes': stay_time_minutes, # 滞在時間（分）
-        'most_common_price': most_common_price_str, # 価格帯（最頻値）
-        'review_count': review_count,   # クチコミ件数
-        'google_maps_api_key': google_maps_api_key  # APIキーを渡す
-    }
+    # ログインしていない場合は行きたいリストに追加されていないと見なす
+    is_wanted = False
+    if request.user.is_authenticated:
+        # ログインしている場合のみ行きたいリストを確認
+        is_wanted = WantedSpot.objects.filter(user=request.user, tourist_spot=tourist_spot).exists()
 
-    return render(request, 'detail_touristspot.html', context)
-
-
-
-def edit_touristspot(request, pk):
-    tourist_spot = get_object_or_404(TouristSpot, pk=pk)
-    
-    # 現在登録されているキーワードを取得
-    current_keywords = tourist_spot.touristspotkeyword_set.all()
-
-    # 現在登録されているワーキングデイをリスト化
-    current_workingdays = tourist_spot.workingday.split(",") if tourist_spot.workingday else []
-    reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')[:3]
-    google_maps_api_key = settings.GOOGLE_MAPS_API_KEY
-    
     # ログインしていない場合、メッセージを渡す
     if not request.user.is_authenticated:
     # 同じページにメッセージを表示
         return render(request, 'detail_touristspot.html', {
             'tourist_spot': tourist_spot,
-            'reviews': reviews,  # クチコミを渡す
+            'working_days': working_days,   # 営業曜日
+            'keywords': keywords,           # キーワード
+            'reviews': reviews,             # クチコミ一覧
+            'is_wanted': is_wanted,         # 行きたいリストに含まれているか
+            'review_score_avg': review_score_avg, # 評価スコア平均
+            'price_avg': price_avg,         # 価格帯
+            'stay_time_avg': stay_time_avg, # 滞在時間平均（分）
+            'filled_stars': [i for i in range(filled_stars)],   # 塗りつぶし星の数（リスト）
+            'half_star': half_star,         # 半分塗りつぶしの星
+            'empty_stars': [i for i in range(empty_stars)],     # 空の星の数（リスト）
+            'stay_time_hours': stay_time_hours, # 滞在時間（時間）
+            'stay_time_minutes': stay_time_minutes, # 滞在時間（分）
+            'most_common_price': most_common_price_str, # 価格帯（最頻値）
+            'review_count': review_count,   # クチコミ件数
             'google_maps_api_key': google_maps_api_key,  # APIキーを渡す
             'error_message': "この機能を利用するにはログインしてください。",
     })
@@ -422,12 +489,82 @@ def edit_touristspot(request, pk):
 
 def create_review(request, pk):  # 🔹 引数名を pk に変更
     tourist_spot = get_object_or_404(TouristSpot, id=pk)
+    google_maps_api_key = settings.GOOGLE_MAPS_API_KEY
+
+    # workingday を曜日名に変換
+    day_mapping = dict(WORKINGDAY_CHOICES)
+    working_days = []
+    if tourist_spot.workingday:
+        # workingdayのデータをカンマ区切りで分割して、曜日名に変換
+        working_days = [day_mapping.get(int(day), day) for day in tourist_spot.workingday.split(",")]
+
+    # TouristSpotKeyword から keyword を取得
+    keywords = TouristSpotKeyword.objects.filter(tourist_spot=tourist_spot).values_list('keyword__keyword', flat=True)
+
+    # その観光地に関連するクチコミを作成日時順に並べ替えて最新の3件を取得
+    reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')[:3]
+
+    # 各平均値を計算
+    review_score_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('review_score'))['review_score__avg']
+    price_avg = UserReview.objects.filter(tourist_spot=tourist_spot).values('review_price')
+    stay_time_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('stay_time_min'))['stay_time_min__avg']
+
+    # もし平均値がNoneの場合は、0を代入
+    review_score_avg = review_score_avg if review_score_avg is not None else 0
+    stay_time_avg = stay_time_avg if stay_time_avg is not None else 0
+
+    # 価格帯の最頻値を取得
+    price_counter = Counter([price['review_price'] for price in price_avg])
+    most_common_price = price_counter.most_common(1)
+    most_common_price = most_common_price[0][0] if most_common_price else None
+
+    # REVIEW_PRICE_CHOICES の dict を作成
+    price_choices_dict = dict(REVIEW_PRICE_CHOICES)
+
+    # 最頻値の価格帯を取得し、対応する価格帯の文字列に変換
+    most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
+
+    # 滞在時間の表示形式（時間と分）
+    stay_time_hours = int(stay_time_avg) // 60
+    stay_time_minutes = int(stay_time_avg) % 60
+
+    # クチコミ件数を取得
+    review_count = UserReview.objects.filter(tourist_spot=tourist_spot).count()
+
+    # ★（塗りつぶし星・半分の星・空の星）の表示制御
+    # 整数部分の塗りつぶし星
+    filled_stars = int(review_score_avg)  # 整数部分の塗りつぶし
+    # 小数部分（0.25以上なら半分塗りつぶし）
+    half_star = (review_score_avg - filled_stars) >= 0.25  # 0.25以上で半分星
+    # 空の星（5個になるように調整）
+    empty_stars = 5 - filled_stars - (1 if half_star else 0)
+
+    # ログインしていない場合は行きたいリストに追加されていないと見なす
+    is_wanted = False
+    if request.user.is_authenticated:
+        # ログインしている場合のみ行きたいリストを確認
+        is_wanted = WantedSpot.objects.filter(user=request.user, tourist_spot=tourist_spot).exists()
 
     # ログインしていない場合、メッセージを渡す
     if not request.user.is_authenticated:
         # 同じページにメッセージを表示
         return render(request, 'detail_touristspot.html', {
             'tourist_spot': tourist_spot,
+            'working_days': working_days,   # 営業曜日
+            'keywords': keywords,           # キーワード
+            'reviews': reviews,             # クチコミ一覧
+            'is_wanted': is_wanted,         # 行きたいリストに含まれているか
+            'review_score_avg': review_score_avg, # 評価スコア平均
+            'price_avg': price_avg,         # 価格帯
+            'stay_time_avg': stay_time_avg, # 滞在時間平均（分）
+            'filled_stars': [i for i in range(filled_stars)],   # 塗りつぶし星の数（リスト）
+            'half_star': half_star,         # 半分塗りつぶしの星
+            'empty_stars': [i for i in range(empty_stars)],     # 空の星の数（リスト）
+            'stay_time_hours': stay_time_hours, # 滞在時間（時間）
+            'stay_time_minutes': stay_time_minutes, # 滞在時間（分）
+            'most_common_price': most_common_price_str, # 価格帯（最頻値）
+            'review_count': review_count,   # クチコミ件数
+            'google_maps_api_key': google_maps_api_key,  # APIキーを渡す
             'error_message': "この機能を利用するにはログインしてください。",
         })
 
@@ -543,18 +680,82 @@ def review_list(request, pk):
 
 def wanted_spot(request, tourist_spot_id):
     tourist_spot = TouristSpot.objects.get(id=tourist_spot_id)
-    reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')[:3]
     google_maps_api_key = settings.GOOGLE_MAPS_API_KEY
+
+    # workingday を曜日名に変換
+    day_mapping = dict(WORKINGDAY_CHOICES)
+    working_days = []
+    if tourist_spot.workingday:
+        # workingdayのデータをカンマ区切りで分割して、曜日名に変換
+        working_days = [day_mapping.get(int(day), day) for day in tourist_spot.workingday.split(",")]
+
+    # TouristSpotKeyword から keyword を取得
+    keywords = TouristSpotKeyword.objects.filter(tourist_spot=tourist_spot).values_list('keyword__keyword', flat=True)
+
+    # その観光地に関連するクチコミを作成日時順に並べ替えて最新の3件を取得
+    reviews = UserReview.objects.filter(tourist_spot=tourist_spot).order_by('-created_at')[:3]
+
+    # 各平均値を計算
+    review_score_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('review_score'))['review_score__avg']
+    price_avg = UserReview.objects.filter(tourist_spot=tourist_spot).values('review_price')
+    stay_time_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('stay_time_min'))['stay_time_min__avg']
+
+    # もし平均値がNoneの場合は、0を代入
+    review_score_avg = review_score_avg if review_score_avg is not None else 0
+    stay_time_avg = stay_time_avg if stay_time_avg is not None else 0
+
+    # 価格帯の最頻値を取得
+    price_counter = Counter([price['review_price'] for price in price_avg])
+    most_common_price = price_counter.most_common(1)
+    most_common_price = most_common_price[0][0] if most_common_price else None
+
+    # REVIEW_PRICE_CHOICES の dict を作成
+    price_choices_dict = dict(REVIEW_PRICE_CHOICES)
+
+    # 最頻値の価格帯を取得し、対応する価格帯の文字列に変換
+    most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
+
+    # 滞在時間の表示形式（時間と分）
+    stay_time_hours = int(stay_time_avg) // 60
+    stay_time_minutes = int(stay_time_avg) % 60
+
+    # クチコミ件数を取得
+    review_count = UserReview.objects.filter(tourist_spot=tourist_spot).count()
+
+    # ★（塗りつぶし星・半分の星・空の星）の表示制御
+    # 整数部分の塗りつぶし星
+    filled_stars = int(review_score_avg)  # 整数部分の塗りつぶし
+    # 小数部分（0.25以上なら半分塗りつぶし）
+    half_star = (review_score_avg - filled_stars) >= 0.25  # 0.25以上で半分星
+    # 空の星（5個になるように調整）
+    empty_stars = 5 - filled_stars - (1 if half_star else 0)
+
+
+
+
 
     # ログインしていない場合、メッセージを渡す
     if not request.user.is_authenticated:
     # 同じページにメッセージを表示
         return render(request, 'detail_touristspot.html', {
             'tourist_spot': tourist_spot,
-            'reviews': reviews,  # クチコミを渡す
             'google_maps_api_key': google_maps_api_key,  # APIキーを渡す
+            'tourist_spot': tourist_spot,   # 観光地情報
+            'working_days': working_days,   # 営業曜日
+            'keywords': keywords,           # キーワード
+            'reviews': reviews,             # クチコミ一覧
+            'review_score_avg': review_score_avg, # 評価スコア平均
+            'price_avg': price_avg,         # 価格帯
+            'stay_time_avg': stay_time_avg, # 滞在時間平均（分）
+            'filled_stars': [i for i in range(filled_stars)],   # 塗りつぶし星の数（リスト）
+            'half_star': half_star,         # 半分塗りつぶしの星
+            'empty_stars': [i for i in range(empty_stars)],     # 空の星の数（リスト）
+            'stay_time_hours': stay_time_hours, # 滞在時間（時間）
+            'stay_time_minutes': stay_time_minutes, # 滞在時間（分）
+            'most_common_price': most_common_price_str, # 価格帯（最頻値）
+            'review_count': review_count,   # クチコミ件数
             'error_message': "この機能を利用するにはログインしてください。",
-    })
+        })
 
     if WantedSpot.objects.filter(user=request.user, tourist_spot=tourist_spot).exists():
         return HttpResponse("すでに行きたいリストに追加されています。")
