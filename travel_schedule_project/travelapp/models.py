@@ -193,7 +193,7 @@ class TouristSpotKeyword(models.Model):
 
 
 class UserReview(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name="reviews")
     tourist_spot = models.ForeignKey(TouristSpot,on_delete=models.CASCADE)
     review_score = models.IntegerField()
     review_title = models.CharField(max_length=50)
@@ -214,3 +214,27 @@ class WantedSpot(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.tourist_spot.spot_name}"
+
+
+class TouristPlan(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name="touristplans")
+    start_date = models.DateField()
+    end_date = models.DateField()
+    touristplan_name = models.CharField(max_length=30)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):   
+        return self.touristplan_name
+
+
+class TouristPlan_Spot(models.Model):
+    tourist_spot = models.ForeignKey(TouristSpot,on_delete=models.CASCADE,related_name='tourist_plan_spots')
+    tourist_plan =  models.ForeignKey(TouristPlan,on_delete=models.CASCADE,related_name='tourist_spots' )
+    visit_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.tourist_spot} - {self.visit_date}"
+    
