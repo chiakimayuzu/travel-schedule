@@ -5,16 +5,13 @@
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    
+
     <!-- 日付の選択 -->
     <div id="calendar">
       <label for="dates">旅行日程選択（最大5日間）</label>
-      <input type="date" name="dates" required>
+      <input type="text" name="dates" id="id_dates" required readonly style="cursor:pointer;">
+      <div id="selected-dates"></div> <!-- 選択された日付を表示 -->
     </div>
-
-    <!-- モーダルリンク -->
-    <a href="#wanted-spots-modal" data-toggle="modal" class="btn btn-primary">行きたいリスト</a>
-    <a href="#search-touristspot-modal" data-toggle="modal" class="btn btn-primary">観光地を検索</a>
 
     <!-- 行きたいリストのモーダル -->
     <div class="modal" id="wanted-spots-modal">
@@ -30,7 +27,7 @@
                 <li>
                   <img src="{{ spot.picture.url }}" alt="spot image">
                   <span>{{ spot.spot_name }}</span>
-                  <button type="button" class="btn btn-success">追加</button>
+                  <button type="button" class="btn btn-success" onclick="addSpotToPlan('{{ spot.id }}')">追加</button>
                 </li>
               {% endfor %}
             </ul>
@@ -52,6 +49,9 @@
               <input type="text" name="search" placeholder="観光地を検索" required>
               <button type="submit" class="btn btn-primary">検索</button>
             </form>
+            <div id="search-results">
+              <!-- 検索結果を表示 -->
+            </div>
           </div>
         </div>
       </div>
@@ -59,4 +59,109 @@
 
     <button type="submit" class="btn btn-success">保存</button>
   </form>
+
+  <div id="selected-spots">
+    <!-- 追加された観光地 -->
+  </div>
+
+  <!-- 名前をつけて保存 -->
+  <div id="save-section" style="display:none;">
+    <label for="plan-name">プランの名前をつけてください</label>
+    <input type="text" name="plan-name" id="plan-name">
+    <button onclick="savePlan()" class="btn btn-primary">保存</button>
+  </div>
+
+  <!-- JavaScriptでflatpickrの設定 -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const calendarInput = document.getElementById("id_dates");
+      const selectedDatesContainer = document.getElementById("selected-dates");
+      const saveSection = document.getElementById("save-section");
+
+      let selectedDates = [];
+
+      flatpickr(calendarInput, {
+        mode: "multiple",
+        dateFormat: "Y-m-d",
+        maxDate: new Date().fp_incr(30),  // 30日以内
+        minDate: new Date(),
+        maxItems: 5,  // 最大5日間
+        onChange: function (selectedDatesArray, dateStr, instance) {
+          selectedDates = selectedDatesArray;
+          displaySelectedDates(selectedDates);
+          toggleSaveSection();
+        }
+      });
+
+      function displaySelectedDates(dates) {
+        // 日付の選択結果をテーブル形式で表示
+        selectedDatesContainer.innerHTML = '';
+        if (dates.length === 0) return;
+
+        let tableHtml = '<table class="table">';
+        tableHtml += '<thead><tr>';
+        
+        // 日付の列を表示
+        dates.forEach((date, index) => {
+          if (index % 5 === 0 && index > 0) {
+            tableHtml += '</tr><tr>';  // 新しい行に切り替え
+          }
+          tableHtml += `
+            <td>
+              <div>${date}</div>
+              <button type="button" class="btn btn-info" onclick="openLinkB()">リンクb</button>
+              <button type="button" class="btn btn-info" onclick="openLinkA()">リンクa</button>
+            </td>`;
+        });
+        tableHtml += '</tr></thead>';
+        tableHtml += '</table>';
+        selectedDatesContainer.innerHTML = tableHtml;
+      }
+
+      function toggleSaveSection() {
+        if (selectedDates.length > 0) {
+          saveSection.style.display = 'inline-block';
+        }
+      }
+
+      // 行きたいリストの追加
+      window.addSpotToPlan = function(spotId) {
+        const selectedSpot = document.getElementById('spot-' + spotId);
+        const spotHtml = `
+          <div class="spot-item" id="added-spot-${spotId}">
+            <img src="${selectedSpot.querySelector('img').src}" alt="spot image">
+            <span>${selectedSpot.querySelector('.spot-name').textContent}</span>
+            <button class="btn btn-danger" onclick="removeSpot('${spotId}')">削除</button>
+          </div>
+        `;
+        document.getElementById('selected-spots').innerHTML += spotHtml;
+      };
+
+      window.removeSpot = function(spotId) {
+        document.getElementById('added-spot-' + spotId).remove();
+      };
+
+      window.savePlan = function() {
+        const planName = document.getElementById('plan-name').value;
+        if (planName) {
+          // サーバーへプランを保存するリクエスト
+          alert('旅行プランを保存しました: ' + planName);
+        } else {
+          alert('プランの名前を入力してください');
+        }
+      };
+
+      // リンクbの表示アクション
+      window.openLinkB = function() {
+        $('#search-touristspot-modal').modal('show');
+      };
+
+      // リンクaの表示アクション
+      window.openLinkA = function() {
+        $('#wanted-spots-modal').modal('show');
+      };
+    });
+  </script>
+
 {% endblock %}
