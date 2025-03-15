@@ -818,6 +818,7 @@ def create_touristplan(request):
 
     return render(request, 'create_touristplan.html', {'form': form})
 
+
 def search_touristspot_modal(request):
     query = request.GET.get('q', '')  # 検索クエリを取得
     tourist_spots = TouristSpot.objects.filter(spot_name__icontains=query)  # 名前にクエリを含む観光地を取得
