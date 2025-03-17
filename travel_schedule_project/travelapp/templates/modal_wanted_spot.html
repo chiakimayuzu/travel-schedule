@@ -18,21 +18,17 @@
                   <img src="/static/default-image.jpg" alt="No image available" style="width:100px;height:auto;">
                 {% endif %}
                 <span class="spot-name">{{ spot.spot_name }}</span>
-                
+
                 <!-- 日程選択部分 -->
                 <label for="visit_date_{{ spot.id }}">訪問日程を選択:</label>
                 <select id="visit_date_{{ spot.id }}" class="form-control">
-                  {% if selected_dates %}
-                    {% for date in selected_dates %}
-                      <option value="{{ date }}">{{ date }}</option>
-                    {% endfor %}
-                  {% else %}
-                    <option value="">選択できる日付がありません</option>
-                  {% endif %}
+                  {% for date in selected_dates %}
+                    <option value="{{ date }}">{{ date }}</option>
+                  {% endfor %}
                 </select>
                 
                 <!-- 観光地を追加するボタン -->
-                <button type="button" class="btn btn-success" onclick="addSpotToPlan('{{ spot.id }}')">追加</button>
+                <button type="button" class="btn btn-success" onclick="addSpotToPlan('{{ spot.id }}', document.getElementById('visit_date_{{ spot.id }}').value)">追加</button>
               </li>
             {% endfor %}
           {% else %}
@@ -47,34 +43,39 @@
 
 
 
-  <script>
-    function addSpotToPlan(spotId) {
-      // 選択した日付を取得
-      const visitDate = document.getElementById(`visit_date_${spotId}`).value;
-  
-      // フォームデータを準備
-      const formData = new FormData();
-      formData.append('spot_id', spotId);
-      formData.append('visit_date', visitDate);
-  
-      // 旅行プランを送信するエンドポイントにPOSTリクエスト
-      fetch('/add_spot_to_plan/', {  // ここで送信先URLを設定します
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // 追加成功メッセージや処理をここに
-          alert('スポットが追加されました!');
-        } else {
-          // エラーメッセージや処理
-          alert('エラーが発生しました。');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('通信エラーが発生しました。');
-      });
+<script>
+  function addSpotToPlan(spotId) {
+    // 選択した日付を取得
+    const visitDate = document.getElementById(`visit_date_${spotId}`).value;
+
+    if (!visitDate) {
+      alert('日付を選択してください');
+      return;
     }
-  </script>
+
+    // フォームデータを準備
+    const formData = new FormData();
+    formData.append('spot_id', spotId);
+    formData.append('visit_date', visitDate);
+
+    // 旅行プランを送信するエンドポイントにPOSTリクエスト
+    fetch('/add_spot_to_plan/', {  // ここで送信先URLを設定します
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // 追加成功メッセージや処理をここに
+        alert('スポットが追加されました!');
+      } else {
+        // エラーメッセージや処理
+        alert('エラーが発生しました。');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('通信エラーが発生しました。');
+    });
+  }
+</script>

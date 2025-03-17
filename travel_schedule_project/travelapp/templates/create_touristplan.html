@@ -13,15 +13,15 @@
     </div>
 
     <!-- 旅行日程ごとの観光地 -->
-    {% for date, spots in spots_by_date.items %}
+    {% for date in selected_dates %}
       <div class="date-section" id="spots-for-date-{{ date }}">
         <h4>{{ date }}</h4>
         <div class="spots-for-date">
-          {% for spot in spots %}
+          {% for spot in user_wanted_spots %}
             <div class="spot-item" id="spot-{{ spot.id }}">
-              <img src="{{ spot.image.url }}" alt="{{ spot.name }}">
-              <span>{{ spot.name }}</span>
-              <button type="button" class="btn btn-info" onclick="addSpotToPlan({{ spot.id }})">追加</button>
+              {% comment %} <img src="{{ spot.picture.url }}" alt="{{ spot.spot_name }}"> {% endcomment %}
+              <span>{{ spot.spot_name }}</span>
+              <button type="button" class="btn btn-info" onclick="addSpotToPlan({{ spot.id }}, '{{ date }}')">追加</button>
             </div>
           {% endfor %}
         </div>
@@ -106,15 +106,16 @@
         return d.toLocaleDateString('ja-JP', options);
       }
 
-      window.addSpotToPlan = function(spotId) {
+      window.addSpotToPlan = function(spotId, visitDate) {
         const selectedSpot = document.getElementById('spot-' + spotId);
         const spotHtml = `
           <div class="spot-item" id="added-spot-${spotId}">
             <img src="${selectedSpot.querySelector('img').src}" alt="spot image">
-            <span>${selectedSpot.querySelector('.spot-name').textContent}</span>
+            <span>${selectedSpot.querySelector('.spot-name').textContent} - ${visitDate}</span>
             <button class="btn btn-danger" onclick="removeSpot('${spotId}')">削除</button>
           </div>`;
-        document.getElementById('selected-spots').innerHTML += spotHtml;
+        const spotList = document.getElementById(`spots-for-date-${visitDate}`);
+        spotList.innerHTML += spotHtml;
       };
 
       window.removeSpot = function(spotId) {
@@ -146,22 +147,3 @@
   <!-- 行きたいリストモーダル -->
   {% include 'modal_wanted_spot.html' %}
 {% endblock %}
-
-<style>
-  .spot-item img {
-    width: 100%; /* 横幅を親要素に合わせて調整 */
-    height: auto; /* 高さは自動で調整 */
-    max-width: 50px; /* 最大幅を設定（必要に応じて調整） */
-    max-height: 50px; /* 最大高さを設定（必要に応じて調整） */
-    object-fit: cover; /* 画像が親要素内に収まるように調整 */
-  }
-
-  .spot-item {
-    text-align: center;
-    margin-bottom: 15px;
-  }
-
-  .spot-item button {
-    margin-top: 5px;
-  }
-</style>
