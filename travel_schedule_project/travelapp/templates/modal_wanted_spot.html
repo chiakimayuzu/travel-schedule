@@ -1,0 +1,31 @@
+<div class="modal fade" id="wanted-spots-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">行きたいリスト</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <ul>
+          {% if user_wanted_spots %}
+            {% for spot in user_wanted_spots %}
+              <li id="spot-{{ spot.id }}">
+                {% if spot.picture %}
+                  <img src="{{ spot.picture.url }}" alt="{{ spot.spot_name }}" style="width:100px;height:auto;">
+                {% else %}
+                  <img src="/static/default-image.jpg" alt="No image available" style="width:100px;height:auto;">
+                {% endif %}
+                <span class="spot-name">{{ spot.spot_name }}</span>
+                <button type="button" class="btn btn-success" onclick="addSpotToPlan('{{ spot.id }}')">追加</button>
+              </li>
+            {% endfor %}
+          {% else %}
+            <li>行きたいリストに登録されているスポットはありません。</li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

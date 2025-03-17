@@ -826,11 +826,11 @@ def create_touristplan(request):
     return render(request, 'create_touristplan.html', context)
 
 
-
 def modal_search_touristspot(request):
     query = request.GET.get('q', '')  # 検索クエリを取得
     tourist_spots = TouristSpot.objects.filter(spot_name__icontains=query)  # 名前にクエリを含む観光地を取得
     return render(request, 'modal_search_touristspot.html', {'tourist_spots': tourist_spots})
+
 
 def modal_wanted_spot(request):
     user = request.user  # 現在のユーザーを取得

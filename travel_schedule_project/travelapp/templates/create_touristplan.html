@@ -9,53 +9,16 @@
     <!-- 日付の選択 -->
     <div id="calendar">
       <label for="dates">旅行日程選択（最大5日間）</label>
-      <!-- カレンダーアイコンをクリックするとカレンダーが表示される -->
       <span id="calendar-icon" style="cursor:pointer;">📅</span>
       <input type="text" name="dates" id="id_dates" required readonly style="cursor:pointer;">
-      <div id="selected-dates"></div> <!-- 選択された日付を表示 -->
+      <div id="selected-dates"></div>
     </div>
 
-    <!-- 行きたいリストのモーダル -->
-    <div class="modal-body">
-      <ul>
-         {% if user_wanted_spots %}
-            {% for spot in user_wanted_spots %}
-               <li id="spot-{{ spot.id }}">
-                  {% if spot.picture %}
-                     <img src="{{ spot.picture.url }}" alt="{{ spot.spot_name }}" style="width:100px;height:auto;">
-                  {% else %}
-                     <img src="/static/default-image.jpg" alt="No image available" style="width:100px;height:auto;">
-                  {% endif %}
-                  <span class="spot-name">{{ spot.spot_name }}</span>
-                  <button type="button" class="btn btn-success" onclick="addSpotToPlan('{{ spot.id }}')">追加</button>
-               </li>
-            {% endfor %}
-         {% else %}
-            <li>行きたいリストに登録されているスポットはありません。</li>
-         {% endif %}
-      </ul>
-   </div>
+<!-- 観光地検索モーダル -->
+{% include 'modal_search_touristspot.html' %}
 
-    <!-- 観光地検索モーダル -->
-    <div class="modal" id="search-touristspot-modal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">観光地検索</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-          <div class="modal-body">
-            <form method="get" action="{% url 'travelapp:search_touristspot' %}">
-              <input type="text" name="search" placeholder="観光地を検索" required>
-              <button type="submit" class="btn btn-primary">検索</button>
-            </form>
-            <div id="search-results">
-              <!-- 検索結果を表示 -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+<!-- 行きたいリストモーダル -->
+{% include 'modal_wanted_spot.html' %}
 
   </form>
 
@@ -63,7 +26,6 @@
     <!-- 追加された観光地 -->
   </div>
 
-  <!-- 名前をつけて保存 -->
   <div id="save-section" style="display:none;">
     <label for="plan-name">プランの名前をつけてください</label>
     <input type="text" name="plan-name" id="plan-name">
@@ -76,40 +38,36 @@
       const calendarIcon = document.getElementById("calendar-icon");
       const selectedDatesContainer = document.getElementById("selected-dates");
       const saveSection = document.getElementById("save-section");
-  
+
       let selectedDates = [];
-  
-      // カレンダーアイコンをクリックしたときにカレンダーを表示
+
       calendarIcon.addEventListener("click", function() {
-        calendarInput.focus();  // inputフィールドをフォーカス
+        calendarInput.focus();
       });
-  
+
       flatpickr(calendarInput, {
         mode: "multiple",
         dateFormat: "Y-m-d",
-        minDate: "today",  // 今日以降の日付のみ選択可能
-        maxItems: 5,  // 最大5日間
+        minDate: "today",
+        maxItems: 5,
         onChange: function (selectedDatesArray, dateStr, instance) {
           selectedDates = selectedDatesArray;
           displaySelectedDates(selectedDates);
           toggleSaveSection();
         }
       });
-  
+
       function displaySelectedDates(dates) {
-        // 日付の選択結果をテーブル形式で表示
         selectedDatesContainer.innerHTML = '';
         if (dates.length === 0) return;
-  
+
         let tableHtml = '<table class="table">';
         tableHtml += '<thead><tr>';
-        
-        // 日付の列を表示
         dates.forEach((date, index) => {
           if (index % 5 === 0 && index > 0) {
-            tableHtml += '</tr><tr>';  // 新しい行に切り替え
+            tableHtml += '</tr><tr>';
           }
-          const formattedDate = formatDate(date);  // 日付をフォーマット
+          const formattedDate = formatDate(date);
           tableHtml += `
             <td>
               <div>${formattedDate}</div>
@@ -121,26 +79,24 @@
         tableHtml += '</table>';
         selectedDatesContainer.innerHTML = tableHtml;
       }
-  
+
       function toggleSaveSection() {
         if (selectedDates.length > 0) {
           saveSection.style.display = 'inline-block';
         }
       }
-  
-      // 日付を日本語形式でフォーマット
+
       function formatDate(date) {
         const d = new Date(date);
         const options = { 
-          weekday: 'short', // 曜日（例：月、火、水...）
-          year: 'numeric',  // 年（例：2025）
-          month: '2-digit', // 月（例：03）
-          day: '2-digit'    // 日（例：20）
+          weekday: 'short', 
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'  
         };
-        return d.toLocaleDateString('ja-JP', options); // 日本語形式で日付をフォーマット
+        return d.toLocaleDateString('ja-JP', options);
       }
-  
-      // 行きたいリストの追加
+
       window.addSpotToPlan = function(spotId) {
         const selectedSpot = document.getElementById('spot-' + spotId);
         const spotHtml = `
@@ -148,36 +104,30 @@
             <img src="${selectedSpot.querySelector('img').src}" alt="spot image">
             <span>${selectedSpot.querySelector('.spot-name').textContent}</span>
             <button class="btn btn-danger" onclick="removeSpot('${spotId}')">削除</button>
-          </div>
-        `;
+          </div>`;
         document.getElementById('selected-spots').innerHTML += spotHtml;
       };
-  
+
       window.removeSpot = function(spotId) {
         document.getElementById('added-spot-' + spotId).remove();
       };
-  
+
       window.savePlan = function() {
         const planName = document.getElementById('plan-name').value;
         if (planName) {
-          // サーバーへプランを保存するリクエスト
           alert('旅行プランを保存しました: ' + planName);
         } else {
           alert('プランの名前を入力してください');
         }
       };
-  
-      // リンクbの表示アクション
+
       window.openLinkB = function() {
         $('#search-touristspot-modal').modal('show');
       };
-  
-      // リンクaの表示アクション
+
       window.openLinkA = function() {
         $('#wanted-spots-modal').modal('show');
       };
     });
   </script>
-  
-
 {% endblock %}

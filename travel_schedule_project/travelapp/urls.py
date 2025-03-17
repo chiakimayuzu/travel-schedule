@@ -28,7 +28,7 @@ urlpatterns = [
     path('review_list/<int:pk>/', review_list, name='review_list'),
     path('wanted_spot/<int:tourist_spot_id>/', wanted_spot, name='wanted_spot'),  # 行きたいリストに追加
     path('wanted_spot_list/', wanted_spot_list, name='wanted_spot_list'),  # 行きたいリスト
-    path('create/', create_touristplan, name='create_touristplan'),
+    path('create_touristplan/', create_touristplan, name='create_touristplan'),
     # 観光地検索モーダル用URL
     path('modal_search_touristspot/', modal_search_touristspot, name='modal_search_touristspot'),
     # 行きたいリストモーダル用URL
