@@ -775,23 +775,6 @@ def wanted_spot(request, tourist_spot_id):
 
 
 @login_required
-def wanted_spot_list(request):
-    # ログインしているユーザーの行きたいリストを取得
-    wanted_spots = WantedSpot.objects.filter(user=request.user)
-
-    if request.method == 'POST' and 'delete' in request.POST:
-        # 削除処理
-        wanted_spot_id = request.POST.get('delete')
-        wanted_spot = WantedSpot.objects.get(id=wanted_spot_id)
-        wanted_spot.delete()
-
-        return redirect('travelapp:wanted_spot_list')
-
-    return render(request, 'wanted_spot_list.html', {'wanted_spots': wanted_spots})
-
-
-
-@login_required
 def create_touristplan(request):
     if request.method == 'POST':
         form = TouristPlanForm(request.POST)
@@ -835,7 +818,9 @@ def create_touristplan(request):
     user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
 
     # GETリクエストではform.cleaned_dataは存在しないため、日付を空のリストに設定
-    selected_dates = []
+    selected_dates = form.cleaned_data.get('dates', []) if form.is_valid() else []
+
+    # spots_by_dateを初期化
     spots_by_date = {}
 
     # ユーザーが選択した日付ごとの観光地リストを作成
@@ -849,8 +834,11 @@ def create_touristplan(request):
         'form': form,
         'user_wanted_spots': [wanted_spot.tourist_spot for wanted_spot in user_wanted_spots],
         'spots_by_date': spots_by_date,  # 日付ごとの観光地
+        'selected_dates': selected_dates,  # 日付リストをテンプレートに渡す
     }
     return render(request, 'create_touristplan.html', context)
+
+
 
 
 
