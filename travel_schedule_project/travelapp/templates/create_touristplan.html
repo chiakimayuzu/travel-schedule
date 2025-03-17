@@ -5,8 +5,6 @@
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-
-    <!-- 日付の選択 -->
     <div id="calendar">
       <label for="dates">旅行日程選択（最大5日間）</label>
       <span id="calendar-icon" style="cursor:pointer;">📅</span>
@@ -14,12 +12,23 @@
       <div id="selected-dates"></div>
     </div>
 
-<!-- 観光地検索モーダル -->
-{% include 'modal_search_touristspot.html' %}
-
-<!-- 行きたいリストモーダル -->
-{% include 'modal_wanted_spot.html' %}
-
+    <!-- 旅行日程ごとの観光地 -->
+    {% for date, spots in spots_by_date.items %}
+      <div class="date-section" id="spots-for-date-{{ date }}">
+        <h4>{{ date }}</h4>
+        <div class="spots-for-date">
+          {% for spot in spots %}
+            <div class="spot-item" id="spot-{{ spot.id }}">
+              <img src="{{ spot.image.url }}" alt="{{ spot.name }}">
+              <span>{{ spot.name }}</span>
+              <button type="button" class="btn btn-info" onclick="addSpotToPlan({{ spot.id }})">追加</button>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+    
+    <button type="submit" class="btn btn-primary">保存</button>
   </form>
 
   <div id="selected-spots">
@@ -130,4 +139,29 @@
       };
     });
   </script>
+
+  <!-- 観光地検索モーダル -->
+  {% include 'modal_search_touristspot.html' %}
+
+  <!-- 行きたいリストモーダル -->
+  {% include 'modal_wanted_spot.html' %}
 {% endblock %}
+
+<style>
+  .spot-item img {
+    width: 100%; /* 横幅を親要素に合わせて調整 */
+    height: auto; /* 高さは自動で調整 */
+    max-width: 50px; /* 最大幅を設定（必要に応じて調整） */
+    max-height: 50px; /* 最大高さを設定（必要に応じて調整） */
+    object-fit: cover; /* 画像が親要素内に収まるように調整 */
+  }
+
+  .spot-item {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .spot-item button {
+    margin-top: 5px;
+  }
+</style>

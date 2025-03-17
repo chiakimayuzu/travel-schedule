@@ -815,15 +815,27 @@ def create_touristplan(request):
             return redirect('touristplan_detail', pk=tourist_plan.pk)
     else:
         form = TouristPlanForm()
-    
+
     # ユーザーの行きたいリストを取得してテンプレートに渡す
     user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
+
+    # POSTリクエストがない場合、selected_dates は空のリストとして初期化
+    selected_dates = form.cleaned_data.get('dates', []) if request.method == 'POST' else []
+
+    # ユーザーが選択した日付ごとの観光地リストを作成
+    spots_by_date = {date: [] for date in selected_dates}
+
+    for spot in user_wanted_spots:
+        for visit_date in selected_dates:
+            spots_by_date[visit_date].append(spot.tourist_spot)
 
     context = {
         'form': form,
         'user_wanted_spots': [wanted_spot.tourist_spot for wanted_spot in user_wanted_spots],
+        'spots_by_date': spots_by_date,  # 日付ごとの観光地
     }
     return render(request, 'create_touristplan.html', context)
+
 
 
 def modal_search_touristspot(request):
