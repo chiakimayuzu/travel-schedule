@@ -9,10 +9,11 @@
     <!-- 日付の選択 -->
     <div id="calendar">
       <label for="dates">旅行日程選択（最大5日間）</label>
+      <!-- カレンダーアイコンをクリックするとカレンダーが表示される -->
+      <span id="calendar-icon" style="cursor:pointer;">📅</span>
       <input type="text" name="dates" id="id_dates" required readonly style="cursor:pointer;">
       <div id="selected-dates"></div> <!-- 選択された日付を表示 -->
     </div>
-
 
     <!-- 行きたいリストのモーダル -->
     <div class="modal" id="wanted-spots-modal">
@@ -58,7 +59,6 @@
       </div>
     </div>
 
-    <button type="submit" class="btn btn-success">保存</button>
   </form>
 
   <div id="selected-spots">
@@ -72,21 +72,24 @@
     <button onclick="savePlan()" class="btn btn-primary">保存</button>
   </div>
 
-  <!-- JavaScriptでflatpickrの設定 -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const calendarInput = document.getElementById("id_dates");
+      const calendarIcon = document.getElementById("calendar-icon");
       const selectedDatesContainer = document.getElementById("selected-dates");
       const saveSection = document.getElementById("save-section");
-
+  
       let selectedDates = [];
-
+  
+      // カレンダーアイコンをクリックしたときにカレンダーを表示
+      calendarIcon.addEventListener("click", function() {
+        calendarInput.focus();  // inputフィールドをフォーカス
+      });
+  
       flatpickr(calendarInput, {
         mode: "multiple",
         dateFormat: "Y-m-d",
-        maxDate: new Date().fp_incr(30),  // 30日以内
-        minDate: new Date(),
+        minDate: "today",  // 今日以降の日付のみ選択可能
         maxItems: 5,  // 最大5日間
         onChange: function (selectedDatesArray, dateStr, instance) {
           selectedDates = selectedDatesArray;
@@ -94,12 +97,12 @@
           toggleSaveSection();
         }
       });
-
+  
       function displaySelectedDates(dates) {
         // 日付の選択結果をテーブル形式で表示
         selectedDatesContainer.innerHTML = '';
         if (dates.length === 0) return;
-
+  
         let tableHtml = '<table class="table">';
         tableHtml += '<thead><tr>';
         
@@ -108,9 +111,10 @@
           if (index % 5 === 0 && index > 0) {
             tableHtml += '</tr><tr>';  // 新しい行に切り替え
           }
+          const formattedDate = formatDate(date);  // 日付をフォーマット
           tableHtml += `
             <td>
-              <div>${date}</div>
+              <div>${formattedDate}</div>
               <button type="button" class="btn btn-info" onclick="openLinkB()">旅行検索から選択</button>
               <button type="button" class="btn btn-info" onclick="openLinkA()">行きたいリストから選択</button>
             </td>`;
@@ -119,13 +123,25 @@
         tableHtml += '</table>';
         selectedDatesContainer.innerHTML = tableHtml;
       }
-
+  
       function toggleSaveSection() {
         if (selectedDates.length > 0) {
           saveSection.style.display = 'inline-block';
         }
       }
-
+  
+      // 日付を日本語形式でフォーマット
+      function formatDate(date) {
+        const d = new Date(date);
+        const options = { 
+          weekday: 'short', // 曜日（例：月、火、水...）
+          year: 'numeric',  // 年（例：2025）
+          month: '2-digit', // 月（例：03）
+          day: '2-digit'    // 日（例：20）
+        };
+        return d.toLocaleDateString('ja-JP', options); // 日本語形式で日付をフォーマット
+      }
+  
       // 行きたいリストの追加
       window.addSpotToPlan = function(spotId) {
         const selectedSpot = document.getElementById('spot-' + spotId);
@@ -138,11 +154,11 @@
         `;
         document.getElementById('selected-spots').innerHTML += spotHtml;
       };
-
+  
       window.removeSpot = function(spotId) {
         document.getElementById('added-spot-' + spotId).remove();
       };
-
+  
       window.savePlan = function() {
         const planName = document.getElementById('plan-name').value;
         if (planName) {
@@ -152,18 +168,18 @@
           alert('プランの名前を入力してください');
         }
       };
-
+  
       // リンクbの表示アクション
       window.openLinkB = function() {
         $('#search-touristspot-modal').modal('show');
       };
-
+  
       // リンクaの表示アクション
       window.openLinkA = function() {
         $('#wanted-spots-modal').modal('show');
       };
     });
   </script>
+  
 
 {% endblock %}
-
