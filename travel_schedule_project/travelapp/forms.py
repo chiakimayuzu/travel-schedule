@@ -231,11 +231,24 @@ class TouristSpotSearchForm(forms.Form):
 
 
 class TouristPlanForm(forms.ModelForm):
-    dates = forms.DateField(widget=forms.SelectDateWidget(years=range(2025, 2030)), required=True)
-    
+    # Start date と end date に基づいて訪問日を動的に生成するフィールドを作成
+    start_date = forms.DateField(widget=forms.SelectDateWidget(years=range(2025, 2030)), required=True)
+    end_date = forms.DateField(widget=forms.SelectDateWidget(years=range(2025, 2030)), required=True)
+
     class Meta:
         model = TouristPlan
         fields = ['touristplan_name', 'start_date', 'end_date']
 
     # モーダルで選択する観光地のフォームセット
-    TouristSpotFormSet = formset_factory(TouristPlan_Spot, extra=1) 
+    TouristSpotFormSet = formset_factory(TouristPlan_Spot, extra=1)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        
+        # start_date と end_date が選択されていることを確認
+        if start_date and end_date and start_date > end_date:
+            raise forms.ValidationError("End date must be after the start date.")
+        
+        return cleaned_data

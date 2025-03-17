@@ -797,43 +797,35 @@ def create_touristplan(request):
     if request.method == 'POST':
         form = TouristPlanForm(request.POST)
         if form.is_valid():
-            selected_dates = request.POST.getlist('dates')
-            selected_dates = [datetime.strptime(date, "%Y-%m-%d").date() for date in selected_dates]
-
-            start_date = min(selected_dates)
-            end_date = max(selected_dates)
-
             tourist_plan = form.save(commit=False)
             tourist_plan.user = request.user
-            tourist_plan.start_date = start_date
-            tourist_plan.end_date = end_date
             tourist_plan.save()
 
-            # モーダルで選択された観光地を保存
-            selected_spots = request.POST.getlist('tourist_spots')
-            selected_dates_spots = request.POST.getlist('selected_dates')
-
-            for spot_id, visit_date_str in zip(selected_spots, selected_dates_spots):
-                tourist_spot = TouristSpot.objects.get(id=spot_id)
-                visit_date = datetime.strptime(visit_date_str, "%Y-%m-%d").date()
-                TouristPlan_Spot.objects.create(
-                    tourist_plan=tourist_plan,
-                    tourist_spot=tourist_spot,
-                    visit_date=visit_date
-                )
-
-            return redirect('touristplan_detail', pk=tourist_plan.pk)
+            # モーダルで選択した観光地を保存
+            visit_date = request.POST.get('visit_date')
+            tourist_spot_id = request.POST.get('tourist_spot')
+            tourist_spot = TouristSpot.objects.get(id=tourist_spot_id)
+            
+            # TouristPlan_Spotの保存
+            TouristPlan_Spot.objects.create(
+                tourist_plan=tourist_plan,
+                tourist_spot=tourist_spot,
+                visit_date=visit_date
+            )
+            return redirect('tourist_plan_detail', pk=tourist_plan.pk)
     else:
         form = TouristPlanForm()
 
+    # ユーザーの行きたいリストを取得してコンテキストに渡す
     user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
 
     context = {
         'form': form,
         'user_wanted_spots': [wanted_spot.tourist_spot for wanted_spot in user_wanted_spots],
-        'selected_dates': [],
     }
+
     return render(request, 'create_touristplan.html', context)
+
 
 
 class ModalSearchTouristSpotView(View):

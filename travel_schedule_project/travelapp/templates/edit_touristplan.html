@@ -1,0 +1,13 @@
+<h3>{{ tourist_plan.touristplan_name }}</h3>
+<p>訪問期間: {{ tourist_plan.start_date }} - {{ tourist_plan.end_date }}</p>
+
+<div class="visit-dates">
+  {% for spot in tourist_plan.touristplan_spots.all %}
+    <div class="spot-visit">
+      <p>訪問日: {{ spot.visit_date }}</p>
+      <p>観光地: {{ spot.tourist_spot.spot_name }}</p>
+    </div>
+  {% empty %}
+    <p>選択された観光地がありません。</p>
+  {% endfor %}
+</div>
