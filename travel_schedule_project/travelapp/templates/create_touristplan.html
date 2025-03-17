@@ -16,27 +16,25 @@
     </div>
 
     <!-- 行きたいリストのモーダル -->
-    <div class="modal" id="wanted-spots-modal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">行きたいリスト</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-          <div class="modal-body">
-            <ul>
-              {% for spot in user_wanted_spots %}
-                <li>
-                  <img src="{{ spot.picture.url }}" alt="spot image">
-                  <span>{{ spot.spot_name }}</span>
+    <div class="modal-body">
+      <ul>
+         {% if user_wanted_spots %}
+            {% for spot in user_wanted_spots %}
+               <li id="spot-{{ spot.id }}">
+                  {% if spot.picture %}
+                     <img src="{{ spot.picture.url }}" alt="{{ spot.spot_name }}" style="width:100px;height:auto;">
+                  {% else %}
+                     <img src="/static/default-image.jpg" alt="No image available" style="width:100px;height:auto;">
+                  {% endif %}
+                  <span class="spot-name">{{ spot.spot_name }}</span>
                   <button type="button" class="btn btn-success" onclick="addSpotToPlan('{{ spot.id }}')">追加</button>
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
+               </li>
+            {% endfor %}
+         {% else %}
+            <li>行きたいリストに登録されているスポットはありません。</li>
+         {% endif %}
+      </ul>
+   </div>
 
     <!-- 観光地検索モーダル -->
     <div class="modal" id="search-touristspot-modal">

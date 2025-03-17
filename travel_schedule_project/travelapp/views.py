@@ -815,16 +815,24 @@ def create_touristplan(request):
             return redirect('touristplan_detail', pk=tourist_plan.pk)
     else:
         form = TouristPlanForm()
+    
+    # ユーザーの行きたいリストを取得してテンプレートに渡す
+    user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
 
-    return render(request, 'create_touristplan.html', {'form': form})
+    context = {
+        'form': form,
+        'user_wanted_spots': [wanted_spot.tourist_spot for wanted_spot in user_wanted_spots],
+    }
+    return render(request, 'create_touristplan.html', context)
 
 
-def search_touristspot_modal(request):
+
+def modal_search_touristspot(request):
     query = request.GET.get('q', '')  # 検索クエリを取得
     tourist_spots = TouristSpot.objects.filter(spot_name__icontains=query)  # 名前にクエリを含む観光地を取得
-    return render(request, 'search_touristspot_modal.html', {'tourist_spots': tourist_spots})
+    return render(request, 'modal_search_touristspot.html', {'tourist_spots': tourist_spots})
 
-def wanted_spots_modal(request):
+def modal_wanted_spot(request):
     user = request.user  # 現在のユーザーを取得
     wanted_spots = WantedSpot.objects.filter(user=user)  # 現在のユーザーの行きたいリストを取得
-    return render(request, 'wanted_spots_modal.html', {'wanted_spots': wanted_spots})
+    return render(request, 'modal_wanted_spot.html', {'wanted_spots': wanted_spots})
