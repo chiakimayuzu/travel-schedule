@@ -1,149 +1,166 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>旅行プラン作成</h1>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <div id="calendar">
-      <label for="dates">旅行日程選択（最大5日間）</label>
-      <span id="calendar-icon" style="cursor:pointer;">📅</span>
-      <input type="text" name="dates" id="id_dates" required readonly style="cursor:pointer;">
-      <div id="selected-dates"></div>
-    </div>
+<h1>旅行プラン作成</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  
+  <div id="calendar">
+    <label for="dates">旅行日程選択（最大5日間）</label>
+    <span id="calendar-icon" style="cursor:pointer;">📅</span>
+    <input type="text" name="dates" id="id_dates" required readonly style="cursor:pointer;">
+    <div id="selected-dates"></div>
+  </div>
 
-    <!-- 旅行日程ごとの観光地 -->
+  <!-- 旅行日程ごとの観光地 -->
+  <div id="tourist-spot-list">
     {% for date in selected_dates %}
-      <div class="date-section" id="spots-for-date-{{ date }}">
-        <h4>{{ date }}</h4>
-        <div class="spots-for-date">
-          {% for spot in user_wanted_spots %}
-            <div class="spot-item" id="spot-{{ spot.id }}">
-              {% comment %} <img src="{{ spot.picture.url }}" alt="{{ spot.spot_name }}"> {% endcomment %}
-              <span>{{ spot.spot_name }}</span>
-              <button type="button" class="btn btn-info" onclick="addSpotToPlan({{ spot.id }}, '{{ date }}')">追加</button>
-            </div>
-          {% endfor %}
-        </div>
+      <div>
+        <h3>{{ date }}</h3>
+        <ul id="spot-list-{{ date }}">
+          <!-- JSで追加される観光地リスト -->
+        </ul>
       </div>
     {% endfor %}
-    
-    <button type="submit" class="btn btn-primary">保存</button>
-  </form>
-
-  <div id="selected-spots">
-    <!-- 追加された観光地 -->
   </div>
 
-  <div id="save-section" style="display:none;">
-    <label for="plan-name">プランの名前をつけてください</label>
-    <input type="text" name="plan-name" id="plan-name">
-    <button onclick="savePlan()" class="btn btn-primary">保存</button>
-  </div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const calendarInput = document.getElementById("id_dates");
-      const calendarIcon = document.getElementById("calendar-icon");
-      const selectedDatesContainer = document.getElementById("selected-dates");
-      const saveSection = document.getElementById("save-section");
+</form>
 
-      let selectedDates = [];
+<div id="save-section" style="display:none;">
+  <label for="plan-name">プランの名前をつけてください</label>
+  <input type="text" name="plan-name" id="plan-name">
+  <button onclick="savePlan()" class="btn btn-primary">保存</button>
+</div>
 
-      calendarIcon.addEventListener("click", function() {
-        calendarInput.focus();
-      });
+<!-- JS部分 -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const calendarInput = document.getElementById("id_dates");
+    const calendarIcon = document.getElementById("calendar-icon");
+    const selectedDatesContainer = document.getElementById("selected-dates");
+    const saveSection = document.getElementById("save-section");
 
-      flatpickr(calendarInput, {
-        mode: "multiple",
-        dateFormat: "Y-m-d",
-        minDate: "today",
-        maxItems: 5,
-        onChange: function (selectedDatesArray, dateStr, instance) {
-          selectedDates = selectedDatesArray;
-          displaySelectedDates(selectedDates);
-          toggleSaveSection();
-        }
-      });
+    let selectedDates = [];
 
-      function displaySelectedDates(dates) {
-        selectedDatesContainer.innerHTML = '';
-        if (dates.length === 0) return;
-
-        let tableHtml = '<table class="table">';
-        tableHtml += '<thead><tr>';
-        dates.forEach((date, index) => {
-          if (index % 5 === 0 && index > 0) {
-            tableHtml += '</tr><tr>';
-          }
-          const formattedDate = formatDate(date);
-          tableHtml += `
-            <td>
-              <div>${formattedDate}</div>
-              <button type="button" class="btn btn-info" onclick="openLinkB()">旅行検索から選択</button>
-              <button type="button" class="btn btn-info" onclick="openLinkA()">行きたいリストから選択</button>
-            </td>`;
-        });
-        tableHtml += '</tr></thead>';
-        tableHtml += '</table>';
-        selectedDatesContainer.innerHTML = tableHtml;
-      }
-
-      function toggleSaveSection() {
-        if (selectedDates.length > 0) {
-          saveSection.style.display = 'inline-block';
-        }
-      }
-
-      function formatDate(date) {
-        const d = new Date(date);
-        const options = { 
-          weekday: 'short', 
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit'  
-        };
-        return d.toLocaleDateString('ja-JP', options);
-      }
-
-      window.addSpotToPlan = function(spotId, visitDate) {
-        const selectedSpot = document.getElementById('spot-' + spotId);
-        const spotHtml = `
-          <div class="spot-item" id="added-spot-${spotId}">
-            <img src="${selectedSpot.querySelector('img').src}" alt="spot image">
-            <span>${selectedSpot.querySelector('.spot-name').textContent} - ${visitDate}</span>
-            <button class="btn btn-danger" onclick="removeSpot('${spotId}')">削除</button>
-          </div>`;
-        const spotList = document.getElementById(`spots-for-date-${visitDate}`);
-        spotList.innerHTML += spotHtml;
-      };
-
-      window.removeSpot = function(spotId) {
-        document.getElementById('added-spot-' + spotId).remove();
-      };
-
-      window.savePlan = function() {
-        const planName = document.getElementById('plan-name').value;
-        if (planName) {
-          alert('旅行プランを保存しました: ' + planName);
-        } else {
-          alert('プランの名前を入力してください');
-        }
-      };
-
-      window.openLinkB = function() {
-        $('#search-touristspot-modal').modal('show');
-      };
-
-      window.openLinkA = function() {
-        $('#wanted-spot-modal').modal('show');
-      };
+    // カレンダーアイコンをクリックで日付選択を開く
+    calendarIcon.addEventListener("click", function() {
+      calendarInput.focus();
     });
-  </script>
 
-  <!-- 観光地検索モーダル -->
-  {% include 'modal_search_touristspot.html' %}
+    // Flatpickrで日付を選択
+    flatpickr(calendarInput, {
+      mode: "multiple",
+      dateFormat: "Y-m-d",
+      minDate: "today",
+      maxItems: 5,
+      onChange: function (selectedDatesArray) {
+        selectedDates = selectedDatesArray;
+        displaySelectedDates(selectedDates);
+        toggleSaveSection();
+      }
+    });
 
-  <!-- 行きたいリストモーダル -->
-  {% include 'modal_wanted_spot.html' %}
+    // 選択した日付を表示
+    function displaySelectedDates(dates) {
+      selectedDatesContainer.innerHTML = '';
+      if (dates.length === 0) return;
+
+      let tableHtml = '<table class="table">';
+      tableHtml += '<thead><tr>';
+      dates.forEach((date, index) => {
+        if (index % 5 === 0 && index > 0) {
+          tableHtml += '</tr><tr>';
+        }
+        const formattedDate = formatDate(date);
+        tableHtml += `
+          <td>
+            <div>${formattedDate}</div>
+            <button type="button" class="btn btn-info" onclick="openLinkB()">旅行検索から選択</button>
+            <button type="button" class="btn btn-info" onclick="openLinkA()">行きたいリストから選択</button>
+          </td>`;
+      });
+      tableHtml += '</tr></thead></table>';
+      selectedDatesContainer.innerHTML = tableHtml;
+    }
+
+    // 追加する観光地の処理
+    document.addEventListener('click', function(event) {
+      if (event.target.classList.contains('add-spot')) {
+        const spotId = event.target.getAttribute('data-spot-id');
+        const spotName = event.target.previousElementSibling.textContent;
+        const visitDate = prompt('訪問日を選択してください (YYYY-MM-DD):');
+
+        if (visitDate && selectedDates.includes(visitDate)) {
+          const targetList = document.getElementById(`spot-list-${visitDate}`);
+          if (targetList) {
+            const li = document.createElement('li');
+            li.textContent = spotName;
+            targetList.appendChild(li);
+
+            // フォームにデータを追加
+            const form = document.createElement('input');
+            form.type = 'hidden';
+            form.name = 'tourist_spots';
+            form.value = spotId;
+            document.forms[0].appendChild(form);
+
+            const dateInput = document.createElement('input');
+            dateInput.type = 'hidden';
+            dateInput.name = 'selected_dates';
+            dateInput.value = visitDate;
+            document.forms[0].appendChild(dateInput);
+          }
+        }
+      }
+    });
+
+    // 保存セクションを表示
+    function toggleSaveSection() {
+      if (selectedDates.length > 0) {
+        saveSection.style.display = 'inline-block';
+      }
+    }
+
+    // 日付をフォーマット
+    function formatDate(date) {
+      const d = new Date(date);
+      const options = { 
+        weekday: 'short', 
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'  
+      };
+      return d.toLocaleDateString('ja-JP', options);
+    }
+
+    // 旅行プランを保存
+    window.savePlan = function() {
+      const planName = document.getElementById('plan-name').value;
+      if (planName) {
+        alert('旅行プランを保存しました: ' + planName);
+      } else {
+        alert('プランの名前を入力してください');
+      }
+    };
+
+    // 旅行検索モーダルを開く
+    window.openLinkB = function() {
+      $('#search-touristspot-modal').modal('show');
+    };
+
+    // 行きたいリストモーダルを開く
+    window.openLinkA = function() {
+      $('#wanted-spot-modal').modal('show');
+    };
+  });
+</script>
+
+<!-- 観光地検索モーダル -->
+{% include 'modal_search_touristspot.html' %}
+
+<!-- 行きたいリストモーダル -->
+{% include 'modal_wanted_spot.html' %}
+
 {% endblock %}

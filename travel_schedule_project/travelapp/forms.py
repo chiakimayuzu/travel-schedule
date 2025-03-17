@@ -11,7 +11,9 @@ from django import forms
 from .models import TouristPlan_Spot, TouristSpot, TouristSpotKeyword, Keyword, PREFECTURE_CHOICES, CATEGORY_CHOICES, WORKINGDAY_CHOICES, PARKING_CHOICES, UserReview
 from .models import TouristPlan
 from django.forms import formset_factory
-
+from .models import TouristPlan
+from django import forms
+from .models import UserReview
 
 
 class UserLoginForm(forms.Form):
@@ -166,9 +168,6 @@ class TouristSpotForm(forms.ModelForm):
 
 
 
-from django import forms
-from .models import UserReview
-
 class UserReviewForm(forms.ModelForm):
     stay_time_hours = forms.ChoiceField(
         choices=[(i, str(i)) for i in range(0, 25)],  # 0～24時間
@@ -199,25 +198,37 @@ class UserReviewForm(forms.ModelForm):
 
 
 class TouristSpotSearchForm(forms.Form):
-    query = forms.CharField(required=False, label='検索キーワード', widget=forms.TextInput(attrs={'placeholder': 'スポット名、キーワード、説明、住所で検索'}))
+    query = forms.CharField(
+        required=False, 
+        label='検索キーワード', 
+        widget=forms.TextInput(attrs={'placeholder': 'スポット名、キーワード、説明、住所で検索'})
+    )
     
     category = forms.ChoiceField(
         required=False,
         choices=[('', 'カテゴリを選択')] + CATEGORY_CHOICES,
         label='カテゴリ',
-        initial='',  # 空の選択を初期値に設定
-        error_messages={'invalid_choice': 'カテゴリが無効です。'},  # カスタムエラーメッセージ (必要なら)
+        initial='',
+        error_messages={'invalid_choice': 'カテゴリが無効です。'},
     )
-   
+
     order_by = forms.ChoiceField(
         choices=[
             ('review_score_average', '評価がいい順'),
             ('created_at', '新しい順'),
             ('-created_at', '古い順'),
         ], 
-        initial='review_score_average',  # デフォルトで「評価がいい順」
+        initial='review_score_average',
         label='並び順'
     )
+    
+    # 日付を選択するためのフィールド追加
+    visit_date = forms.DateField(
+        widget=forms.SelectDateWidget(years=range(2025, 2030)), 
+        required=True,
+        label='訪問日'
+    )
+
 
 class TouristPlanForm(forms.ModelForm):
     dates = forms.DateField(widget=forms.SelectDateWidget(years=range(2025, 2030)), required=True)
@@ -226,5 +237,5 @@ class TouristPlanForm(forms.ModelForm):
         model = TouristPlan
         fields = ['touristplan_name', 'start_date', 'end_date']
 
-# モーダルで選択する観光地のフォームセット
-TouristSpotFormSet = formset_factory(TouristPlan_Spot, extra=1)
+    # モーダルで選択する観光地のフォームセット
+    TouristSpotFormSet = formset_factory(TouristPlan_Spot, extra=1) 

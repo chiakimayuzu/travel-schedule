@@ -1,21 +1,18 @@
 <!-- modal_search_touristspot.html -->
-<div class="modal" id="search-touristspot-modal">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">観光地検索</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-        <div class="modal-body">
-          <form method="get" action="{% url 'travelapp:modal_search_touristspot' %}">
-            <input type="text" name="q" placeholder="観光地を検索" required>
-            <button type="submit" class="btn btn-primary">検索</button>
-          </form>
-          <div id="search-results">
-            <!-- 検索結果を表示 -->
-          </div>
-        </div>
-      </div>
-    </div>
- </div>
- 
+<form method="get" action="{% url 'travelapp:modal_search_touristspot' %}">
+  {{ form.query }}
+  {{ form.category }}
+  <button type="submit">検索</button>
+</form>
+
+<div>
+  {% if tourist_spots %}
+    <ul>
+      {% for spot in tourist_spots %}
+        <li>{{ spot.spot_name }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>検索結果はありません。</p>
+  {% endif %}
+</div>

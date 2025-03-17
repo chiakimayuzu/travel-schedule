@@ -797,17 +797,12 @@ def create_touristplan(request):
     if request.method == 'POST':
         form = TouristPlanForm(request.POST)
         if form.is_valid():
-            # 日程を取得
-            selected_dates = form.cleaned_data['dates']
-            
-            # 日付が文字列の場合、datetime型に変換
+            selected_dates = request.POST.getlist('dates')
             selected_dates = [datetime.strptime(date, "%Y-%m-%d").date() for date in selected_dates]
 
-            # 最初と最後の日を取得
-            start_date = min(selected_dates)  # 最初の日を取得
-            end_date = max(selected_dates)    # 最後の日を取得
+            start_date = min(selected_dates)
+            end_date = max(selected_dates)
 
-            # 旅行プランを保存
             tourist_plan = form.save(commit=False)
             tourist_plan.user = request.user
             tourist_plan.start_date = start_date
@@ -815,13 +810,12 @@ def create_touristplan(request):
             tourist_plan.save()
 
             # モーダルで選択された観光地を保存
-            selected_spots = request.POST.getlist('tourist_spots')  # 全ての選択された観光地
-            selected_dates_spots = request.POST.getlist('selected_dates')  # 各観光地に対応する選択された日程
+            selected_spots = request.POST.getlist('tourist_spots')
+            selected_dates_spots = request.POST.getlist('selected_dates')
 
-            # 選択された日程ごとに観光地を保存
             for spot_id, visit_date_str in zip(selected_spots, selected_dates_spots):
                 tourist_spot = TouristSpot.objects.get(id=spot_id)
-                visit_date = datetime.strptime(visit_date_str, "%Y-%m-%d").date()  # 選択された日程
+                visit_date = datetime.strptime(visit_date_str, "%Y-%m-%d").date()
                 TouristPlan_Spot.objects.create(
                     tourist_plan=tourist_plan,
                     tourist_spot=tourist_spot,
@@ -832,37 +826,55 @@ def create_touristplan(request):
     else:
         form = TouristPlanForm()
 
-    # ユーザーの行きたいリストを取得してテンプレートに渡す
     user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
-
-    # GETリクエストではform.cleaned_dataは存在しないため、日付を空のリストに設定
-    selected_dates = []
 
     context = {
         'form': form,
         'user_wanted_spots': [wanted_spot.tourist_spot for wanted_spot in user_wanted_spots],
-        'selected_dates': selected_dates,  # モーダル内で利用する日付リストを渡す
+        'selected_dates': [],
     }
     return render(request, 'create_touristplan.html', context)
 
 
+class ModalSearchTouristSpotView(View):
+    def get(self, request, *args, **kwargs):
+        form = TouristSpotSearchForm(request.GET or None)
+        tourist_spots = TouristSpot.objects.none()
 
-@login_required
-def modal_search_touristspot(request):
-    query = request.GET.get('q', '')  # 検索クエリを取得
-    tourist_spots = TouristSpot.objects.filter(spot_name__icontains=query)  # 名前にクエリを含む観光地を取得
-    return render(request, 'modal_search_touristspot.html', {'tourist_spots': tourist_spots})
+        if form.is_valid():
+            keyword = form.cleaned_data.get('query')
+            category = form.cleaned_data.get('category')
+            visit_date = form.cleaned_data.get('visit_date')
+
+            # キーワードで検索
+            if keyword:
+                tourist_spots = TouristSpot.objects.filter(
+                    Q(spot_name__icontains=keyword) | 
+                    Q(address__icontains=keyword) | 
+                    Q(description__icontains=keyword) |
+                    Q(touristspotkeyword__keyword__keyword__icontains=keyword)
+                )
+
+            # カテゴリでフィルタリング
+            if category:
+                tourist_spots = tourist_spots.filter(category=category)
+
+        return render(request, 'modal_search_touristspot.html', {
+            'form': form,
+            'tourist_spots': tourist_spots,
+            'visit_date': visit_date,
+        })
 
 
-@login_required
-def modal_wanted_spot(request):
-    # ログインしているユーザーの行きたいリストを取得
-    wanted_spots = WantedSpot.objects.filter(user=request.user)
+class ModalWantedSpotView(View):
+    def get(self, request, *args, **kwargs):
+        # ログインしているユーザーの行きたいリストを取得
+        wanted_spots = WantedSpot.objects.filter(user=request.user)
 
-    # 必要な場合は選択された日付なども渡す
-    selected_dates = request.GET.get('selected_dates', [])
+        # 必要な場合は選択された日付なども渡す
+        selected_dates = request.GET.get('selected_dates', [])
 
-    return render(request, 'modal_wanted_spot.html', {
-        'wanted_spots': wanted_spots,
-        'selected_dates': selected_dates,  # 日付があれば渡す
-    })
+        return render(request, 'modal_wanted_spot.html', {
+            'wanted_spots': wanted_spots,
+            'selected_dates': selected_dates,  # 日付があれば渡す
+        })
