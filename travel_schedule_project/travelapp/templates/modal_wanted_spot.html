@@ -1,3 +1,4 @@
+<!-- modal_wanted_spot.html -->
 <div class="modal fade" id="wanted-spot-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -18,17 +19,21 @@
                   <img src="/static/default-image.jpg" alt="No image available" style="width:100px;height:auto;">
                 {% endif %}
                 <span class="spot-name">{{ spot.spot_name }}</span>
-
+                
                 <!-- 日程選択部分 -->
                 <label for="visit_date_{{ spot.id }}">訪問日程を選択:</label>
                 <select id="visit_date_{{ spot.id }}" class="form-control">
-                  {% for date in selected_dates %}
-                    <option value="{{ date }}">{{ date }}</option>
-                  {% endfor %}
+                  {% if selected_dates %}
+                    {% for date in selected_dates %}
+                      <option value="{{ date }}">{{ date }}</option>
+                    {% endfor %}
+                  {% else %}
+                    <option value="">選択できる日付がありません</option>
+                  {% endif %}
                 </select>
                 
                 <!-- 観光地を追加するボタン -->
-                <button type="button" class="btn btn-success" onclick="addSpotToPlan('{{ spot.id }}', document.getElementById('visit_date_{{ spot.id }}').value)">追加</button>
+                <button type="button" class="btn btn-success" onclick="addSpotToPlan('{{ spot.id }}')">追加</button>
               </li>
             {% endfor %}
           {% else %}
@@ -39,7 +44,6 @@
     </div>
   </div>
 </div>
-
 
 
 
