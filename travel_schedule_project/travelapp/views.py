@@ -796,21 +796,36 @@ def create_touristplan(request):
     if request.method == 'POST':
         form = TouristPlanForm(request.POST)
         if form.is_valid():
+            # 日程を取得
+            selected_dates = form.cleaned_data['dates']
+
+            # 日付が文字列の場合、datetime型に変換
+            selected_dates = [datetime.strptime(date, "%Y-%m-%d").date() for date in selected_dates]
+
+            # 最初と最後の日を取得
+            start_date = min(selected_dates)  # 最初の日を取得
+            end_date = max(selected_dates)    # 最後の日を取得
+
             # 旅行プランを保存
             tourist_plan = form.save(commit=False)
             tourist_plan.user = request.user
+            tourist_plan.start_date = start_date
+            tourist_plan.end_date = end_date
             tourist_plan.save()
 
-            # 選ばれた観光地を保存
-            selected_spots = request.POST.getlist('tourist_spots')
-            for spot_id in selected_spots:
+            # モーダルで選択された観光地を保存
+            selected_spots = request.POST.getlist('tourist_spots')  # 全ての選択された観光地
+            selected_dates_spots = request.POST.getlist('selected_dates')  # 各観光地に対応する選択された日程
+
+            # 選択された日程ごとに観光地を保存
+            for spot_id, visit_date_str in zip(selected_spots, selected_dates_spots):
                 tourist_spot = TouristSpot.objects.get(id=spot_id)
-                for visit_date in form.cleaned_data['dates']:
-                    TouristPlan_Spot.objects.create(
-                        tourist_plan=tourist_plan,
-                        tourist_spot=tourist_spot,
-                        visit_date=visit_date
-                    )
+                visit_date = datetime.strptime(visit_date_str, "%Y-%m-%d").date()  # 選択された日程
+                TouristPlan_Spot.objects.create(
+                    tourist_plan=tourist_plan,
+                    tourist_spot=tourist_spot,
+                    visit_date=visit_date
+                )
 
             return redirect('touristplan_detail', pk=tourist_plan.pk)
     else:
@@ -819,14 +834,15 @@ def create_touristplan(request):
     # ユーザーの行きたいリストを取得してテンプレートに渡す
     user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
 
-    # POSTリクエストがない場合、selected_dates は空のリストとして初期化
-    selected_dates = form.cleaned_data.get('dates', []) if request.method == 'POST' else []
+    # GETリクエストではform.cleaned_dataは存在しないため、日付を空のリストに設定
+    selected_dates = []
+    spots_by_date = {}
 
     # ユーザーが選択した日付ごとの観光地リストを作成
-    spots_by_date = {date: [] for date in selected_dates}
-
     for spot in user_wanted_spots:
         for visit_date in selected_dates:
+            if visit_date not in spots_by_date:
+                spots_by_date[visit_date] = []
             spots_by_date[visit_date].append(spot.tourist_spot)
 
     context = {
@@ -835,6 +851,7 @@ def create_touristplan(request):
         'spots_by_date': spots_by_date,  # 日付ごとの観光地
     }
     return render(request, 'create_touristplan.html', context)
+
 
 
 
