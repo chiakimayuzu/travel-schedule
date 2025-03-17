@@ -802,21 +802,22 @@ def create_touristplan(request):
             tourist_plan.save()
 
             # モーダルで選択した観光地を保存
-            visit_date = request.POST.get('visit_date')
-            tourist_spot_id = request.POST.get('tourist_spot')
-            tourist_spot = TouristSpot.objects.get(id=tourist_spot_id)
-            
+            selected_dates = request.POST.getlist('selected_dates')  # 複数の日付を取得
+            tourist_spot_ids = request.POST.getlist('tourist_spots')  # 複数の観光地IDを取得
+
             # TouristPlan_Spotの保存
-            TouristPlan_Spot.objects.create(
-                tourist_plan=tourist_plan,
-                tourist_spot=tourist_spot,
-                visit_date=visit_date
-            )
+            for spot_id in tourist_spot_ids:
+                tourist_spot = TouristSpot.objects.get(id=spot_id)
+                for visit_date in selected_dates:
+                    TouristPlan_Spot.objects.create(
+                        tourist_plan=tourist_plan,
+                        tourist_spot=tourist_spot,
+                        visit_date=visit_date
+                    )
             return redirect('tourist_plan_detail', pk=tourist_plan.pk)
     else:
         form = TouristPlanForm()
 
-    # ユーザーの行きたいリストを取得してコンテキストに渡す
     user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
 
     context = {

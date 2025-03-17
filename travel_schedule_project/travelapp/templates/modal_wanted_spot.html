@@ -1,4 +1,3 @@
-<!-- modal_wanted_spot.html -->
 <div class="modal fade" id="wanted-spot-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -19,8 +18,6 @@
                   <img src="/static/default-image.jpg" alt="No image available" style="width:100px;height:auto;">
                 {% endif %}
                 <span class="spot-name">{{ spot.spot_name }}</span>
-                
-                <!-- 日程選択部分 -->
                 <label for="visit_date_{{ spot.id }}">訪問日程を選択:</label>
                 <select id="visit_date_{{ spot.id }}" class="form-control">
                   {% if selected_dates %}
@@ -31,8 +28,6 @@
                     <option value="">選択できる日付がありません</option>
                   {% endif %}
                 </select>
-                
-                <!-- 観光地を追加するボタン -->
                 <button type="button" class="btn btn-success" onclick="addSpotToPlan('{{ spot.id }}')">追加</button>
               </li>
             {% endfor %}
@@ -45,12 +40,8 @@
   </div>
 </div>
 
-
-
-
 <script>
   function addSpotToPlan(spotId) {
-    // 選択した日付を取得
     const visitDate = document.getElementById(`visit_date_${spotId}`).value;
 
     if (!visitDate) {
@@ -58,28 +49,23 @@
       return;
     }
 
-    // フォームデータを準備
     const formData = new FormData();
     formData.append('spot_id', spotId);
     formData.append('visit_date', visitDate);
 
-    // 旅行プランを送信するエンドポイントにPOSTリクエスト
-    fetch('/add_spot_to_plan/', {  // ここで送信先URLを設定します
+    fetch('/add_spot_to_plan/', {
       method: 'POST',
       body: formData
     })
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        // 追加成功メッセージや処理をここに
         alert('スポットが追加されました!');
       } else {
-        // エラーメッセージや処理
         alert('エラーが発生しました。');
       }
     })
     .catch(error => {
-      console.error('Error:', error);
       alert('通信エラーが発生しました。');
     });
   }
