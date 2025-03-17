@@ -846,6 +846,7 @@ def create_touristplan(request):
     return render(request, 'create_touristplan.html', context)
 
 
+
 @login_required
 def modal_search_touristspot(request):
     query = request.GET.get('q', '')  # 検索クエリを取得
