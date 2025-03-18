@@ -871,6 +871,7 @@ def create_touristplan(request):
     return render(request, 'create_touristplan.html', context)
 
 
+
 class ModalSearchTouristSpotView(View):
     def get(self, request, *args, **kwargs):
         form = TouristSpotSearchForm(request.GET or None)
