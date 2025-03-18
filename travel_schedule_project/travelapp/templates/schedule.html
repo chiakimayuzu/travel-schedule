@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>スケジュール作成</h2>
+<form method="post" action="{% url 'travelapp:create_touristplan' %}">
+  {% csrf_token %}
+  
+  <div>
+    <label>旅行日程:</label>
+    <input type="text" id="schedule-range" name="schedule_range" placeholder="日付を選択" readonly>
+  </div>
+
+  <button type="submit">スケジュール作成</button>
+</form>
+
+<!-- flatpickrのCDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+  flatpickr("#schedule-range", {
+    mode: "range",
+    dateFormat: "Y-m-d",
+    locale: "ja"
+  });
+</script>
+{% endblock %}

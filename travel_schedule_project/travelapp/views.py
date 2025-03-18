@@ -1,5 +1,6 @@
 import random
 from typing import Counter
+from venv import logger
 from django.contrib.auth.forms import UserCreationForm
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -46,7 +47,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import TouristSpot, TouristPlan, TouristPlan_Spot, WantedSpot
 from .forms import TouristPlanForm
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Create your views here.
 
@@ -792,6 +793,40 @@ def wanted_spot_list(request):
 
 
 
+class CreateSchedule(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'schedule.html')
+
+    def post(self, request, *args, **kwargs):
+        schedule_range = request.POST.get('schedule_range')
+        if schedule_range:
+            try:
+                start_date, end_date = schedule_range.split(' to ')
+                visit_dates = []
+                
+                # 日付範囲を生成
+                current_date = datetime.strptime(start_date, '%Y-%m-%d')
+                end_date = datetime.strptime(end_date, '%Y-%m-%d')
+                while current_date <= end_date:
+                    visit_dates.append(current_date.strftime('%Y-%m-%d'))
+                    current_date += timedelta(days=1)
+
+                # session に保存
+                request.session['start_date'] = start_date
+                request.session['end_date'] = end_date
+                request.session['visit_dates'] = visit_dates
+
+                logger.debug(f"スケジュールデータを session に保存: {visit_dates}")
+                
+                return redirect('travelapp:create_touristplan')
+
+            except ValueError as e:
+                logger.error(f"日付の解析エラー: {e}")
+                return redirect('travelapp:schedule')
+
+        return redirect('travelapp:schedule')
+
+# スケジュール作成 View
 @login_required
 def create_touristplan(request):
     if request.method == 'POST':
@@ -802,10 +837,9 @@ def create_touristplan(request):
             tourist_plan.save()
 
             # モーダルで選択した観光地を保存
-            selected_dates = request.POST.getlist('selected_dates')  # 複数の日付を取得
-            tourist_spot_ids = request.POST.getlist('tourist_spots')  # 複数の観光地IDを取得
+            selected_dates = request.POST.getlist('selected_dates')
+            tourist_spot_ids = request.POST.getlist('tourist_spots')
 
-            # TouristPlan_Spotの保存
             for spot_id in tourist_spot_ids:
                 tourist_spot = TouristSpot.objects.get(id=spot_id)
                 for visit_date in selected_dates:
@@ -814,19 +848,27 @@ def create_touristplan(request):
                         tourist_spot=tourist_spot,
                         visit_date=visit_date
                     )
+
             return redirect('tourist_plan_detail', pk=tourist_plan.pk)
     else:
         form = TouristPlanForm()
+
+    # session から日程データを取得
+    visit_dates = request.session.get('visit_dates', [])
+    start_date = request.session.get('start_date', '')
+    end_date = request.session.get('end_date', '')
 
     user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
 
     context = {
         'form': form,
+        'visit_dates': visit_dates,
+        'start_date': start_date,
+        'end_date': end_date,
         'user_wanted_spots': [wanted_spot.tourist_spot for wanted_spot in user_wanted_spots],
     }
 
     return render(request, 'create_touristplan.html', context)
-
 
 
 class ModalSearchTouristSpotView(View):
