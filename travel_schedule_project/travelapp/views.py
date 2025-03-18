@@ -827,7 +827,6 @@ class CreateSchedule(View):
         return redirect('travelapp:schedule')
 
 # スケジュール作成 View
-@login_required
 def create_touristplan(request):
     if request.method == 'POST':
         form = TouristPlanForm(request.POST)

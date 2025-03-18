@@ -40,6 +40,13 @@
       <div>
         <input type="checkbox" id="spot_{{ spot.id }}" value="{{ spot.id }}" class="spot-checkbox">
         <label for="spot_{{ spot.id }}">{{ spot.spot_name }}</label>
+        
+        <!-- 日付選択 -->
+        <select name="visit_date_{{ spot.id }}" class="visit-date-select">
+          {% for date in visit_dates %}
+            <option value="{{ date }}">{{ date }}</option>
+          {% endfor %}
+        </select>
       </div>
       {% endfor %}
       <button type="button" onclick="selectSpots()">確定</button>
@@ -97,16 +104,25 @@
     selectedSpotsContainer.innerHTML = '';
 
     checkboxes.forEach(checkbox => {
+      const spotId = checkbox.value;
+      const visitDate = document.querySelector(`select[name="visit_date_${spotId}"]`).value;
+
       // hidden input を作成してフォームに渡す
       const input = document.createElement('input');
       input.type = 'hidden';
       input.name = 'tourist_spots';
-      input.value = checkbox.value;
+      input.value = spotId;
       selectedSpotsContainer.appendChild(input);
+
+      const dateInput = document.createElement('input');
+      dateInput.type = 'hidden';
+      dateInput.name = 'selected_dates';
+      dateInput.value = visitDate;
+      selectedSpotsContainer.appendChild(dateInput);
 
       // 表示用に選択済みの観光地をリスト化
       const label = document.createElement('div');
-      label.innerText = checkbox.nextElementSibling.innerText;
+      label.innerText = checkbox.nextElementSibling.innerText + " - " + visitDate;
       selectedSpotsContainer.appendChild(label);
     });
 
