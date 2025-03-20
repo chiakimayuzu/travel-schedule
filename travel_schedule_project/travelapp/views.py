@@ -852,10 +852,15 @@ def create_touristplan(request):
     else:
         form = TouristPlanForm()
 
-    # session から日程データを取得
-    visit_dates = request.session.get('visit_dates', [])
-    start_date = request.session.get('start_date', '')
-    end_date = request.session.get('end_date', '')
+    # session から日程データを取得（None でもOK）エラー確認用
+    start_date = request.session.get('start_date', None)  
+    end_date = request.session.get('end_date', None)  
+    visit_dates = request.session.get('visit_dates', None)  
+
+    # # session から日程データを取得
+    # start_date = request.session['start_date','']
+    # end_date = request.session['end_date','']
+    # visit_dates = request.session['visit_dates','']  
 
     user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
 
