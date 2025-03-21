@@ -11,26 +11,38 @@
 
     <form id="register-form" method="POST">
         {% csrf_token %}
-    
 
         <div>
-            名前(ユーザーID/変更不可):
+            <label for="{{ form.username.id_for_label }}">名前(ユーザーID/変更不可):</label>
             {{ form.username }}
+            {% if form.username.help_text %}
+                <p class="help-text">{{ form.username.help_text }}</p>
+            {% endif %}
+        </div>
+
         <div>
-            メールアドレス:
+            <label for="{{ form.email.id_for_label }}">メールアドレス:</label>
             {{ form.email }}
+            {% if form.email.help_text %}
+                <p class="help-text">{{ form.email.help_text }}</p>
+            {% endif %}
         </div>
 
         <div>
-            パスワード:
+            <label for="{{ form.password1.id_for_label }}">パスワード:</label>
             {{ form.password1 }}
+            {% if form.password1.help_text %}
+                <p class="help-text">{{ form.password1.help_text }}</p>
+            {% endif %}
         </div>
 
         <div>
-            パスワード再入力:
+            <label for="{{ form.password2.id_for_label }}">パスワード再入力:</label>
             {{ form.password2 }}
+            {% if form.password2.help_text %}
+                <p class="help-text">{{ form.password2.help_text }}</p>
+            {% endif %}
         </div>
-
 
         <button type="submit">登録</button>
 
@@ -38,8 +50,8 @@
     </form>
 
     <div id="error-message" style="color: red;"></div>
-
 </body>
+
 
 
 </html>

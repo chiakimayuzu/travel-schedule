@@ -39,7 +39,23 @@ class UserLoginForm(forms.Form):
         return cleaned_data     
     
 class RegistAccountForm(UserCreationForm):
-    email = forms.EmailField(max_length=50, required=True)
+    email = forms.EmailField(
+        max_length=50,
+        required=True,
+        widget=forms.EmailInput(attrs={"placeholder": "例:xxx@example.com"})
+    )
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={"placeholder": "travelschedulesan"}),
+        help_text="クチコミ投稿時などにこのユーザー名が表示されます"
+    )
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={"placeholder": "英数字8桁以上で入力してください"}),
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={"placeholder": "英数字8桁以上で入力してください"}),
+        help_text="確認のため、同じパスワードを入力してください。"
+    )
     
     class Meta:
         model = User

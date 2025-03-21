@@ -817,7 +817,6 @@ class CreateSchedule(View):
                 request.session['visit_dates'] = visit_dates
 
                 logger.debug(f"スケジュールデータを session に保存: {visit_dates}")
-                
                 return redirect('travelapp:create_touristplan')
 
             except ValueError as e:
