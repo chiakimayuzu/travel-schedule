@@ -48,7 +48,8 @@ from django.contrib.auth.decorators import login_required
 from .models import TouristSpot, TouristPlan, TouristPlan_Spot, WantedSpot
 from .forms import TouristPlanForm
 from datetime import datetime, timedelta
-
+from urllib.parse import unquote
+from urllib.parse import urlencode
 # Create your views here.
 
 
@@ -799,25 +800,28 @@ class CreateSchedule(View):
 
     def post(self, request, *args, **kwargs):
         schedule_range = request.POST.get('schedule_range')
+        logger.debug(f"受け取った schedule_range: {schedule_range}")
+
         if schedule_range:
             try:
                 start_date, end_date = schedule_range.split(' to ')
                 visit_dates = []
-                
-                # 日付範囲を生成
+
                 current_date = datetime.strptime(start_date, '%Y-%m-%d')
                 end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
                 while current_date <= end_date:
                     visit_dates.append(current_date.strftime('%Y-%m-%d'))
                     current_date += timedelta(days=1)
 
-                # session に保存
-                request.session['start_date'] = start_date
-                request.session['end_date'] = end_date
-                request.session['visit_dates'] = visit_dates
+                logger.debug(f"スケジュールデータを URL パラメータに変換: {visit_dates}")
 
-                logger.debug(f"スケジュールデータを session に保存: {visit_dates}")
-                return redirect('travelapp:create_touristplan')
+                query_params = {
+                    'start_date': start_date,
+                    'end_date': end_date,
+                    'visit_dates': ','.join(visit_dates)
+                }
+                return redirect(f"/create_touristplan/?{urlencode(query_params)}")
 
             except ValueError as e:
                 logger.error(f"日付の解析エラー: {e}")
@@ -825,8 +829,16 @@ class CreateSchedule(View):
 
         return redirect('travelapp:schedule')
 
+
 # スケジュール作成 View
 def create_touristplan(request):
+    start_date = request.GET.get('start_date', '')
+    end_date = request.GET.get('end_date', '')
+    visit_dates = request.GET.get('visit_dates', '')
+
+    # カンマ区切りの文字列をリスト化
+    visit_dates = unquote(visit_dates).split(',') if visit_dates else []
+
     if request.method == 'POST':
         form = TouristPlanForm(request.POST)
         if form.is_valid():
@@ -850,16 +862,6 @@ def create_touristplan(request):
             return redirect('tourist_plan_detail', pk=tourist_plan.pk)
     else:
         form = TouristPlanForm()
-
-    # session から日程データを取得（None でもOK）エラー確認用
-    start_date = request.session.get('start_date', None)  
-    end_date = request.session.get('end_date', None)  
-    visit_dates = request.session.get('visit_dates', None)  
-
-    # # session から日程データを取得
-    # start_date = request.session['start_date','']
-    # end_date = request.session['end_date','']
-    # visit_dates = request.session['visit_dates','']  
 
     user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
 
