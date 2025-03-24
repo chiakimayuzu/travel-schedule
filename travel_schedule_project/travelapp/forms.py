@@ -278,28 +278,17 @@ class TouristPlanForm(forms.ModelForm):
             raise forms.ValidationError("End date must be after the start date.")
         
         return end_date
+    
+    def save(self, commit=True):
+        tourist_plan = super().save(commit=False)
+        if commit:
+            tourist_plan.save() 
+            for spot_form in self.TouristSpotFormSet(self.data):
+                if spot_form.is_valid():
+                    spot = spot_form.save(commit=False)
+                    spot.tourist_plan = tourist_plan
+                    spot.save()
+        return tourist_plan
 
 
 
-# class TouristPlanForm(forms.ModelForm):
-#     # Start date と end date に基づいて訪問日を動的に生成するフィールドを作成
-#     start_date = forms.DateField(widget=forms.SelectDateWidget(years=range(2025, 2030)), required=True)
-#     end_date = forms.DateField(widget=forms.SelectDateWidget(years=range(2025, 2030)), required=True)
-
-#     class Meta:
-#         model = TouristPlan
-#         fields = ['touristplan_name', 'start_date', 'end_date']
-
-#     # モーダルで選択する観光地のフォームセット
-#     TouristSpotFormSet = formset_factory(TouristPlan_Spot, extra=1)
-
-#     def clean(self):
-#         cleaned_data = super().clean()
-#         start_date = cleaned_data.get('start_date')
-#         end_date = cleaned_data.get('end_date')
-        
-#         # start_date と end_date が選択されていることを確認
-#         if start_date and end_date and start_date > end_date:
-#             raise forms.ValidationError("End date must be after the start date.")
-        
-#         return cleaned_data

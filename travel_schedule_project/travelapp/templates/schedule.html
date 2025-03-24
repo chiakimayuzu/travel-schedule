@@ -4,6 +4,17 @@
 <h2>スケジュール作成</h2>
 <form method="get" action="{% url 'travelapp:create_touristplan' %}">
   {% csrf_token %}
+
+
+  {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            {% if 'create_touristplan' in message.tags %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endif %}
   
   <div>
     <label>旅行日程:</label>

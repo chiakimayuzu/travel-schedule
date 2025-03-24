@@ -50,6 +50,8 @@ from .forms import TouristPlanForm
 from datetime import datetime, timedelta
 from urllib.parse import unquote
 from urllib.parse import urlencode
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 # Create your views here.
 
 
@@ -793,8 +795,8 @@ def wanted_spot_list(request):
     return render(request, 'wanted_spot_list.html', {'wanted_spots': wanted_spots})
 
 
-@login_required
-class CreateSchedule(View):
+
+class CreateSchedule(LoginRequiredMixin,View):
     def get(self, request, *args, **kwargs):
         return render(request, 'schedule.html')
 
@@ -831,33 +833,41 @@ class CreateSchedule(View):
 
 
 # スケジュール作成 View
-@login_required
 def create_touristplan(request):
     start_date = request.GET.get('start_date', '')
     end_date = request.GET.get('end_date', '')
 
-
     if request.method == 'POST':
-        form = TouristPlanForm(request.POST)
-        if form.is_valid():
-            tourist_plan = form.save(commit=False)
-            tourist_plan.user = request.user
-            tourist_plan.save()
+        # TouristPlanFormのデータを受け取る
+        touristplan_name = request.POST.get('touristplan_name')  # タイトルをフォームから受け取る
 
-            # モーダルで選択した観光地を保存
-            selected_dates = request.POST.getlist('selected_dates')
-            tourist_spot_ids = request.POST.getlist('tourist_spots')
+        # TouristPlanを保存
+        tourist_plan = TouristPlan(
+            user=request.user,
+            start_date=start_date,
+            end_date=end_date,
+            touristplan_name=touristplan_name  # タイトルを保存
+        )   
+        tourist_plan.save()
 
-            for spot_id in tourist_spot_ids:
-                tourist_spot = TouristSpot.objects.get(id=spot_id)
-                for visit_date in selected_dates:
-                    TouristPlan_Spot.objects.create(
-                        tourist_plan=tourist_plan,
-                        tourist_spot=tourist_spot,
-                        visit_date=visit_date
-                    )
+        # モーダルで選択した観光地と訪問日を保存
+        tourist_spot_ids = request.POST.getlist('tourist_spots')
 
-            return redirect('tourist_plan_detail', pk=tourist_plan.pk)
+        # 各観光地に訪問日を設定して保存
+        for spot_id in tourist_spot_ids: 
+            tourist_spot = TouristSpot.objects.get(id=spot_id)
+            visit_date = request.POST.get(f'visit_dates_{spot_id}')  # 各観光地に対応する訪問日を取得
+
+            if visit_date:
+                tourist_plan_spot = TouristPlan_Spot(
+                tourist_plan=tourist_plan,
+                tourist_spot=tourist_spot,
+                visit_date=visit_date
+            )
+            tourist_plan_spot.save()  # saveメソッドを使って保存
+
+        messages.success(request, 'プラン登録できました', extra_tags='create_touristplan')
+        return redirect('travelapp:schedule')
     else:
         form = TouristPlanForm()
 
