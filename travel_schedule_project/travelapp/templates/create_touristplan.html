@@ -34,7 +34,8 @@
         </div>
     </div>
 
-    <!-- 選択した観光地のリスト (hidden inputでフォームに追加) -->
+    <!-- 追加した観光地と訪問日を表示 -->
+    <h3>追加された観光地:</h3>
     <div id="selectedSpotsContainer"></div>
 
     <label for="touristplan_name">プラン名:</label>
@@ -44,104 +45,109 @@
 </form>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        let startDate = "{{ start_date }}";
-        let endDate = "{{ end_date }}";
+  document.addEventListener("DOMContentLoaded", function () {
+      let startDate = "{{ start_date }}";
+      let endDate = "{{ end_date }}";
 
-        if (startDate && endDate) {
-            let start = new Date(startDate);
-            let end = new Date(endDate);
-            let options = "";
+      if (startDate && endDate) {
+          let start = new Date(startDate);
+          let end = new Date(endDate);
+          let options = "";
 
-            while (start <= end) {
-                let dateStr = start.toISOString().split("T")[0];
-                options += `<option value="${dateStr}">${dateStr}</option>`;
-                start.setDate(start.getDate() + 1);
-            }
+          while (start <= end) {
+              let dateStr = start.toISOString().split("T")[0];
+              options += `<option value="${dateStr}">${dateStr}</option>`;
+              start.setDate(start.getDate() + 1);
+          }
 
-            document.querySelectorAll(".visit-date-dropdown").forEach(dropdown => {
-                dropdown.innerHTML = options;
-            });
-        }
+          document.querySelectorAll(".visit-date-dropdown").forEach(dropdown => {
+              dropdown.innerHTML = options;
+          });
+      }
 
-        document.querySelectorAll(".spot-checkbox").forEach(checkbox => {
-            checkbox.addEventListener("change", function () {
-                let spotId = this.value;
-                let dropdown = document.getElementById(`visit_date_${spotId}`);
-                dropdown.disabled = !this.checked;
-            });
-        });
-    });
+      document.querySelectorAll(".spot-checkbox").forEach(checkbox => {
+          checkbox.addEventListener("change", function () {
+              let spotId = this.value;
+              let dropdown = document.getElementById(`visit_date_${spotId}`);
+              dropdown.disabled = !this.checked;
+          });
+      });
+  });
 
-    function openModal() {
-        document.getElementById('touristSpotModal').style.display = 'block';
-    }
+  function openModal() {
+      document.getElementById('touristSpotModal').style.display = 'block';
+  }
 
-    function closeModal() {
-        document.getElementById('touristSpotModal').style.display = 'none';
-    }
+  function closeModal() {
+      document.getElementById('touristSpotModal').style.display = 'none';
+  }
 
-    function addSelectedSpots() {
-        let selectedContainer = document.getElementById("selectedSpotsContainer");
-        selectedContainer.innerHTML = "";  // クリア
+  function addSelectedSpots() {
+      let selectedContainer = document.getElementById("selectedSpotsContainer");
+      selectedContainer.innerHTML = "";  // クリア
 
-        let checkboxes = document.querySelectorAll(".spot-checkbox:checked");
-        checkboxes.forEach(function(checkbox) {
-            let spotId = checkbox.value;
-            let visitDate = document.getElementById(`visit_date_${spotId}`).value;
+      let checkboxes = document.querySelectorAll(".spot-checkbox:checked");
+      checkboxes.forEach(function(checkbox) {
+          let spotId = checkbox.value;
+          let visitDate = document.getElementById(`visit_date_${spotId}`).value;
 
-            if (!visitDate) {
-                alert("訪問日を選択してください");
-                return;
-            }
+          if (!visitDate) {
+              alert("訪問日を選択してください");
+              return;
+          }
 
-            // フォームに hidden input を追加
-            let hiddenSpotInput = document.createElement("input");
-            hiddenSpotInput.type = "hidden";
-            hiddenSpotInput.name = "tourist_spots";
-            hiddenSpotInput.value = spotId;
-            selectedContainer.appendChild(hiddenSpotInput);
+          // フォームに hidden input を追加
+          let hiddenSpotInput = document.createElement("input");
+          hiddenSpotInput.type = "hidden";
+          hiddenSpotInput.name = "tourist_spots";
+          hiddenSpotInput.value = spotId;
+          selectedContainer.appendChild(hiddenSpotInput);
 
-            let hiddenDateInput = document.createElement("input");
-            hiddenDateInput.type = "hidden";
-            hiddenDateInput.name = `visit_dates_${spotId}`;
-            hiddenDateInput.value = visitDate;
-            selectedContainer.appendChild(hiddenDateInput);
-        });
+          let hiddenDateInput = document.createElement("input");
+          hiddenDateInput.type = "hidden";
+          hiddenDateInput.name = `visit_dates_${spotId}`;
+          hiddenDateInput.value = visitDate;
+          selectedContainer.appendChild(hiddenDateInput);
 
-        closeModal();
-    }
+          // 観光地と訪問日を表示
+          let spotLabel = document.createElement("p");
+          spotLabel.innerHTML = `観光地: ${checkbox.nextElementSibling.innerText} - 訪問日: ${visitDate}`;
+          selectedContainer.appendChild(spotLabel);
+      });
+
+      closeModal();
+  }
 </script>
 
 <a href="{% url 'travelapp:schedule' %}">戻る</a>
 
 <style>
-    /* モーダルのスタイル */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.4);
-    }
+  /* モーダルのスタイル */
+  .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+  }
 
-    .modal-content {
-        background-color: #fefefe;
-        margin: 10% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 50%;
-    }
+  .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 50%;
+  }
 
-    .close {
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-    }
+  .close {
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+  }
 </style>
 
 {% endblock %}
