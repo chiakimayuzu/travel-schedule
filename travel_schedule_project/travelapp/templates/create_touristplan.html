@@ -5,13 +5,20 @@
 
 <form method="post">
     {% csrf_token %}
-
+    <label for="touristplan_name">プラン名:</label>
+    <input type="text" name="touristplan_name" required>
 
     <label>訪問開始日: {{ start_date }}</label>
     <label>訪問終了日: {{ end_date }}</label>
 
+    <!-- 訪問日リスト -->
+    <h3>訪問日:</h3>
+    <div id="visitDatesContainer">
+        <!-- JavaScriptで日付を追加 -->
+    </div>
+
     <!-- モーダルを開くボタン -->
-    <p><button type="button" onclick="openModal()">行きたいリストから追加</button></p>
+    <button type="button" onclick="openModal()">行きたいリストから追加</button>
 
     <!-- モーダル -->
     <div id="touristSpotModal" class="modal" style="display:none;">
@@ -36,129 +43,153 @@
 
     <!-- 追加した観光地と訪問日を表示 -->
     <h3>追加された観光地:</h3>
-    <div id="selectedSpotsContainer"></div>
-
-    <label for="touristplan_name">プラン名:</label>
-    <input type="text" name="touristplan_name" required>
+    <div id="selectedSpotsContainer">
+        {% if selected_spots %}
+            <!-- 追加された観光地がある場合 -->
+            {% for spot, visit_date in selected_spots.items %}
+                <p>訪問日: {{ visit_date }} - 観光地: {{ spot }}</p>
+            {% endfor %}
+        {% else %}
+            <p>観光地を選択してください。</p>
+        {% endif %}
+    </div>
 
     <button type="submit">プランを作成</button>
 </form>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-      let startDate = "{{ start_date }}";
-      let endDate = "{{ end_date }}";
+    document.addEventListener("DOMContentLoaded", function () {
+        let startDate = "{{ start_date }}";
+        let endDate = "{{ end_date }}";
 
-      if (startDate && endDate) {
-          let start = new Date(startDate);
-          let end = new Date(endDate);
-          let options = "";
+        if (startDate && endDate) {
+            let start = new Date(startDate);
+            let end = new Date(endDate);
+            let options = "";
 
-          while (start <= end) {
-              let dateStr = start.toISOString().split("T")[0];
-              options += `<option value="${dateStr}">${dateStr}</option>`;
-              start.setDate(start.getDate() + 1);
-          }
+            // 日付を設定
+            while (start <= end) {
+                let dateStr = start.toISOString().split("T")[0];
+                options += `<option value="${dateStr}">${dateStr}</option>`;
 
-          document.querySelectorAll(".visit-date-dropdown").forEach(dropdown => {
-              dropdown.innerHTML = options;
-          });
-      }
+                // visit_datesContainer に日付を表示
+                let visitDatesContainer = document.getElementById("visitDatesContainer");
+                let dateElement = document.createElement("p");
+                dateElement.textContent = `${start.getMonth() + 1}/${start.getDate()}`;
+                visitDatesContainer.appendChild(dateElement);
 
-      document.querySelectorAll(".spot-checkbox").forEach(checkbox => {
-          checkbox.addEventListener("change", function () {
-              let spotId = this.value;
-              let dropdown = document.getElementById(`visit_date_${spotId}`);
-              dropdown.disabled = !this.checked;
-          });
-      });
-  });
+                start.setDate(start.getDate() + 1);
+            }
 
-  function openModal() {
-      document.getElementById('touristSpotModal').style.display = 'block';
-  }
+            // visit_date ドロップダウンに日付をセット
+            document.querySelectorAll(".visit-date-dropdown").forEach(dropdown => {
+                dropdown.innerHTML = options;
+            });
+        }
 
-  function closeModal() {
-      document.getElementById('touristSpotModal').style.display = 'none';
-  }
+        // チェックボックスの状態によって訪問日を設定
+        document.querySelectorAll(".spot-checkbox").forEach(checkbox => {
+            checkbox.addEventListener("change", function () {
+                let spotId = this.value;
+                let dropdown = document.getElementById(`visit_date_${spotId}`);
+                dropdown.disabled = !this.checked;
 
-  function addSelectedSpots() {
-      let selectedContainer = document.getElementById("selectedSpotsContainer");
-      selectedContainer.innerHTML = "";  // クリア
+                // チェックが入っている場合に日付を設定
+                if (this.checked && !dropdown.value) {
+                    dropdown.value = "{{ start_date }}"; // デフォルトの日付を設定
+                }
+            });
+        });
+    });
 
-      let checkboxes = document.querySelectorAll(".spot-checkbox:checked");
-      let dateSpotsMap = {}; // 日付ごとの観光地をまとめるためのオブジェクト
+    // モーダルを表示
+    function openModal() {
+        document.getElementById('touristSpotModal').style.display = 'block';
+    }
 
-      checkboxes.forEach(function(checkbox) {
-          let spotId = checkbox.value;
-          let visitDate = document.getElementById(`visit_date_${spotId}`).value;
+    // モーダルを閉じる
+    function closeModal() {
+        document.getElementById('touristSpotModal').style.display = 'none';
+    }
 
-          if (!visitDate) {
-              alert("訪問日を選択してください");
-              return;
-          }
+    // 選択した観光地と日付をフォームに追加
+    function addSelectedSpots() {
+        let selectedContainer = document.getElementById("selectedSpotsContainer");
+        selectedContainer.innerHTML = "";  // クリア
 
-          // フォームに hidden input を追加
-          let hiddenSpotInput = document.createElement("input");
-          hiddenSpotInput.type = "hidden";
-          hiddenSpotInput.name = "tourist_spots";
-          hiddenSpotInput.value = spotId;
-          selectedContainer.appendChild(hiddenSpotInput);
+        let checkboxes = document.querySelectorAll(".spot-checkbox:checked");
+        let dateSpotsMap = {}; // 日付ごとの観光地をまとめるためのオブジェクト
 
-          let hiddenDateInput = document.createElement("input");
-          hiddenDateInput.type = "hidden";
-          hiddenDateInput.name = `visit_dates_${spotId}`;
-          hiddenDateInput.value = visitDate;
-          selectedContainer.appendChild(hiddenDateInput);
+        checkboxes.forEach(function(checkbox) {
+            let spotId = checkbox.value;
+            let visitDate = document.getElementById(`visit_date_${spotId}`).value;
 
-          // 日付ごとに観光地をまとめる
-          if (!dateSpotsMap[visitDate]) {
-              dateSpotsMap[visitDate] = [];
-          }
-          dateSpotsMap[visitDate].push(checkbox.nextElementSibling.innerText); // 観光地名を追加
-      });
+            if (!visitDate) {
+                alert("訪問日を選択してください");
+                return;
+            }
 
-      // 日付とその日の観光地を表示
-      for (let date in dateSpotsMap) {
-          let spotsList = dateSpotsMap[date].join(' '); // 同じ日付の観光地をスペース区切りで表示
-          let dateLabel = document.createElement("p");
-          dateLabel.innerHTML = `訪問日: ${date} - 観光地: ${spotsList}`;
-          selectedContainer.appendChild(dateLabel);
-      }
+            // フォームに hidden input を追加
+            let hiddenSpotInput = document.createElement("input");
+            hiddenSpotInput.type = "hidden";
+            hiddenSpotInput.name = "tourist_spots";
+            hiddenSpotInput.value = spotId;
+            selectedContainer.appendChild(hiddenSpotInput);
 
-      closeModal();
-  }
+            let hiddenDateInput = document.createElement("input");
+            hiddenDateInput.type = "hidden";
+            hiddenDateInput.name = `visit_dates_${spotId}`;
+            hiddenDateInput.value = visitDate;
+            selectedContainer.appendChild(hiddenDateInput);
+
+            // 日付ごとに観光地をまとめる
+            if (!dateSpotsMap[visitDate]) {
+                dateSpotsMap[visitDate] = [];
+            }
+            dateSpotsMap[visitDate].push(checkbox.nextElementSibling.innerText); // 観光地名を追加
+        });
+
+        // 日付とその日の観光地を表示
+        for (let date in dateSpotsMap) {
+            let spotsList = dateSpotsMap[date].join(' '); // 同じ日付の観光地をスペース区切りで表示
+            let dateLabel = document.createElement("p");
+            dateLabel.innerHTML = `訪問日: ${date} - 観光地: ${spotsList}`;
+            selectedContainer.appendChild(dateLabel);
+        }
+
+        closeModal();
+    }
 </script>
 
 <a href="{% url 'travelapp:schedule' %}">戻る</a>
 
 <style>
-  /* モーダルのスタイル */
-  .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.4);
-  }
+    /* モーダルのスタイル */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.4);
+    }
 
-  .modal-content {
-      background-color: #fefefe;
-      margin: 10% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 50%;
-  }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 50%;
+    }
 
-  .close {
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-  }
+    .close {
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
 </style>
 
 {% endblock %}
