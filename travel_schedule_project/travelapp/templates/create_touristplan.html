@@ -20,7 +20,6 @@
   <!-- 選択済みのスポットIDを保持 -->
   <div id="selected-spots"></div>
 
-
   <div>
     <label for="touristplan_name">プラン名:</label>
     <input type="text" name="touristplan_name" id="touristplan_name" required>
@@ -199,44 +198,6 @@
               startDate.setDate(startDate.getDate() + 1);
           }
       }
-
-      // 各スポットに訪問日を選択するセレクトボックスを表示
-      const spots = document.querySelectorAll('.spot-checkbox');
-      spots.forEach(spot => {
-        const spotId = spot.value;
-        const selectElement = document.createElement('select');
-        selectElement.name = `visit_date_${spotId}`;
-        selectElement.classList.add('visit-date-select'); // 追加：クラスを付けてモーダル内でターゲットにする
-        
-        let startDate = new Date(startDateElement.textContent);
-        let endDate = new Date(endDateElement.textContent);
-
-        // 曜日を取得する関数
-        function formatDateWithDay(date) {
-            let year = date.getFullYear();
-            let month = date.getMonth() + 1;  // 月は0始まりなので+1
-            let day = date.getDate();
-            let daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
-            let dayOfWeek = daysOfWeek[date.getDay()];
-            return `${year}/${month}/${day} (${dayOfWeek})`;
-        }
-
-        // 訪問日のセレクトボックスを作成
-        while (startDate <= endDate) {
-            let formattedDate = formatDateWithDay(startDate);
-            const option = document.createElement('option');
-            option.value = startDate.toISOString().split('T')[0]; // 日付のISO形式を使用
-            option.textContent = formattedDate;
-            selectElement.appendChild(option);
-
-            // 1日加算
-            startDate.setDate(startDate.getDate() + 1);
-        }
-
-        // セレクトボックスをスポットの隣に追加
-        const spotLabel = document.querySelector(`label[for='spot-checkbox-${spotId}']`);
-        spotLabel.appendChild(selectElement);
-      });
   });
 </script>
 

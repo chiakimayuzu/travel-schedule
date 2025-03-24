@@ -839,38 +839,44 @@ def create_touristplan(request):
 
     if request.method == 'POST':
         # TouristPlanFormのデータを受け取る
-        touristplan_name = request.POST.get('touristplan_name')  # タイトルをフォームから受け取る
+        touristplan_name = request.POST.get('touristplan_name')
 
-        # TouristPlanを保存
-        tourist_plan = TouristPlan(
-            user=request.user,
-            start_date=start_date,
-            end_date=end_date,
-            touristplan_name=touristplan_name  # タイトルを保存
-        )   
-        tourist_plan.save()
+        # トランザクションを使って保存
+        with transaction.atomic():
+            # TouristPlanを保存
+            tourist_plan = TouristPlan(
+                user=request.user,
+                start_date=start_date,
+                end_date=end_date,
+                touristplan_name=touristplan_name
+            )   
+            tourist_plan.save()
 
-        # モーダルで選択した観光地と訪問日を保存
-        tourist_spot_ids = request.POST.getlist('tourist_spots')
+            # モーダルで選択した観光地と訪問日を保存
+            tourist_spot_ids = request.POST.getlist('tourist_spots')
 
-        # 各観光地に訪問日を設定して保存
-        for spot_id in tourist_spot_ids: 
-            tourist_spot = TouristSpot.objects.get(id=spot_id)
-            visit_date = request.POST.get(f'visit_dates_{spot_id}')  # 各観光地に対応する訪問日を取得
+            # 各観光地に訪問日を設定して保存
+            for spot_id in tourist_spot_ids:
+                tourist_spot = TouristSpot.objects.get(id=spot_id)
+                visit_date = request.POST.get(f'visit_dates_{spot_id}')  # 訪問日を取得
 
-            if visit_date:
-                tourist_plan_spot = TouristPlan_Spot(
-                tourist_plan=tourist_plan,
-                tourist_spot=tourist_spot,
-                visit_date=visit_date
-            )
-            tourist_plan_spot.save()  # saveメソッドを使って保存
+                if visit_date:
+                    # TouristPlan_Spotを作成して保存
+                    tourist_plan_spot = TouristPlan_Spot(
+                        tourist_plan=tourist_plan,
+                        tourist_spot=tourist_spot,
+                        visit_date=visit_date
+                    )
+                    tourist_plan_spot.save()  # saveメソッドを使って保存
 
+        # 成功した場合、メッセージを表示
         messages.success(request, 'プラン登録できました', extra_tags='create_touristplan')
         return redirect('travelapp:schedule')
+
     else:
         form = TouristPlanForm()
 
+    # ユーザーが保存した行きたい観光地を取得
     user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
 
     context = {
