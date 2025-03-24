@@ -793,7 +793,7 @@ def wanted_spot_list(request):
     return render(request, 'wanted_spot_list.html', {'wanted_spots': wanted_spots})
 
 
-
+@login_required
 class CreateSchedule(View):
     def get(self, request, *args, **kwargs):
         return render(request, 'schedule.html')
@@ -831,6 +831,7 @@ class CreateSchedule(View):
 
 
 # スケジュール作成 View
+@login_required
 def create_touristplan(request):
     start_date = request.GET.get('start_date', '')
     end_date = request.GET.get('end_date', '')
@@ -903,13 +904,13 @@ class ModalSearchTouristSpotView(View):
         })
 
 
-class ModalWantedSpotView(View):
-    def get(self, request, *args, **kwargs):
-        # ログインしているユーザーの行きたいリストを取得
-        wanted_spots = WantedSpot.objects.filter(user=request.user)
+# class ModalWantedSpotView(View):
+#     def get(self, request, *args, **kwargs):
+#         # ログインしているユーザーの行きたいリストを取得
+#         wanted_spots = WantedSpot.objects.filter(user=request.user)
 
 
-        return render(request, 'modal_wanted_spot.html', {
-            'wanted_spots': wanted_spots,
+#         return render(request, 'modal_wanted_spot.html', {
+#             'wanted_spots': wanted_spots,
 
-        })
+#         })
