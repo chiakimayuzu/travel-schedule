@@ -87,6 +87,8 @@
       selectedContainer.innerHTML = "";  // クリア
 
       let checkboxes = document.querySelectorAll(".spot-checkbox:checked");
+      let dateSpotsMap = {}; // 日付ごとの観光地をまとめるためのオブジェクト
+
       checkboxes.forEach(function(checkbox) {
           let spotId = checkbox.value;
           let visitDate = document.getElementById(`visit_date_${spotId}`).value;
@@ -109,11 +111,20 @@
           hiddenDateInput.value = visitDate;
           selectedContainer.appendChild(hiddenDateInput);
 
-          // 観光地と訪問日を表示
-          let spotLabel = document.createElement("p");
-          spotLabel.innerHTML = `観光地: ${checkbox.nextElementSibling.innerText} - 訪問日: ${visitDate}`;
-          selectedContainer.appendChild(spotLabel);
+          // 日付ごとに観光地をまとめる
+          if (!dateSpotsMap[visitDate]) {
+              dateSpotsMap[visitDate] = [];
+          }
+          dateSpotsMap[visitDate].push(checkbox.nextElementSibling.innerText); // 観光地名を追加
       });
+
+      // 日付とその日の観光地を表示
+      for (let date in dateSpotsMap) {
+          let spotsList = dateSpotsMap[date].join(' '); // 同じ日付の観光地をスペース区切りで表示
+          let dateLabel = document.createElement("p");
+          dateLabel.innerHTML = `訪問日: ${date} - 観光地: ${spotsList}`;
+          selectedContainer.appendChild(dateLabel);
+      }
 
       closeModal();
   }
