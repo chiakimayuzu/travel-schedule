@@ -5,27 +5,40 @@
 
 <form method="post">
     {% csrf_token %}
-    <label for="touristplan_name">プラン名:</label>
-    <input type="text" name="touristplan_name" required>
+
 
     <label>訪問開始日: {{ start_date }}</label>
     <label>訪問終了日: {{ end_date }}</label>
 
-    <h2>行きたいリストから観光地を選択</h2>
+    <!-- モーダルを開くボタン -->
+    <p><button type="button" onclick="openModal()">行きたいリストから追加</button></p>
 
-    <div id="wanted_spots">
-        {% for spot in user_wanted_spots %}
-        <div>
-            <input type="checkbox" name="tourist_spots" value="{{ spot.id }}" class="tourist-spot-checkbox"
-                data-spot-id="{{ spot.id }}">
-            <label>{{ spot.spot_name }}</label>
+    <!-- モーダル -->
+    <div id="touristSpotModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>観光地を選択</h2>
 
-            <select name="visit_date_{{ spot.id }}" class="visit-date-dropdown" disabled>
-                <!-- JavaScript で日付を挿入 -->
-            </select>
+            {% for spot in user_wanted_spots %}
+            <div class="spot-item">
+                <input type="checkbox" id="spot_{{ spot.id }}" value="{{ spot.id }}" class="spot-checkbox">
+                <label for="spot_{{ spot.id }}">{{ spot.spot_name }}</label>
+
+                <select id="visit_date_{{ spot.id }}" class="visit-date-dropdown" disabled>
+                    <!-- JavaScript で日付を挿入 -->
+                </select>
+            </div>
+            {% endfor %}
+
+            <button type="button" onclick="addSelectedSpots()">追加</button>
         </div>
-        {% endfor %}
     </div>
+
+    <!-- 選択した観光地のリスト (hidden inputでフォームに追加) -->
+    <div id="selectedSpotsContainer"></div>
+
+    <label for="touristplan_name">プラン名:</label>
+    <input type="text" name="touristplan_name" required>
 
     <button type="submit">プランを作成</button>
 </form>
@@ -51,15 +64,84 @@
             });
         }
 
-        document.querySelectorAll(".tourist-spot-checkbox").forEach(checkbox => {
+        document.querySelectorAll(".spot-checkbox").forEach(checkbox => {
             checkbox.addEventListener("change", function () {
-                let spotId = this.dataset.spotId;
-                let dropdown = document.querySelector(`[name='visit_date_${spotId}']`);
+                let spotId = this.value;
+                let dropdown = document.getElementById(`visit_date_${spotId}`);
                 dropdown.disabled = !this.checked;
             });
         });
     });
+
+    function openModal() {
+        document.getElementById('touristSpotModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('touristSpotModal').style.display = 'none';
+    }
+
+    function addSelectedSpots() {
+        let selectedContainer = document.getElementById("selectedSpotsContainer");
+        selectedContainer.innerHTML = "";  // クリア
+
+        let checkboxes = document.querySelectorAll(".spot-checkbox:checked");
+        checkboxes.forEach(function(checkbox) {
+            let spotId = checkbox.value;
+            let visitDate = document.getElementById(`visit_date_${spotId}`).value;
+
+            if (!visitDate) {
+                alert("訪問日を選択してください");
+                return;
+            }
+
+            // フォームに hidden input を追加
+            let hiddenSpotInput = document.createElement("input");
+            hiddenSpotInput.type = "hidden";
+            hiddenSpotInput.name = "tourist_spots";
+            hiddenSpotInput.value = spotId;
+            selectedContainer.appendChild(hiddenSpotInput);
+
+            let hiddenDateInput = document.createElement("input");
+            hiddenDateInput.type = "hidden";
+            hiddenDateInput.name = `visit_dates_${spotId}`;
+            hiddenDateInput.value = visitDate;
+            selectedContainer.appendChild(hiddenDateInput);
+        });
+
+        closeModal();
+    }
 </script>
 
 <a href="{% url 'travelapp:schedule' %}">戻る</a>
+
+<style>
+    /* モーダルのスタイル */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 50%;
+    }
+
+    .close {
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+</style>
+
 {% endblock %}

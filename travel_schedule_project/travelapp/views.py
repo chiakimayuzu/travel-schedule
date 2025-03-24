@@ -841,23 +841,19 @@ def create_touristplan(request):
         touristplan_name = request.POST.get('touristplan_name')
 
         with transaction.atomic():
-            # TouristPlanを保存
-            tourist_plan = TouristPlan(
+            tourist_plan = TouristPlan.objects.create(
                 user=request.user,
                 start_date=start_date,
                 end_date=end_date,
                 touristplan_name=touristplan_name
             )
-            tourist_plan.save()
 
-            # モーダルで選択した観光地と訪問日を保存
             tourist_spot_ids = request.POST.getlist('tourist_spots')
 
             for spot_id in tourist_spot_ids:
-                tourist_spot = TouristSpot.objects.get(id=spot_id)
-                visit_date = request.POST.get(f'visit_date_{spot_id}')  # 各観光地の訪問日
-
+                visit_date = request.POST.get(f'visit_dates_{spot_id}')
                 if visit_date:
+                    tourist_spot = TouristSpot.objects.get(id=spot_id)
                     TouristPlan_Spot.objects.create(
                         tourist_plan=tourist_plan,
                         tourist_spot=tourist_spot,
@@ -869,7 +865,7 @@ def create_touristplan(request):
 
     else:
         form = TouristPlanForm()
-
+    
     user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
 
     context = {
