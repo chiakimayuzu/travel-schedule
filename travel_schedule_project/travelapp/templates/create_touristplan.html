@@ -5,14 +5,11 @@
 
 <form method="post">
     {% csrf_token %}
-    <label for="touristplan_name">プラン名:</label>
-    <input type="text" name="touristplan_name" required>
 
-    <label>訪問開始日: {{ start_date }}</label>
-    <label>訪問終了日: {{ end_date }}</label>
+    <label>訪問開始日: {{ start_date }} ～ {{ end_date }}</label>
 
     <!-- 訪問日リスト -->
-    <h3>訪問日:</h3>
+
     <div id="visitDatesContainer">
         <!-- JavaScriptで日付を追加 -->
     </div>
@@ -54,6 +51,9 @@
         {% endif %}
     </div>
 
+    <label for="touristplan_name">プラン名:</label>
+    <input type="text" name="touristplan_name" required>
+
     <button type="submit">プランを作成</button>
 </form>
 
@@ -72,11 +72,6 @@
                 let dateStr = start.toISOString().split("T")[0];
                 options += `<option value="${dateStr}">${dateStr}</option>`;
 
-                // visit_datesContainer に日付を表示
-                let visitDatesContainer = document.getElementById("visitDatesContainer");
-                let dateElement = document.createElement("p");
-                dateElement.textContent = `${start.getMonth() + 1}/${start.getDate()}`;
-                visitDatesContainer.appendChild(dateElement);
 
                 start.setDate(start.getDate() + 1);
             }
