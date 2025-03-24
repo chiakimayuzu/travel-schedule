@@ -2,23 +2,17 @@
 
 {% block content %}
 <h2>スケジュール内容を確認</h2>
-<p>開始日: {{ start_date }}</p>
-<p>終了日: {{ end_date }}</p>
+<p>開始日: <span id="start_date">{{ start_date }}</span></p>
+<p>終了日: <span id="end_date">{{ end_date }}</span></p>
 <p>訪問日程:</p>
-<ul>
-  {% for date in visit_dates %}
-    <li>{{ date }}</li>
-  {% endfor %}
-</ul>
+<ul id="visit_dates_list"></ul>
 
 <!-- フォーム -->
 <form method="post">
   {% csrf_token %}
 
-  <!-- 日付データをhiddenで渡す -->
-  {% for date in visit_dates %}
-    <input type="hidden" name="selected_dates" value="{{ date }}">
-  {% endfor %}
+  <!-- 計算した日付データを hidden で渡す -->
+  <div id="hidden_dates"></div>
 
   <!-- モーダルを開くボタン -->
   <button type="button" onclick="openModal()">行きたいリストから選択</button>
@@ -129,4 +123,47 @@
   }
 </script>
 
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      let startDateStr = document.getElementById("start_date").textContent;
+      let endDateStr = document.getElementById("end_date").textContent;
+  
+      if (startDateStr && endDateStr) {
+          let startDate = new Date(startDateStr);
+          let endDate = new Date(endDateStr);
+          let visitDatesList = document.getElementById("visit_dates_list");
+          let hiddenDatesDiv = document.getElementById("hidden_dates");
+  
+          while (startDate <= endDate) {
+              let year = startDate.getFullYear();
+              let month = startDate.getMonth() + 1;  // 月は0から始まるため+1
+              let day = startDate.getDate();
+  
+              // 曜日を取得（例: "月", "火", "水"）
+              let daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
+              let dayOfWeek = daysOfWeek[startDate.getDay()];
+  
+              // YYYY/MM/DD (曜日) の形式に変換
+              let formattedDate = `${year}/${month}/${day} (${dayOfWeek})`;
+  
+              // リストに表示
+              let li = document.createElement("li");
+              li.textContent = formattedDate;
+              visitDatesList.appendChild(li);
+  
+              // hidden input に追加（フォーム送信用、YYYY-MM-DD 形式で送る）
+              let hiddenInput = document.createElement("input");
+              hiddenInput.type = "hidden";
+              hiddenInput.name = "selected_dates";
+              hiddenInput.value = startDate.toISOString().split('T')[0];  // YYYY-MM-DD形式
+              hiddenDatesDiv.appendChild(hiddenInput);
+  
+              // 1日加算
+              startDate.setDate(startDate.getDate() + 1);
+          }
+      }
+  });
+  </script>
 {% endblock %}

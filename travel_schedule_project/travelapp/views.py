@@ -834,10 +834,7 @@ class CreateSchedule(View):
 def create_touristplan(request):
     start_date = request.GET.get('start_date', '')
     end_date = request.GET.get('end_date', '')
-    visit_dates = request.GET.get('visit_dates', '')
 
-    # カンマ区切りの文字列をリスト化
-    visit_dates = unquote(visit_dates).split(',') if visit_dates else []
 
     if request.method == 'POST':
         form = TouristPlanForm(request.POST)
@@ -867,7 +864,6 @@ def create_touristplan(request):
 
     context = {
         'form': form,
-        'visit_dates': visit_dates,
         'start_date': start_date,
         'end_date': end_date,
         'user_wanted_spots': [wanted_spot.tourist_spot for wanted_spot in user_wanted_spots],
