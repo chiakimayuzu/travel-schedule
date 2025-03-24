@@ -12,11 +12,12 @@
           {% if user_wanted_spots %}
             {% for spot in user_wanted_spots %}
               <li id="spot-{{ spot.id }}">
-                {% if spot.picture %}
-                  <img src="{{ spot.picture.url }}" alt="{{ spot.spot_name }}" style="width:100px;height:auto;">
+                {% if spot.tourist_spot.picture %}
+                  <img src="{{ spot.tourist_spot.picture.url }}" alt="{{ spot.tourist_spot.spot_name }}" style="width:100px;height:auto;">
                 {% else %}
                   <img src="/static/default-image.jpg" alt="No image available" style="width:100px;height:auto;">
                 {% endif %}
+                
                 <span class="spot-name">{{ spot.spot_name }}</span>
                 <label for="visit_date_{{ spot.id }}">訪問日程を選択:</label>
                 <select id="visit_date_{{ spot.id }}" class="form-control">
@@ -39,6 +40,7 @@
     </div>
   </div>
 </div>
+
 
 <h3>観光地を選択</h3>
 <ul>
@@ -77,3 +79,4 @@
     });
   }
 </script>
+

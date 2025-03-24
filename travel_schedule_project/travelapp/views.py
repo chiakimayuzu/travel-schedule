@@ -908,10 +908,8 @@ class ModalWantedSpotView(View):
         # ログインしているユーザーの行きたいリストを取得
         wanted_spots = WantedSpot.objects.filter(user=request.user)
 
-        # 必要な場合は選択された日付なども渡す
-        selected_dates = request.GET.get('selected_dates', [])
 
         return render(request, 'modal_wanted_spot.html', {
             'wanted_spots': wanted_spots,
-            'selected_dates': selected_dates,  # 日付があれば渡す
+
         })

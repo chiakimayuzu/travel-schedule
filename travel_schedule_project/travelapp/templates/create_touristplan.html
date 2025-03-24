@@ -35,7 +35,7 @@
         <label for="spot_{{ spot.id }}">{{ spot.spot_name }}</label>
         
         <!-- 日付選択 -->
-        <select name="visit_date_{{ spot.id }}" class="visit-date-select">
+        <select name="visit_date_{{ spot.id }}" class="visit-date-select" data-spot-id="{{ spot.id }}">
           {% for date in visit_dates %}
             <option value="{{ date }}">{{ date }}</option>
           {% endfor %}
@@ -80,12 +80,36 @@
 <script>
   // モーダルを開く
   function openModal() {
+    const visitDates = document.querySelectorAll("#visit_dates_list li");
+    const modalSelects = document.querySelectorAll('.visit-date-select');
+
+    // モーダル内のvisit-date-selectを初期化（毎回新しく日付を設定する）
+    modalSelects.forEach(select => {
+      const spotId = select.getAttribute('data-spot-id');
+      
+      // 新しい選択肢として、リスト内の日付をすべてモーダル内に追加
+      select.innerHTML = '';  // 初期化
+      visitDates.forEach(dateElement => {
+        const visitDate = dateElement.textContent; // 各日付を取得
+        const option = document.createElement("option");
+        option.value = visitDate;
+        option.textContent = visitDate;
+        select.appendChild(option); // 各選択肢を追加
+      });
+    });
+
     document.getElementById('modal').style.display = 'block';
   }
 
   // モーダルを閉じる
   function closeModal() {
     document.getElementById('modal').style.display = 'none';
+    
+    // モーダルを閉じるたびに選択肢をリセット
+    const modalSelects = document.querySelectorAll('.visit-date-select');
+    modalSelects.forEach(select => {
+      select.innerHTML = '';  // 既存の日付をクリア
+    });
   }
 
   // 選択したスポットをフォームに追加
@@ -121,11 +145,7 @@
 
     closeModal(); // モーダルを閉じる
   }
-</script>
 
-
-
-<script>
   document.addEventListener("DOMContentLoaded", function () {
       let startDateElement = document.getElementById("start_date");
       let endDateElement = document.getElementById("end_date");
@@ -153,6 +173,7 @@
           startDateElement.textContent = formatDateWithDay(startDate);
           endDateElement.textContent = formatDateWithDay(endDate);
 
+          // 訪問日程をリストに表示し、hidden input を追加
           while (startDate <= endDate) {
               let formattedDate = formatDateWithDay(startDate);
 
@@ -172,6 +193,45 @@
               startDate.setDate(startDate.getDate() + 1);
           }
       }
+
+      // 各スポットに訪問日を選択するセレクトボックスを表示
+      const spots = document.querySelectorAll('.spot-checkbox');
+      spots.forEach(spot => {
+        const spotId = spot.value;
+        const selectElement = document.createElement('select');
+        selectElement.name = `visit_date_${spotId}`;
+        selectElement.classList.add('visit-date-select'); // 追加：クラスを付けてモーダル内でターゲットにする
+        
+        let startDate = new Date(startDateElement.textContent);
+        let endDate = new Date(endDateElement.textContent);
+
+        // 曜日を取得する関数
+        function formatDateWithDay(date) {
+            let year = date.getFullYear();
+            let month = date.getMonth() + 1;  // 月は0始まりなので+1
+            let day = date.getDate();
+            let daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
+            let dayOfWeek = daysOfWeek[date.getDay()];
+            return `${year}/${month}/${day} (${dayOfWeek})`;
+        }
+
+        // 訪問日のセレクトボックスを作成
+        while (startDate <= endDate) {
+            let formattedDate = formatDateWithDay(startDate);
+            const option = document.createElement('option');
+            option.value = startDate.toISOString().split('T')[0]; // 日付のISO形式を使用
+            option.textContent = formattedDate;
+            selectElement.appendChild(option);
+
+            // 1日加算
+            startDate.setDate(startDate.getDate() + 1);
+        }
+
+        // セレクトボックスをスポットの隣に追加
+        const spotLabel = document.querySelector(`label[for='spot-checkbox-${spotId}']`);
+        spotLabel.appendChild(selectElement);
+      });
   });
 </script>
+
 {% endblock %}
