@@ -10,7 +10,7 @@
     <div>
         <label for="category">カテゴリ:</label>
         <select name="category" id="category">
-            <option value="">すべて</option>
+            <option value="">カテゴリを選択</option>
             <!-- カテゴリの選択肢をリストにする -->
             {% for value, name in category_choices %}
                 <option value="{{ value }}" {% if value == request.GET.category %}selected{% endif %}>{{ name }}</option>

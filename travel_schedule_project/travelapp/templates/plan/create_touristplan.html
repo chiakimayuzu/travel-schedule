@@ -8,6 +8,18 @@
 
     <label>訪問開始日: {{ start_date }} ～ {{ end_date }}</label>
 
+    <div>
+        <label for="visit_date">訪問日:</label>
+        <select name="visit_date" id="visit_date">
+          {% for date in visit_date %}
+            <option value="{{ date }}">{{ date }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+
+
+
     <!-- 訪問日リスト -->
 
     <div id="visitDatesContainer">
@@ -133,7 +145,7 @@
 
             let hiddenDateInput = document.createElement("input");
             hiddenDateInput.type = "hidden";
-            hiddenDateInput.name = `visit_dates_${spotId}`;
+            hiddenDateInput.name = `visit_date_${spotId}`;
             hiddenDateInput.value = visitDate;
             selectedContainer.appendChild(hiddenDateInput);
 

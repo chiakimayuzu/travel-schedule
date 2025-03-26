@@ -816,33 +816,41 @@ def wanted_spot_list(request):
 
 
 
-class CreateSchedule(LoginRequiredMixin,View):
+class CreateSchedule(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        return render(request, 'schedule.html')
+        return render(request, 'plan/schedule.html')
 
     def post(self, request, *args, **kwargs):
         schedule_range = request.POST.get('schedule_range')
-        logger.debug(f"受け取った schedule_range: {schedule_range}")
+        logger.debug(f"受け取った schedule_range: {schedule_range}")  # デバッグログを追加
 
         if schedule_range:
             try:
+                # schedule_range を 'start_date' と 'end_date' に分割
                 start_date, end_date = schedule_range.split(' to ')
-                visit_dates = []
+                visit_date = []  # 空のリストを用意
 
+                # 日付文字列を datetime オブジェクトに変換
                 current_date = datetime.strptime(start_date, '%Y-%m-%d')
                 end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
+                logger.debug(f"start_date: {start_date}, end_date: {end_date}")  # start_date, end_date のログ
+
+                # current_date が end_date より前の間はループして、visit_date に追加
                 while current_date <= end_date:
-                    visit_dates.append(current_date.strftime('%Y-%m-%d'))
-                    current_date += timedelta(days=1)
+                    visit_date.append(current_date.strftime('%Y-%m-%d'))  # 日付をリストに追加
+                    current_date += timedelta(days=1)  # 1日進める
 
-                logger.debug(f"スケジュールデータを URL パラメータに変換: {visit_dates}")
+                logger.debug(f"visit_date: {visit_date}")  # visit_date リストをログ
 
+                # クエリパラメータに 'visit_date' を追加
                 query_params = {
                     'start_date': start_date,
                     'end_date': end_date,
-                    'visit_dates': ','.join(visit_dates)
+                    'visit_date': ','.join(visit_date)  # 日付をカンマ区切りで文字列に変換
                 }
+
+                # create_touristplan の URL にリダイレクト
                 return redirect(f"/create_touristplan/?{urlencode(query_params)}")
 
             except ValueError as e:
@@ -852,10 +860,14 @@ class CreateSchedule(LoginRequiredMixin,View):
         return redirect('travelapp:schedule')
 
 
+
 # スケジュール作成 View
 def create_touristplan(request):
     start_date = request.GET.get('start_date', '')
     end_date = request.GET.get('end_date', '')
+    visit_date = request.GET.get('visit_date', '').split(',')
+
+    logger.debug(f"受け取った visit_date: {visit_date}")
 
     if request.method == 'POST':
         touristplan_name = request.POST.get('touristplan_name')
@@ -870,9 +882,10 @@ def create_touristplan(request):
 
             tourist_spot_ids = request.POST.getlist('tourist_spots')
 
-            for spot_id in tourist_spot_ids:
-                visit_date = request.POST.get(f'visit_dates_{spot_id}')
-                if visit_date:
+            # visit_date のリストと各観光スポットを組み合わせて TouristPlan_Spot を作成
+            for i, spot_id in enumerate(tourist_spot_ids):
+                if i < len(visit_date):  # visit_date リストの長さ分だけ処理
+                    visit_date = visit_date[i]
                     tourist_spot = TouristSpot.objects.get(id=spot_id)
                     TouristPlan_Spot.objects.create(
                         tourist_plan=tourist_plan,
@@ -885,17 +898,19 @@ def create_touristplan(request):
 
     else:
         form = TouristPlanForm()
-    
+
     user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
 
     context = {
         'form': form,
         'start_date': start_date,
         'end_date': end_date,
+        'visit_date': visit_date,
         'user_wanted_spots': [wanted_spot.tourist_spot for wanted_spot in user_wanted_spots],
     }
 
-    return render(request, 'create_touristplan.html', context)
+    return render(request, 'plan/create_touristplan.html', context)
+
 
 
 
