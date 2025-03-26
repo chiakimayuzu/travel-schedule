@@ -1,18 +1,25 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>観光地を検索</h1>
-  <form method="get" action="{% url 'travelapp:search_touristspot' %}">
+<h1>観光地を検索</h1>
+<form method="get" action="{% url 'travelapp:search_touristspot' %}">
     <div>
-      <label for="{{ form.query.id_for_label }}">検索キーワード:</label>
-      {{ form.query }}
+        <label for="query">検索キーワード:</label>
+        <input type="text" name="query" id="query" value="{{ request.GET.query }}">
     </div>
     <div>
-      <label for="{{ form.category.id_for_label }}">カテゴリ:</label>
-      {{ form.category }}
+        <label for="category">カテゴリ:</label>
+        <select name="category" id="category">
+            <option value="">すべて</option>
+            <!-- カテゴリの選択肢をリストにする -->
+            {% for value, name in category_choices %}
+                <option value="{{ value }}" {% if value == request.GET.category %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
     </div>
     <button type="submit">検索</button><br><br>
-  </form>
+</form>
+
 
   {% if tourist_spot %}
   <div>

@@ -17,7 +17,7 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth import authenticate,login,logout
 from django.shortcuts import render, redirect
 from .forms import TouristSpotForm
-from .models import PREFECTURE_CHOICES, REVIEW_PRICE_CHOICES, Keyword, TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
+from .models import CATEGORY_CHOICES, PREFECTURE_CHOICES, REVIEW_PRICE_CHOICES, Keyword, TouristSpot, TouristSpotKeyword, UserReview, WantedSpot
 from django.shortcuts import render, redirect
 from .forms import TouristSpotForm, UserReviewForm
 from .models import Keyword, TouristSpotKeyword
@@ -157,10 +157,15 @@ def home(request):
         # ✅ ランダムで取得したTouristSpotに関連する最新のレビューを取得
         latest_review = tourist_spot.userreview_set.order_by('-created_at').first()
 
+        # カテゴリ選択肢を定義
+    category_choices = [(value, name) for value, name in CATEGORY_CHOICES]
+
+
     context = {
         'form': form,
         'tourist_spot': tourist_spot,
         'latest_review': latest_review,
+        'category_choices': category_choices,
     }
     return render(request, 'home.html', context)
     
