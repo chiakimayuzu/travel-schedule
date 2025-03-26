@@ -52,6 +52,7 @@ from urllib.parse import unquote
 from urllib.parse import urlencode
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
+from django.contrib.auth import get_user_model
 # Create your views here.
 
 
@@ -100,11 +101,6 @@ class LogoutView(View):
         return redirect('travelapp:home')
 
 
-
-def check_username(request): #入力されたusernameが既に存在するかを確認
-        username = request.GET.get('username')  # フォームの入力値を取得
-        exists = User.objects.filter(username=username).exists()  # usernameがすでに存在するか確認
-        return JsonResponse({'exists':exists})  # exists が True ならusernameが存在、エラー表示
 
 
 @login_required
@@ -268,6 +264,19 @@ def regist_touristspot(request):
         form = TouristSpotForm()
 
     return render(request, 'regist_touristspot.html', {'form': form})
+
+def check_username(request):  # 入力されたusernameが既に存在するかを確認
+    username = request.GET.get('username')  # フォームの入力値を取得
+
+    Users = get_user_model()
+
+    username_exists = False
+    if username:
+        username_exists = Users.objects.filter(username=username).exists()  # usernameが既に存在するか確認
+
+    return JsonResponse({'username_exists': username_exists})  # exists が True ならusernameが存在、エラー表示
+
+
 
 def check_dupe_tourist_spot(request):
     spot_name = request.GET.get('spot_name', '').strip()

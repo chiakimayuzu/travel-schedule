@@ -13,11 +13,12 @@
         {% csrf_token %}
 
         <div>
-            <label for="{{ form.username.id_for_label }}">名前(ユーザーID/変更不可):</label>
+            <label for="{{ form.username.id_for_label }}">ユーザー名(ユーザーID/変更不可):</label>
             {{ form.username }}
             {% if form.username.help_text %}
                 <p class="help-text">{{ form.username.help_text }}</p>
             {% endif %}
+            <div id="username_error" style="display: none; color: red;"></div>
         </div>
 
         <div>
@@ -52,6 +53,36 @@
     <div id="error-message" style="color: red;"></div>
 </body>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+      function checkDuplicateUsername() {
+        const username = document.getElementById('id_username').value.trim();
+  
+        if (username) {
+            const url = "{% url 'travelapp:check_username' %}?username=" + encodeURIComponent(username);
+
+  
+          fetch(url)
+            .then(response => response.json())
+            .then(data => {
+              const usernameError = document.getElementById('username_error');
+  
+              // usernameが既に存在する場合
+              if (data.username_exists) {
+                usernameError.textContent = "このユーザー名は既に存在します";
+                usernameError.style.display = 'block';
+              } else {
+                usernameError.style.display = 'none';
+              }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+      }
+  
+      document.getElementById('id_username').addEventListener("input", checkDuplicateUsername);
+    });
+  </script>
+  
 
 
 </html>
