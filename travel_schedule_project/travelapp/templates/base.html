@@ -13,6 +13,18 @@
             margin-bottom: 10px;  /* リンクの間にスペースを追加 */
          }
       </style>
+
+      {% block styles %}
+        <style>
+           .selected {
+            color: gray; /* 選択中のリンクはグレーにする */
+            pointer-events: none; /* クリックできないようにする */
+         }
+        </style>
+      {% endblock %}
+
+
+
    </head>
 
    <body>

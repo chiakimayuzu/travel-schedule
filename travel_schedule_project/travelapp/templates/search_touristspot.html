@@ -19,39 +19,40 @@
     </select>
     
     <button type="submit">検索</button>
-</form>
+  </form>
 
-<!-- 並び順 -->
-<div>
-  <a href="?sort=review_score_average&query={{ request.GET.query }}&category={{ request.GET.category }}">評価がいい順</a> | 
-  <a href="?sort=-created_at&query={{ request.GET.query }}&category={{ request.GET.category }}">登録が新しい順</a> | 
-  <a href="?sort=created_at&query={{ request.GET.query }}&category={{ request.GET.category }}">登録が古い順</a>
-</div>
+  <div>
+    <a href="?sort=review_score_average" class="{% if request.GET.sort == 'review_score_average' %}selected{% endif %}">評価がいい順</a> | 
+    <a href="?sort=-created_at" class="{% if request.GET.sort == '-created_at' %}selected{% endif %}">登録が新しい順</a> | 
+    <a href="?sort=created_at" class="{% if request.GET.sort == 'created_at' %}selected{% endif %}">登録が古い順</a> 
+  </div>
 
-<h2>検索結果:</h2>
+  <h2>検索結果:</h2>
+  
+  <div>
+    {% if tourist_spots %}
+      <ul>
+        {% for spot in tourist_spots %}
+          <li>
+            <div>
+              <a href="{% url 'travelapp:detail_touristspot' pk=spot.pk %}">
+                <img src="{{ spot.picture.url }}" alt="{{ spot.spot_name }}" width="200" height="150">
+              </a>
+            </div>
+            <div>
+              <strong>{{ spot.spot_name }}</strong><br>
+              <span>{{ spot.get_category_display }}</span><br>
+              <span>{{ spot.get_prefecture_display }}</span>
+              <span>{{ spot.address }}</span><br>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>検索結果はありませんでした。</p>
+    {% endif %}
+  </div>
 
-<div>
-  {% if tourist_spots %}
-    <ul>
-      {% for spot in tourist_spots %}
-        <li>
-          <div>
-            <!-- pictureをクリックすると詳細ページに遷移 -->
-            <a href="{% url 'travelapp:detail_touristspot' pk=spot.pk %}">
-              <img src="{{ spot.picture.url }}" alt="{{ spot.spot_name }}" width="200" height="150">
-            </a>
-          </div>
-          <div>
-            <strong>{{ spot.spot_name }}</strong><br>
-            <span>{{ spot.get_category_display }}</span><br>
-            <span>{{ spot.get_prefecture_display }}</span>
-            <span>{{ spot.address }}</span><br>
-          </div>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>検索結果はありませんでした。</p>
-  {% endif %}
-</div>
 {% endblock %}
+
+  

@@ -168,46 +168,42 @@ def home(request):
 
 class TouristSpotSearchView(ListView):
     model = TouristSpot
-    template_name = 'search_touristspot.html'  # 必要に応じて変更
+    template_name = 'search_touristspot.html'
     context_object_name = 'tourist_spots'
-    
+
     def get_queryset(self):
         queryset = TouristSpot.objects.all()
         keyword = self.request.GET.get('query')  # 'query' パラメータを取得
         category = self.request.GET.get('category')
-        
-        if not keyword:
-            # キーワードが空の場合、エラーメッセージを返すなどの処理を追加できます。
-            # ここで空の場合のエラー処理も可能ですが、エラーハンドリングを別途する場合もあります。
-            return queryset.none()  # もしキーワードが空なら結果を返さない
-        
-        # PREFECTURE_CHOICESを辞書にして、入力されたキーワードを対応する値に変換
-        prefecture_dict = dict(PREFECTURE_CHOICES)
-        
-        # 県名（例：京都府）を入力された場合、その番号（例：26）を取得
-        prefecture_value = None
-        for value, name in prefecture_dict.items():
-            if name in keyword:
-                prefecture_value = value
-                break
 
-        # 県名が見つかった場合、prefectureでフィルタリング
-        if prefecture_value:
-            queryset = queryset.filter(prefecture=prefecture_value)
-        else:
-            # 県名に一致しない場合は、他のフィールドで検索を続ける
-            queryset = queryset.filter(
-                Q(spot_name__icontains=keyword) | 
-                Q(address__icontains=keyword) | 
-                Q(description__icontains=keyword) |
-                Q(touristspotkeyword__keyword__keyword__icontains=keyword)  # TouristSpotKeywordを使ってキーワードを検索
-            )
-        
+        if keyword:
+            # PREFECTURE_CHOICESを辞書にして、入力されたキーワードを対応する値に変換
+            prefecture_dict = dict(PREFECTURE_CHOICES)
+
+            # 県名（例：京都府）を入力された場合、その番号（例：26）を取得
+            prefecture_value = None
+            for value, name in prefecture_dict.items():
+                if name in keyword:
+                    prefecture_value = value
+                    break
+
+            # 県名が見つかった場合、prefectureでフィルタリング
+            if prefecture_value:
+                queryset = queryset.filter(prefecture=prefecture_value)
+            else:
+                # 県名に一致しない場合は、他のフィールドで検索を続ける
+                queryset = queryset.filter(
+                    Q(spot_name__icontains=keyword) |
+                    Q(address__icontains=keyword) |
+                    Q(description__icontains=keyword) |
+                    Q(touristspotkeyword__keyword__keyword__icontains=keyword)  # TouristSpotKeywordを使ってキーワードを検索
+                )
+
         if category:
             # カテゴリによるフィルタリング
             queryset = queryset.filter(category=category)
 
-                # 並び順の処理
+        # 並び順の処理
         sort_by = self.request.GET.get('sort', '-review_score_average')  # デフォルトは評価がいい順
         if sort_by == 'review_score_average':
             queryset = queryset.order_by('-review_score_average')  # 評価がいい順
@@ -216,9 +212,8 @@ class TouristSpotSearchView(ListView):
         elif sort_by == 'created_at':
             queryset = queryset.order_by('created_at')  # 登録が古い順
 
-        
-        
         return queryset.distinct()
+
 
 @login_required
 def regist_touristspot(request):
