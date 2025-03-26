@@ -854,17 +854,13 @@ def create_touristplan(request):
     visit_date = []
 
     if start_date and end_date:
-        # 日付文字列を datetime オブジェクトに変換
         try:
             current_date = datetime.strptime(start_date, '%Y-%m-%d')
             end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
-            # current_date が end_date より前の間はループして、visit_date に追加
             while current_date <= end_date:
-                visit_date.append(current_date.strftime('%Y-%m-%d'))  # 日付をリストに追加
-                current_date += timedelta(days=1)  # 1日進める
-
-            logger.debug(f"visit_date: {visit_date}")  # visit_date リストをログ
+                visit_date.append(current_date.strftime('%Y-%m-%d'))
+                current_date += timedelta(days=1)
 
         except ValueError as e:
             logger.error(f"日付の解析エラー: {e}")
@@ -883,10 +879,9 @@ def create_touristplan(request):
 
             tourist_spot_ids = request.POST.getlist('tourist_spots')
 
-            # visit_date のリストと各観光スポットを組み合わせて TouristPlan_Spot を作成
-            for i, spot_id in enumerate(tourist_spot_ids):
-                if i < len(visit_date):  # visit_date リストの長さ分だけ処理
-                    visit_date_entry = visit_date[i]
+            for spot_id in tourist_spot_ids:
+                visit_date_entry = request.POST.get(f'visit_date_{spot_id}')
+                if visit_date_entry:
                     tourist_spot = TouristSpot.objects.get(id=spot_id)
                     TouristPlan_Spot.objects.create(
                         tourist_plan=tourist_plan,
@@ -897,22 +892,18 @@ def create_touristplan(request):
         messages.success(request, 'プラン登録できました', extra_tags='create_touristplan')
         return redirect('travelapp:schedule')
 
-    else:
-        form = TouristPlanForm()
-
     user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
 
-
     context = {
-        'form': form,
         'start_date': start_date,
         'end_date': end_date,
         'visit_date': visit_date,
         'user_wanted_spots': [wanted_spot.tourist_spot for wanted_spot in user_wanted_spots],
-
+        'selected_spots': {},
     }
 
     return render(request, 'plan/create_touristplan.html', context)
+
 
 
 

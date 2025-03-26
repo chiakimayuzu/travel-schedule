@@ -5,25 +5,17 @@
 
 <form method="post">
     {% csrf_token %}
-
+    
     <label>訪問開始日: {{ start_date }} ～ {{ end_date }}</label>
 
-    <div>
-        <label for="visit_date">訪問日:</label>
-        <ul>
-          {% for date in visit_date %}
-            <li>
-              {{ date }} 
-              <ul>
-                {% for spot in date_to_spots.date %}
-                  <li>{{ spot.spot_name }}</li>
-                {% empty %}
-                  <li>この日に観光地はありません</li>
-                {% endfor %}
-              </ul>
-            </li>
-          {% endfor %}
-        </ul>
+    <!-- 訪問予定の観光地リスト -->
+    <h3>訪問予定の観光地:</h3>
+    <div id="selectedSpotsContainer">
+        {% for date, spots in selected_spots.items %}
+            <p><strong>{{ date }}</strong>: {{ spots|join:", " }}</p>
+        {% empty %}
+            <p>観光地を選択してください。</p>
+        {% endfor %}
     </div>
 
     <!-- モーダルを開くボタン -->
@@ -53,17 +45,8 @@
         </div>
     </div>
 
-    <!-- 追加した観光地と訪問日を表示 -->
-    <h3>追加された観光地:</h3>
-    <div id="selectedSpotsContainer">
-        {% if selected_spots %}
-            {% for spot, visit_date in selected_spots.items %}
-                <p>訪問日: {{ visit_date }} - 観光地: {{ spot }}</p>
-            {% endfor %}
-        {% else %}
-            <p>観光地を選択してください。</p>
-        {% endif %}
-    </div>
+    <!-- 選択された観光地を hidden input で送信 -->
+    <div id="hiddenInputsContainer"></div>
 
     <label for="touristplan_name">プラン名:</label>
     <input type="text" name="touristplan_name" required>
@@ -72,58 +55,54 @@
 </form>
 
 <script>
-    // モーダルを表示
     function openModal() {
         document.getElementById('touristSpotModal').style.display = 'block';
     }
 
-    // モーダルを閉じる
     function closeModal() {
         document.getElementById('touristSpotModal').style.display = 'none';
     }
 
-    // 選択した観光地と日付をフォームに追加
     function addSelectedSpots() {
         let selectedContainer = document.getElementById("selectedSpotsContainer");
-        selectedContainer.innerHTML = "";  // クリア
+        let hiddenInputsContainer = document.getElementById("hiddenInputsContainer");
+        selectedContainer.innerHTML = "";
+        hiddenInputsContainer.innerHTML = "";
 
         let checkboxes = document.querySelectorAll(".spot-checkbox:checked");
-        let dateSpotsMap = {}; // 日付ごとの観光地をまとめるためのオブジェクト
+        let dateSpotsMap = {};
 
         checkboxes.forEach(function(checkbox) {
             let spotId = checkbox.value;
             let visitDate = document.getElementById(`visit_date_${spotId}`).value;
+            let spotName = checkbox.nextElementSibling.innerText;
 
             if (!visitDate) {
                 alert("訪問日を選択してください");
                 return;
             }
 
-            // フォームに hidden input を追加
+            if (!dateSpotsMap[visitDate]) {
+                dateSpotsMap[visitDate] = [];
+            }
+            dateSpotsMap[visitDate].push(spotName);
+
             let hiddenSpotInput = document.createElement("input");
             hiddenSpotInput.type = "hidden";
             hiddenSpotInput.name = "tourist_spots";
             hiddenSpotInput.value = spotId;
-            selectedContainer.appendChild(hiddenSpotInput);
+            hiddenInputsContainer.appendChild(hiddenSpotInput);
 
             let hiddenDateInput = document.createElement("input");
             hiddenDateInput.type = "hidden";
             hiddenDateInput.name = `visit_date_${spotId}`;
             hiddenDateInput.value = visitDate;
-            selectedContainer.appendChild(hiddenDateInput);
-
-            // 日付ごとに観光地をまとめる
-            if (!dateSpotsMap[visitDate]) {
-                dateSpotsMap[visitDate] = [];
-            }
-            dateSpotsMap[visitDate].push(checkbox.nextElementSibling.innerText); // 観光地名を追加
+            hiddenInputsContainer.appendChild(hiddenDateInput);
         });
 
-        // 日付とその日の観光地を表示
         for (let date in dateSpotsMap) {
-            let spotsList = dateSpotsMap[date].join(' '); // 同じ日付の観光地をスペース区切りで表示
             let dateLabel = document.createElement("p");
-            dateLabel.innerHTML = `訪問日: ${date} - 観光地: ${spotsList}`;
+            dateLabel.innerHTML = `<strong>${date}</strong>: ${dateSpotsMap[date].join(", ")}`;
             selectedContainer.appendChild(dateLabel);
         }
 
@@ -134,32 +113,9 @@
 <a href="{% url 'travelapp:schedule' %}">戻る</a>
 
 <style>
-    /* モーダルのスタイル */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.4);
-    }
-
-    .modal-content {
-        background-color: #fefefe;
-        margin: 10% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 50%;
-    }
-
-    .close {
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-    }
+    .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
+    .modal-content { background-color: #fff; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 50%; }
+    .close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
 </style>
 
 {% endblock %}
