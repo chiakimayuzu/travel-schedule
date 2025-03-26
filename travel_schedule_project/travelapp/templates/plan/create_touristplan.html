@@ -10,20 +10,20 @@
 
     <div>
         <label for="visit_date">訪問日:</label>
-        <select name="visit_date" id="visit_date">
+        <ul>
           {% for date in visit_date %}
-            <option value="{{ date }}">{{ date }}</option>
+            <li>
+              {{ date }} 
+              <ul>
+                {% for spot in date_to_spots.date %}
+                  <li>{{ spot.spot_name }}</li>
+                {% empty %}
+                  <li>この日に観光地はありません</li>
+                {% endfor %}
+              </ul>
+            </li>
           {% endfor %}
-        </select>
-      </div>
-
-
-
-
-    <!-- 訪問日リスト -->
-
-    <div id="visitDatesContainer">
-        <!-- JavaScriptで日付を追加 -->
+        </ul>
     </div>
 
     <!-- モーダルを開くボタン -->
@@ -40,8 +40,11 @@
                 <input type="checkbox" id="spot_{{ spot.id }}" value="{{ spot.id }}" class="spot-checkbox">
                 <label for="spot_{{ spot.id }}">{{ spot.spot_name }}</label>
 
-                <select id="visit_date_{{ spot.id }}" class="visit-date-dropdown" disabled>
-                    <!-- JavaScript で日付を挿入 -->
+                <select id="visit_date_{{ spot.id }}" class="visit-date-dropdown">
+                    <option value="" disabled selected>訪問日を選択</option>
+                    {% for date in visit_date %}
+                        <option value="{{ date }}">{{ date }}</option>
+                    {% endfor %}
                 </select>
             </div>
             {% endfor %}
@@ -54,7 +57,6 @@
     <h3>追加された観光地:</h3>
     <div id="selectedSpotsContainer">
         {% if selected_spots %}
-            <!-- 追加された観光地がある場合 -->
             {% for spot, visit_date in selected_spots.items %}
                 <p>訪問日: {{ visit_date }} - 観光地: {{ spot }}</p>
             {% endfor %}
@@ -70,45 +72,6 @@
 </form>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        let startDate = "{{ start_date }}";
-        let endDate = "{{ end_date }}";
-
-        if (startDate && endDate) {
-            let start = new Date(startDate);
-            let end = new Date(endDate);
-            let options = "";
-
-            // 日付を設定
-            while (start <= end) {
-                let dateStr = start.toISOString().split("T")[0];
-                options += `<option value="${dateStr}">${dateStr}</option>`;
-
-
-                start.setDate(start.getDate() + 1);
-            }
-
-            // visit_date ドロップダウンに日付をセット
-            document.querySelectorAll(".visit-date-dropdown").forEach(dropdown => {
-                dropdown.innerHTML = options;
-            });
-        }
-
-        // チェックボックスの状態によって訪問日を設定
-        document.querySelectorAll(".spot-checkbox").forEach(checkbox => {
-            checkbox.addEventListener("change", function () {
-                let spotId = this.value;
-                let dropdown = document.getElementById(`visit_date_${spotId}`);
-                dropdown.disabled = !this.checked;
-
-                // チェックが入っている場合に日付を設定
-                if (this.checked && !dropdown.value) {
-                    dropdown.value = "{{ start_date }}"; // デフォルトの日付を設定
-                }
-            });
-        });
-    });
-
     // モーダルを表示
     function openModal() {
         document.getElementById('touristSpotModal').style.display = 'block';

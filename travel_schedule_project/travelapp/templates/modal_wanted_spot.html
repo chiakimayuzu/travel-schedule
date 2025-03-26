@@ -1,0 +1,82 @@
+<div class="modal fade" id="wanted-spot-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">行きたいリスト</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <ul>
+          {% if user_wanted_spots %}
+            {% for spot in user_wanted_spots %}
+              <li id="spot-{{ spot.id }}">
+                {% if spot.tourist_spot.picture %}
+                  <img src="{{ spot.tourist_spot.picture.url }}" alt="{{ spot.tourist_spot.spot_name }}" style="width:100px;height:auto;">
+                {% else %}
+                  <img src="/static/default-image.jpg" alt="No image available" style="width:100px;height:auto;">
+                {% endif %}
+                
+                <span class="spot-name">{{ spot.spot_name }}</span>
+                <label for="visit_date_{{ spot.id }}">訪問日程を選択:</label>
+                <select id="visit_date_{{ spot.id }}" class="form-control">
+                  {% if selected_dates %}
+                    {% for date in selected_dates %}
+                      <option value="{{ date }}">{{ date }}</option>
+                    {% endfor %}
+                  {% else %}
+                    <option value="">選択できる日付がありません</option>
+                  {% endif %}
+                </select>
+                <button type="button" class="btn btn-success" onclick="addSpotToPlan('{{ spot.id }}')">追加</button>
+              </li>
+            {% endfor %}
+          {% else %}
+            <li>行きたいリストに登録されているスポットはありません。</li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<h3>観光地を選択</h3>
+<ul>
+  <li onclick="selectTouristSpot('東京タワー')">東京タワー</li>
+  <li onclick="selectTouristSpot('スカイツリー')">スカイツリー</li>
+  <li onclick="selectTouristSpot('浅草寺')">浅草寺</li>
+</ul>
+
+<script>
+  function addSpotToPlan(spotId) {
+    const visitDate = document.getElementById(`visit_date_${spotId}`).value;
+
+    if (!visitDate) {
+      alert('日付を選択してください');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('spot_id', spotId);
+    formData.append('visit_date', visitDate);
+
+    fetch('/add_spot_to_plan/', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('スポットが追加されました!');
+      } else {
+        alert('エラーが発生しました。');
+      }
+    })
+    .catch(error => {
+      alert('通信エラーが発生しました。');
+    });
+  }
+</script>
+

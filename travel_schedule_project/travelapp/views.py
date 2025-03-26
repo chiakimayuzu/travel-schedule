@@ -53,6 +53,7 @@ from urllib.parse import urlencode
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.contrib.auth import get_user_model
+from collections import defaultdict
 # Create your views here.
 
 
@@ -828,26 +829,11 @@ class CreateSchedule(LoginRequiredMixin, View):
             try:
                 # schedule_range を 'start_date' と 'end_date' に分割
                 start_date, end_date = schedule_range.split(' to ')
-                visit_date = []  # 空のリストを用意
-
-                # 日付文字列を datetime オブジェクトに変換
-                current_date = datetime.strptime(start_date, '%Y-%m-%d')
-                end_date = datetime.strptime(end_date, '%Y-%m-%d')
-
-                logger.debug(f"start_date: {start_date}, end_date: {end_date}")  # start_date, end_date のログ
-
-                # current_date が end_date より前の間はループして、visit_date に追加
-                while current_date <= end_date:
-                    visit_date.append(current_date.strftime('%Y-%m-%d'))  # 日付をリストに追加
-                    current_date += timedelta(days=1)  # 1日進める
-
-                logger.debug(f"visit_date: {visit_date}")  # visit_date リストをログ
-
-                # クエリパラメータに 'visit_date' を追加
+                
+                # クエリパラメータに 'start_date' と 'end_date' を追加
                 query_params = {
                     'start_date': start_date,
-                    'end_date': end_date,
-                    'visit_date': ','.join(visit_date)  # 日付をカンマ区切りで文字列に変換
+                    'end_date': end_date
                 }
 
                 # create_touristplan の URL にリダイレクト
@@ -865,9 +851,24 @@ class CreateSchedule(LoginRequiredMixin, View):
 def create_touristplan(request):
     start_date = request.GET.get('start_date', '')
     end_date = request.GET.get('end_date', '')
-    visit_date = request.GET.get('visit_date', '').split(',')
+    visit_date = []
 
-    logger.debug(f"受け取った visit_date: {visit_date}")
+    if start_date and end_date:
+        # 日付文字列を datetime オブジェクトに変換
+        try:
+            current_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
+            # current_date が end_date より前の間はループして、visit_date に追加
+            while current_date <= end_date:
+                visit_date.append(current_date.strftime('%Y-%m-%d'))  # 日付をリストに追加
+                current_date += timedelta(days=1)  # 1日進める
+
+            logger.debug(f"visit_date: {visit_date}")  # visit_date リストをログ
+
+        except ValueError as e:
+            logger.error(f"日付の解析エラー: {e}")
+            visit_date = []
 
     if request.method == 'POST':
         touristplan_name = request.POST.get('touristplan_name')
@@ -885,12 +886,12 @@ def create_touristplan(request):
             # visit_date のリストと各観光スポットを組み合わせて TouristPlan_Spot を作成
             for i, spot_id in enumerate(tourist_spot_ids):
                 if i < len(visit_date):  # visit_date リストの長さ分だけ処理
-                    visit_date = visit_date[i]
+                    visit_date_entry = visit_date[i]
                     tourist_spot = TouristSpot.objects.get(id=spot_id)
                     TouristPlan_Spot.objects.create(
                         tourist_plan=tourist_plan,
                         tourist_spot=tourist_spot,
-                        visit_date=visit_date
+                        visit_date=visit_date_entry
                     )
 
         messages.success(request, 'プラン登録できました', extra_tags='create_touristplan')
@@ -901,12 +902,14 @@ def create_touristplan(request):
 
     user_wanted_spots = WantedSpot.objects.filter(user=request.user).select_related('tourist_spot')
 
+
     context = {
         'form': form,
         'start_date': start_date,
         'end_date': end_date,
         'visit_date': visit_date,
         'user_wanted_spots': [wanted_spot.tourist_spot for wanted_spot in user_wanted_spots],
+
     }
 
     return render(request, 'plan/create_touristplan.html', context)
