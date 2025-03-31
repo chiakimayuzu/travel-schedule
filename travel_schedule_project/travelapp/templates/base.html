@@ -34,10 +34,22 @@
             font-weight: bold;
          }
 
-         /* ログアウトリンクを右端に配置 */
-         .logout-link {
+         /* ログアウトボタン */
+         .logout-btn {
             margin-left: auto;
             margin-right: 20px; /* 右端にスペースを追加 */
+            background-color: black;  /* ボタンの背景色を黒に */
+            color: white;  /* 文字色を白に */
+            padding: 10px 15px;  /* ボタンの内側の余白 */
+            border-radius: 5px;  /* ボタンの角を丸くする */
+            text-decoration: none;  /* リンクの下線を消す */
+            border: none;  /* ボーダーをなしにする */
+            cursor: pointer;  /* カーソルをポインタに変更 */
+         }
+
+         /* ログアウトボタンにホバー効果を追加 */
+         .logout-btn:hover {
+            background-color: #444;  /* ホバー時の背景色 */
          }
 
          /* 改行のための調整 */
@@ -82,8 +94,13 @@
                   {% if request.user.is_authenticated %}
                   <li class="nav-item header-info">
                      <p>こんにちは <a href="#" id="user-link">{{ request.user }}</a> さん</p>
-                     <!-- ログアウトリンク -->
-                     <p><a class="nav-link logout-link" href="{% url 'travelapp:logout' %}">ログアウト</a></p>
+                     <!-- ログアウトボタン -->
+                     <form action="{% url 'travelapp:logout' %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-btn">
+                           ログアウト
+                        </button>
+                     </form>
                   </li>
 
                   <!-- 5行分のスペース -->
@@ -113,7 +130,7 @@
                               <p><a class="nav-link" href="{% url 'travelapp:change_email' %}">メールアドレス変更</a></p>
                               <p><a class="nav-link" href="{% url 'travelapp:change_password' %}">パスワード変更</a></p>
                            </div>
-                           <div class="modal-footer">
+                           <div class="modal-footer"> 
                            </div>
                         </div>
                      </div>
