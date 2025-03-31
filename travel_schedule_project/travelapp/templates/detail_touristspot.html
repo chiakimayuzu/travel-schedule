@@ -57,20 +57,21 @@
 <p>評価スコア平均:
 
 <!-- 塗りつぶし星 -->
-<!-- 塗りつぶし星 -->
 {% for star in filled_stars %}
   <span class="star filled">&#9733;</span>
 {% endfor %}
 
-<!-- 半分塗りつぶし星（1つだけ表示） -->
+<!-- 半分塗りつぶし星 -->
 {% if half_star %}
   <span class="star half">&#9733;</span>
 {% endif %}
 
 <!-- 空の星 -->
 {% for star in empty_stars %}
-  <span class="star">&#9734;</span>
+  <span class="star empty">&#9734;</span>
 {% endfor %}
+
+
 
 
 {{ review_score_avg }}  
@@ -163,33 +164,44 @@
   /* 星の共通スタイル */
   .star {
     font-size: 30px;
-    color: #ccc; /* 空の星 */
-    cursor: pointer;
-    transition: color 0.2s;
+    color: #ccc; /* デフォルトの空の星をグレー */
     position: relative;
+    display: inline-block;
   }
   
   /* 塗りつぶしの星 */
   .star.filled {
-    color: gold; /* 塗りつぶしの星 */
+    color: gold; /* 完全に塗りつぶし */
   }
   
   /* 半分塗りつぶしの星 */
   .star.half {
     position: relative;
-    display: inline-block;
-    color: #ccc; /* デフォルトは空の星 */
   }
   
+  /* 半分塗りつぶしの星 - 背景をグレーに */
   .star.half::before {
-    content: '★'; /* 星の記号 */
+    content: '★'; /* 星の形 */
     position: absolute;
     left: 0;
     width: 50%;
-    color: gold; /* 左半分ゴールド */
     overflow: hidden;
+    color: gold; /* 左半分をゴールド */
   }
   
+  /* 完全な空の星も背景をグレーにする */
+  .star.empty {
+    color: #ccc; /* グレーに設定 */
+    position: relative;
+  }
+  
+  /* 空の星をグレー背景に */
+  .star.empty::before {
+    content: '★'; /* 星の形 */
+    position: absolute;
+    left: 0;
+    color: #ccc; /* 全体をグレーに塗りつぶす */
+  }  
 </style>
 
 {% endblock %}
