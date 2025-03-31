@@ -358,7 +358,7 @@ def detail_touristspot(request, pk):
     # 整数部分の塗りつぶし星
     filled_stars = int(review_score_avg)  # 整数部分の塗りつぶし
     # 小数部分（0.25以上なら半分塗りつぶし）
-    half_star = (review_score_avg - filled_stars) >= 0.25  # 0.25以上で半分星
+    half_star = (review_score_avg - filled_stars) >= 0.5  # 0.25以上で半分星
     # 空の星（5個になるように調整）
     empty_stars = 5 - filled_stars - (1 if half_star else 0)
 
@@ -447,7 +447,7 @@ def edit_touristspot(request, pk):
     # 整数部分の塗りつぶし星
     filled_stars = int(review_score_avg)  # 整数部分の塗りつぶし
     # 小数部分（0.25以上なら半分塗りつぶし）
-    half_star = (review_score_avg - filled_stars) >= 0.25  # 0.25以上で半分星
+    half_star = (review_score_avg - filled_stars) >= 0.5  # 0.25以上で半分星
     # 空の星（5個になるように調整）
     empty_stars = 5 - filled_stars - (1 if half_star else 0)
 
@@ -567,7 +567,7 @@ def create_review(request, pk):  # 🔹 引数名を pk に変更
     # 整数部分の塗りつぶし星
     filled_stars = int(review_score_avg)  # 整数部分の塗りつぶし
     # 小数部分（0.25以上なら半分塗りつぶし）
-    half_star = (review_score_avg - filled_stars) >= 0.25  # 0.25以上で半分星
+    half_star = (review_score_avg - filled_stars) >= 0.5  # 0.5以上で半分星
     # 空の星（5個になるように調整）
     empty_stars = 5 - filled_stars - (1 if half_star else 0)
 

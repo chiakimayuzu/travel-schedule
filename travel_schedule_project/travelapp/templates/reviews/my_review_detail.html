@@ -14,12 +14,20 @@
     <p>{{ review.review_description }}</p>
     <p>
       評価スコア:
-      {% for _ in filled_stars %}
-        <span class="star">&#9733;</span> <!-- 塗りつぶしの星 -->
-      {% endfor %}
-      {% for _ in empty_stars %}
-        <span class="star-empty">&#9734;</span> <!-- 空の星 -->
-      {% endfor %}
+<!-- 塗りつぶし星 -->
+{% for star in filled_stars %}
+  <span class="star filled">&#9733;</span>
+{% endfor %}
+
+<!-- 半分塗りつぶし星 -->
+{% if half_star %}
+  <span class="star half">&#9733;</span>
+{% endif %}
+
+<!-- 空の星 -->
+{% for star in empty_stars %}
+  <span class="star empty">&#9734;</span>
+{% endfor %}
     </p>
 
 
@@ -38,4 +46,57 @@
 
 
   <a href="{% url 'travelapp:my_review_list' %}">レビュー一覧に戻る</a>
+
+<!-- ⭐ CSS for styling -->
+<style>
+  /* 星のコンテナ */
+  .rating-stars {
+    display: flex;
+    gap: 4px;
+  }
+  
+  /* 星の共通スタイル */
+  .star {
+    font-size: 30px;
+    color: #ccc; /* デフォルトの空の星をグレー */
+    position: relative;
+    display: inline-block;
+  }
+  
+  /* 塗りつぶしの星 */
+  .star.filled {
+    color: gold; /* 完全に塗りつぶし */
+  }
+  
+  /* 半分塗りつぶしの星 */
+  .star.half {
+    position: relative;
+  }
+  
+  /* 半分塗りつぶしの星 - 背景をグレーに */
+  .star.half::before {
+    content: '★'; /* 星の形 */
+    position: absolute;
+    left: 0;
+    width: 50%;
+    overflow: hidden;
+    color: gold; /* 左半分をゴールド */
+  }
+  
+  /* 完全な空の星も背景をグレーにする */
+  .star.empty {
+    color: #ccc; /* グレーに設定 */
+    position: relative;
+  }
+  
+  /* 空の星をグレー背景に */
+  .star.empty::before {
+    content: '★'; /* 星の形 */
+    position: absolute;
+    left: 0;
+    color: #ccc; /* 全体をグレーに塗りつぶす */
+  }  
+</style>
+
+
 {% endblock %}
