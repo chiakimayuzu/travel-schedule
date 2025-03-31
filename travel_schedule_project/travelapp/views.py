@@ -378,9 +378,9 @@ def detail_touristspot(request, pk):
         'review_score_avg': review_score_avg, # 評価スコア平均
         'price_avg': price_avg,         # 価格帯
         'stay_time_avg': stay_time_avg, # 滞在時間平均（分）
-        'filled_stars': [i for i in range(filled_stars)],   # 塗りつぶし星の数（リスト）
+        'filled_stars': range(filled_stars),   # 塗りつぶし星の数（リスト）
         'half_star': half_star,         # 半分塗りつぶしの星
-        'empty_stars': [i for i in range(empty_stars)],     # 空の星の数（リスト）
+        'empty_stars': range(empty_stars),     # 空の星の数（リスト）
         'stay_time_hours': stay_time_hours, # 滞在時間（時間）
         'stay_time_minutes': stay_time_minutes, # 滞在時間（分）
         'most_common_price': most_common_price_str, # 価格帯（最頻値）
@@ -469,9 +469,9 @@ def edit_touristspot(request, pk):
             'review_score_avg': review_score_avg, # 評価スコア平均
             'price_avg': price_avg,         # 価格帯
             'stay_time_avg': stay_time_avg, # 滞在時間平均（分）
-            'filled_stars': [i for i in range(filled_stars)],   # 塗りつぶし星の数（リスト）
+            'filled_stars': range(filled_stars),   # 塗りつぶし星の数（リスト）
             'half_star': half_star,         # 半分塗りつぶしの星
-            'empty_stars': [i for i in range(empty_stars)],     # 空の星の数（リスト）
+            'empty_stars': range(empty_stars),     # 空の星の数（リスト）
             'stay_time_hours': stay_time_hours, # 滞在時間（時間）
             'stay_time_minutes': stay_time_minutes, # 滞在時間（分）
             'most_common_price': most_common_price_str, # 価格帯（最頻値）
@@ -589,9 +589,9 @@ def create_review(request, pk):  # 🔹 引数名を pk に変更
             'review_score_avg': review_score_avg, # 評価スコア平均
             'price_avg': price_avg,         # 価格帯
             'stay_time_avg': stay_time_avg, # 滞在時間平均（分）
-            'filled_stars': [i for i in range(filled_stars)],   # 塗りつぶし星の数（リスト）
+            'filled_stars': range(filled_stars),   # 塗りつぶし星の数（リスト）
             'half_star': half_star,         # 半分塗りつぶしの星
-            'empty_stars': [i for i in range(empty_stars)],     # 空の星の数（リスト）
+            'empty_stars': range(empty_stars),     # 空の星の数（リスト）
             'stay_time_hours': stay_time_hours, # 滞在時間（時間）
             'stay_time_minutes': stay_time_minutes, # 滞在時間（分）
             'most_common_price': most_common_price_str, # 価格帯（最頻値）

@@ -57,19 +57,21 @@
 <p>評価スコア平均:
 
 <!-- 塗りつぶし星 -->
+<!-- 塗りつぶし星 -->
 {% for star in filled_stars %}
   <span class="star filled">&#9733;</span>
 {% endfor %}
 
-<!-- 半分塗りつぶし星 -->
+<!-- 半分塗りつぶし星（1つだけ表示） -->
 {% if half_star %}
   <span class="star half">&#9733;</span>
 {% endif %}
 
 <!-- 空の星 -->
 {% for star in empty_stars %}
-  <span class="star empty">&#9734;</span>
+  <span class="star">&#9734;</span>
 {% endfor %}
+
 
 {{ review_score_avg }}  
 
@@ -148,41 +150,46 @@
   }
 </script>
 
-{% endblock %}
+
 
 <!-- 星の共通スタイル -->
-.star {
-    font-size: 24px; /* 星のサイズ */
-    display: inline-block;
-    color: #ccc; /* 空の星の色 */
-}
-
-/* 塗りつぶし星 */
-.star.filled {
-    color: #f5a623; /* 塗りつぶし星の色 */
-}
-
-/* 半分塗りつぶしの星 */
-.star.half {
+<style>
+  /* 星のコンテナ */
+  .rating-stars {
+    display: flex;
+    gap: 4px;
+  }
+  
+  /* 星の共通スタイル */
+  .star {
+    font-size: 30px;
+    color: #ccc; /* 空の星 */
+    cursor: pointer;
+    transition: color 0.2s;
+    position: relative;
+  }
+  
+  /* 塗りつぶしの星 */
+  .star.filled {
+    color: gold; /* 塗りつぶしの星 */
+  }
+  
+  /* 半分塗りつぶしの星 */
+  .star.half {
     position: relative;
     display: inline-block;
-}
-
-.star.half::before {
-    content: '\2605'; /* 星マーク */
+    color: #ccc; /* デフォルトは空の星 */
+  }
+  
+  .star.half::before {
+    content: '★'; /* 星の記号 */
     position: absolute;
-    overflow: hidden;
-    width: 50%; /* 50%塗りつぶし */
-    color: #f5a623;
     left: 0;
-}
-
-.star.half::after {
-    content: '\2605'; /* 星マーク */
-    position: absolute;
+    width: 50%;
+    color: gold; /* 左半分ゴールド */
     overflow: hidden;
-    width: 50%; /* 残りの半分は塗りつぶさない */
-    color: #ccc; /* 空の星の色 */
-    right: 0;
-}
-</script>
+  }
+  
+</style>
+
+{% endblock %}
