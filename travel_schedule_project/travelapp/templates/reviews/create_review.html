@@ -6,14 +6,12 @@
   <!-- 🔹 観光地名と画像を表示 -->
   <div class="spot-info">
     <h2>{{ tourist_spot.spot_name }}</h2>
-      <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}"> 
+    <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}">
   </div>
 
   <a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">戻る</a>
   <form method="post">
     {% csrf_token %}
-
-
     <div>
       <label for="{{ form.review_score.id_for_label }}">評価スコア*:</label>
       <div class="rating-stars" id="rating-stars">
@@ -90,8 +88,10 @@
   document.addEventListener('DOMContentLoaded', () => {
     const stars = document.querySelectorAll('.star');
     const ratingInput = document.querySelector('input[name="review_score"]');
-    let tempRating = ratingInput.value || 1;  // 最初の評価を保持
+    let tempRating = parseInt(ratingInput.value || 1);  // 最初の評価を保持
+    let finalRating = tempRating;  // 仮評価と最終評価を一致させる
 
+    // 星を選択した際の評価変更
     function setRating(rating) {
       stars.forEach((star, index) => {
         if (index < rating) {
@@ -100,18 +100,36 @@
           star.classList.remove('selected');
         }
       });
-      tempRating = rating; // 評価を更新
+      tempRating = rating; // 仮評価を更新
       ratingInput.value = rating; // inputの値も更新
     }
 
     // マウスオーバー時の評価変更
     stars.forEach((star, index) => {
-      star.addEventListener('mouseover', () => setRating(index + 1)); // 1~5の評価に変更
+      star.addEventListener('mouseover', () => {
+        setRating(index + 1);  // 1~5の評価に変更
+      });
     });
 
-    // マウスを離した時に評価を確定
+    // マウスを離した時に最終評価として確定
     stars.forEach((star) => {
-      star.addEventListener('mouseleave', () => setRating(tempRating)); // 離した時点の評価を戻す
+      star.addEventListener('mouseleave', () => {
+        finalRating = tempRating;  // 最後に選択された評価で確定
+        setRating(finalRating);    // 最終評価を反映
+      });
+    });
+
+    // クリック時に評価を確定
+    stars.forEach((star, index) => {
+      star.addEventListener('click', () => {
+        finalRating = index + 1;  // 最終評価を確定
+        setRating(finalRating);  // 最終評価を反映
+      });
+    });
+
+    // フォーム送信時に最終評価を確定
+    document.querySelector('form').addEventListener('submit', (e) => {
+      ratingInput.value = finalRating;  // 最終評価をinputにセット
     });
 
     // 初期状態で評価を設定

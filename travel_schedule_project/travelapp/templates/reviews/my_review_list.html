@@ -21,7 +21,8 @@
 
         <div class="review-info">
           <!-- レビュータイトルクリックでmy_review_detailへ遷移 -->
-          <p><a href="{% url 'travelapp:my_review_detail' review_id=review.id %}">{{ review.review_title }}</a></p>
+          <p>レビュータイトル：
+          <a href="{% url 'travelapp:my_review_detail' review_id=review.id %}">{{ review.review_title }}</a></p>
 
           <p>更新日: {{ review.updated_at|date:"Y年m月d日 H:i" }}</p>
           <a href="{% url 'travelapp:edit_my_review' pk=review.id %}">編集</a>
