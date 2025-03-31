@@ -34,8 +34,29 @@
             <div class="collapse navbar-collapse">
                <ul class="navbar-nav ml-auto">
                   {% if request.user.is_authenticated %}
-                  <p>こんにちは {{ request.user }}さん</p>
-                  <p>認証状態: {{ request.user.is_authenticated }}</p>
+                  <p>こんにちは<a href="#" id="user-link">{{ request.user }}</a>さん</p>
+
+                  <!-- モーダルの構造 -->
+<div class="modal" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+     <div class="modal-content">
+       <div class="modal-header">
+         <h5 class="modal-title" id="userModalLabel">ユーザー設定</h5>
+         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+       </div>
+       <div class="modal-body">
+         <p><a class="nav-link" href="{% url 'travelapp:change_email' %}">メールアドレス変更</a></p>
+         <p><a class="nav-link" href="{% url 'travelapp:change_password' %}">パスワード変更</a></p>
+       </div>
+     </div>
+   </div>
+ </div>
+
+
+
+
+
+                  
                   <p><a class="nav-link" href="{% url 'travelapp:schedule' %}">旅行プラン作成</a></p>
                   <p><a class="nav-link" href="{% url 'travelapp:regist_touristspot' %}">観光地登録</a></p>
                   <p><a class="nav-link" href="{% url 'travelapp:home' %}">ホーム</a></p>
@@ -81,5 +102,15 @@
             $('.select2').select2();
          });
       </script>
+
+
+      <script>
+         // リンクをクリックしたときにモーダルを表示
+         document.getElementById('user-link').addEventListener('click', function(event) {
+           event.preventDefault(); // リンクのデフォルト動作（遷移）を防止
+           var userModal = new bootstrap.Modal(document.getElementById('userModal'));
+           userModal.show();
+         });
+       </script>
    </body>
 </html>
