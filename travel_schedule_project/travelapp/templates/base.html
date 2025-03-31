@@ -4,117 +4,78 @@
       <meta charset="utf-8">
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
       <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-      <!-- select2 CSS の追加 -->
       <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet">
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-      <style>
-         .navbar-brand {
-            margin-bottom: 10px;  /* リンクの間にスペースを追加 */
-         }
-
-         /* ヘッダー部分のレイアウト調整 */
-         .header-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-         }
-
-         .links {
-            display: flex;
-            justify-content: flex-start; /* 左詰め */
-            flex-wrap: wrap; /* 行が折り返されるようにする */
-            width: 100%;
-            margin-top: 20px;
-         }
-
-         /* ユーザーリンクのスペース */
-         #user-link {
-            cursor: pointer;
-            font-weight: bold;
-         }
-
-         /* ログアウトボタン */
-         .logout-btn {
-            margin-left: auto;
-            margin-right: 20px; /* 右端にスペースを追加 */
-            background-color: black;  /* ボタンの背景色を黒に */
-            color: white;  /* 文字色を白に */
-            padding: 10px 15px;  /* ボタンの内側の余白 */
-            border-radius: 5px;  /* ボタンの角を丸くする */
-            text-decoration: none;  /* リンクの下線を消す */
-            border: none;  /* ボーダーをなしにする */
-            cursor: pointer;  /* カーソルをポインタに変更 */
-         }
-
-         /* ログアウトボタンにホバー効果を追加 */
-         .logout-btn:hover {
-            background-color: #444;  /* ホバー時の背景色 */
-         }
-
-         /* 改行のための調整 */
-         .header-info p {
-            margin-bottom: 0;
-         }
-
-         /* 5行の改行 */
-         .spacer {
-            margin-top: 150px; /* 5行分のスペースを作る */
-         }
-
-         /* モーダルのカスタマイズ */
-         .modal-content {
-            padding: 20px;
-         }
-
-         .modal-header {
-            border-bottom: 1px solid #e5e5e5;
-         }
-
-         .modal-body p {
-            margin-bottom: 10px;
-         }
-
-         .modal-footer {
-            border-top: 1px solid #e5e5e5;
-         }
-
-         .modal-dialog {
-            max-width: 400px;
-         }
-      </style>
    </head>
 
    <body>
       <header>
          <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="{% url 'travelapp:home' %}">トラベルスケジュール</a>
-            <div class="collapse navbar-collapse">
-               <ul class="navbar-nav ml-auto">
-                  {% if request.user.is_authenticated %}
-                  <li class="nav-item header-info">
-                     <p>こんにちは <a href="#" id="user-link">{{ request.user }}</a> さん</p>
-                     <!-- ログアウトボタン -->
-                     <form action="{% url 'travelapp:logout' %}" method="post" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="logout-btn">
-                           ログアウト
-                        </button>
+             <div class="container-fluid">
+                 <!-- 左上のタイトル -->
+                 <a class="navbar-brand" href="{% url 'travelapp:home' %}">旅行アプリ</a>
+     
+                 <!-- ナビゲーションメニュー -->
+                 <div class="collapse navbar-collapse">
+                     <ul class="navbar-nav ms-auto">
+                         {% if request.user.is_authenticated %}
+                             <li class="nav-item header-info">
+                                 <p>こんにちは <a href="#" id="user-link">{{ request.user }}</a> さん</p>
+                             </li>
+                         {% else %}
+                             <li class="nav-item">
+                                 <a class="nav-link" href="{% url 'travelapp:login' %}">ログイン</a>
+                             </li>
+                         {% endif %}
+                     </ul>
+
+                     <!-- ログアウトボタンを右端に配置 -->
+                     {% if request.user.is_authenticated %}
+                     <form action="{% url 'travelapp:logout' %}" method="post" style="display: flex; margin-left: auto;">
+                         {% csrf_token %}
+                         <button type="submit" class="logout-btn">ログアウト</button>
                      </form>
-                  </li>
+                     {% endif %}
+                 </div>
+             </div>
+         </nav>
 
-                  <!-- 5行分のスペース -->
-                  <div class="spacer"></div>
+         <!-- メニューバー -->
+         {% if request.user.is_authenticated %}
+         <div class="menu-links">
+             <a class="nav-link" href="{% url 'travelapp:home' %}">ホーム</a>
+             <a class="nav-link" href="{% url 'travelapp:schedule' %}">旅行プラン作成</a>
+             {% comment %} <a class="nav-link" href="{% url 'travelapp:saved_schedule' %}">保存した旅行プラン</a> {% endcomment %}
+             <a class="nav-link" href="{% url 'travelapp:wanted_spot_list' %}">行きたいリスト</a>
+             <a class="nav-link" href="{% url 'travelapp:my_review_list' %}">口コミリスト</a>
+             <a class="nav-link" href="{% url 'travelapp:regist_touristspot' %}">観光地登録</a>
+         </div>
+         {% endif %}
+     </header>
+     
+      <main class="container mt-4">
+         {% block content %}{% endblock %}
+      </main>
 
-                  <!-- リンクを同じ行に並べる -->
-                  <div class="links">
-                     <p><a class="nav-link" href="{% url 'travelapp:home' %}">ホーム</a></p>
-                     <p><a class="nav-link" href="{% url 'travelapp:schedule' %}">旅行プラン作成</a></p>
-                     {% comment %} <p><a class="nav-link" href="{% url 'travelapp:saved_plans' %}">保存した旅行プラン</a></p> {% endcomment %}
-                     <p><a class="nav-link" href="{% url 'travelapp:wanted_spot_list' %}">行きたいリスト</a></p>
-                     <p><a class="nav-link" href="{% url 'travelapp:my_review_list' %}">口コミリスト</a></p>
-                     <p><a class="nav-link" href="{% url 'travelapp:regist_touristspot' %}">観光地登録</a></p>
-                  </div>
+      <footer class="text-center mt-4">
+         <p>© トラベルスケジュール</p>
+      </footer>
+
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+      <script>
+         // リンクをクリックしたときにモーダルを表示
+         document.getElementById('user-link').addEventListener('click', function(event) {
+           event.preventDefault(); // リンクのデフォルト動作（遷移）を防止
+           var userModal = new bootstrap.Modal(document.getElementById('userModal'));
+           userModal.show();
+         });
+       </script>
 
                   <!-- モーダルの構造 -->
                   <div class="modal" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
@@ -136,42 +97,57 @@
                      </div>
                   </div>
 
-                  {% else %}
-                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'travelapp:login' %}">ログイン</a>
-                     </li>
-                  {% endif %}
-               </ul>
-            </div>
-         </nav>
-      </header>
+       <style>
+         .navbar-brand {
+            margin-bottom: 10px;
+         }
 
-      <main class="container mt-4">
-         {% block content %}{% endblock %}
-      </main>
+         /* ヘッダー部分のレイアウト調整 */
+         .header-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 15px;
+         }
 
-      <footer class="text-center mt-4">
-         <p>© トラベルスケジュール</p>
-      </footer>
+         /* メニューリンク */
+         .menu-links {
+            display: flex;
+            justify-content: flex-start; /* 左詰め */
+            gap: 20px; /* メニューリンク間のスペース */
+            margin-top: 20px;
+         }
 
-      <!-- jQuery の追加 -->
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-      <!-- select2 JavaScript の追加 -->
-      <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
-      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+         .menu-links .nav-link {
+            margin: 0;
+         }
 
-      <!-- Popper.js と BootstrapのJavaScript -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+         /* ユーザーリンクのスタイル */
+         #user-link {
+            cursor: pointer;
+            font-weight: bold;
+         }
 
-      <script>
-         // リンクをクリックしたときにモーダルを表示
-         document.getElementById('user-link').addEventListener('click', function(event) {
-           event.preventDefault(); // リンクのデフォルト動作（遷移）を防止
-           var userModal = new bootstrap.Modal(document.getElementById('userModal'));
-           userModal.show();
-         });
-       </script>
+         /* ログアウトボタン */
+         .logout-btn {
+            background-color: black;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+         }
+
+         .logout-btn:hover {
+            background-color: #444;
+         }
+
+         /* ログアウトボタンを右端に配置 */
+         form {
+            display: flex;
+            margin-left: auto;
+         }
+      </style>
    </body>
 </html>
