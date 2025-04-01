@@ -56,13 +56,15 @@
   <table border="1" cellspacing="0" cellpadding="8">
     <thead>
       <tr>
-        <th>日付</th>
+        <th></th>
+        <th>日程</th>
         <th>プラン名</th>
       </tr>
     </thead>
     <tbody>
       {% for plan in touristplans %}
         <tr>
+          <td>{{ forloop.counter }}</td>  <!-- 順番を表示 -->
           <td>
             {{ plan.start_date|date:"Y年m月d日 (l)" }} ～ 
             {{ plan.end_date|date:"Y年m月d日 (l)" }}
@@ -72,8 +74,8 @@
       {% endfor %}
     </tbody>
   </table>
-{% else %}
-  <p>旅行プランはまだありません。</p>
-{% endif %}
+  {% else %}
+    <p>旅行プランはまだありません。</p>
+  {% endif %}
 
 {% endblock %}
