@@ -822,6 +822,7 @@ class CreateSchedule(LoginRequiredMixin, View):
         return render(request, 'plan/schedule.html')
 
     def post(self, request, *args, **kwargs):
+        print("postメソッド呼び出し")
         schedule_range = request.POST.get('schedule_range')
         logger.debug(f"受け取った schedule_range: {schedule_range}")  # デバッグログを追加
 
@@ -837,7 +838,7 @@ class CreateSchedule(LoginRequiredMixin, View):
                 }
 
                 # create_touristplan の URL にリダイレクト
-                return redirect(f"/create_touristplan/?{urlencode(query_params)}")
+                return redirect('travelapp:touristplan_list')
 
             except ValueError as e:
                 logger.error(f"日付の解析エラー: {e}")
@@ -948,3 +949,12 @@ class ModalSearchTouristSpotView(View):
 #             'wanted_spots': wanted_spots,
 
 #         })
+
+
+
+class TouristplanList(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+
+        return render(request, 'plan/touristplan_list.html')
+
+    

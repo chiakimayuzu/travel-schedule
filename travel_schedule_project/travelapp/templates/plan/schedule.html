@@ -2,7 +2,9 @@
 
 {% block content %}
 <h2>スケジュール作成</h2>
-<form method="get" action="{% url 'travelapp:create_touristplan' %}">
+{% comment %} class CreateScheduleのpostを呼び出す {% endcomment %}
+<form method="post" action="{% url 'travelapp:schedule' %}">
+
   {% csrf_token %}
 
 
