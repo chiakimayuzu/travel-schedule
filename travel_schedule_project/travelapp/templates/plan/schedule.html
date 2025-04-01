@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>スケジュール作成</h2>
+<h1>📅旅行プラン作成</h1>
 <form method="post" action="{% url 'travelapp:schedule' %}">
   {% csrf_token %}
 
@@ -9,7 +9,7 @@
     <label>旅行日程:</label>
     <div style="display: flex; align-items: center;">
       <input type="text" id="schedule-range" name="schedule_range" placeholder="日付を選択してください" readonly>
-      <span id="calendar-icon" style="cursor: pointer; margin-left: 10px;">📅</span>
+      <span id="calendar-icon" style="cursor: pointer; margin-left: 10px;">📆</span>
     </div>
   </div>
   <input type="hidden" name="start_date" id="start_date">
