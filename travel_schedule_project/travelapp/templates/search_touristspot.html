@@ -4,10 +4,10 @@
   <h1>観光地検索</h1>
   
   <!-- 検索フォーム -->
-<form method="get">
-  <label for="query">キーワード:</label>
-  <input type="text" name="query" id="query" value="{{ request.GET.query }}" placeholder="検索したいキーワードを入力してください">
-  <small>施設名/都道府県名/キーワードで検索できます。</small>
+  <form method="get">
+    <label for="query">キーワード:</label>
+    <input type="text" name="query" id="query" value="{{ request.GET.query }}" placeholder="検索したいキーワードを入力してください">
+    <small>施設名/都道府県名/キーワードで検索できます。</small>
     
     <label for="category">カテゴリ:</label>
     <select name="category" id="category">
@@ -23,11 +23,24 @@
   </form>
 
   <div>
-    <a href="?sort=review_score_average&query={{ request.GET.query }}&category={{ request.GET.category }}" class="{% if request.GET.sort == 'review_score_average' %}selected{% endif %}">評価がいい順</a> | 
-    <a href="?sort=-created_at&query={{ request.GET.query }}&category={{ request.GET.category }}" class="{% if request.GET.sort == '-created_at' %}selected{% endif %}">登録が新しい順</a> | 
-    <a href="?sort=created_at&query={{ request.GET.query }}&category={{ request.GET.category }}" class="{% if request.GET.sort == 'created_at' %}selected{% endif %}">登録が古い順</a>
-</div>
-
+    {% if request.GET.sort == '-review_score_average' %}
+      <span class="selected">評価がいい順</span>
+    {% else %}
+      <a href="?sort=-review_score_average&query={{ request.GET.query }}&category={{ request.GET.category }}">評価がいい順</a>
+    {% endif %}
+    |
+    {% if request.GET.sort == '-created_at' %}
+      <span class="selected">登録が新しい順</span>
+    {% else %}
+      <a href="?sort=-created_at&query={{ request.GET.query }}&category={{ request.GET.category }}">登録が新しい順</a>
+    {% endif %}
+    |
+    {% if request.GET.sort == 'created_at' %}
+      <span class="selected">登録が古い順</span>
+    {% else %}
+      <a href="?sort=created_at&query={{ request.GET.query }}&category={{ request.GET.category }}">登録が古い順</a>
+    {% endif %}
+  </div>
 
   <h2>検索結果:</h2>
   
@@ -55,6 +68,13 @@
     {% endif %}
   </div>
 
+  <style>
+    .selected {
+      color: gray;
+      pointer-events: none; /* クリック無効 */
+      text-decoration: none;
+    }
+  </style>
 {% endblock %}
 
   
