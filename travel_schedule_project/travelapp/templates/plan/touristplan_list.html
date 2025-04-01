@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+
 {% block content %}
 <h1>📅保存した旅行プラン</h1>
 
@@ -53,25 +54,27 @@
   </div>
   
   {% if touristplans %}
-    <table border="1" cellspacing="0" cellpadding="8">
-      <thead>
+  <table border="1" cellspacing="0" cellpadding="8">
+    <thead>
+      <tr>
+        <th>日付</th>
+        <th>プラン名</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for plan in touristplans %}
         <tr>
-          <th>日付</th>
-          <th>プラン名</th>
+          <td>
+            {{ plan.start_date|date:"Y年m月d日 (l)" }} ～ 
+            {{ plan.end_date|date:"Y年m月d日 (l)" }}
+          </td>
+          <td>{{ plan.touristplan_name }}</td>
         </tr>
-      </thead>
-      <tbody>
-        {% for plan in touristplans %}
-          <tr>
-            <td>{{ plan.start_date }} ～ {{ plan.end_date }}</td>
-            <td>{{ plan.touristplan_name }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p>旅行プランはまだありません。</p>
-  {% endif %}
-
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>旅行プランはまだありません。</p>
+{% endif %}
 
 {% endblock %}

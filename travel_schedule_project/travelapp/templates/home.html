@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>観光地を検索</h1>
+<h1>⭐観光地を検索</h1>
 <form method="get" action="{% url 'travelapp:search_touristspot' %}">
     <div>
-        <label for="query">検索キーワード:</label>
-        <input type="text" name="query" id="query" value="{{ request.GET.query }}">
+      <input type="text" name="query" id="query" value="{{ request.GET.query }}" placeholder="検索したいキーワードを入力してください"><br>
+      <small>施設名/都道府県名/キーワードで検索できます。</small><br>
     </div>
     <div>
         <label for="category">カテゴリ:</label>
@@ -18,9 +18,10 @@
         </select>
     </div>
     <button type="submit">検索</button><br><br>
-</form>
+</form><br><br>
 
 
+<h2>⭐おすすめ観光地</h2>
   {% if tourist_spot %}
   <div>
     <a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">

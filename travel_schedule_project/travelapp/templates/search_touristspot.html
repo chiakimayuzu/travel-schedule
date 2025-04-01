@@ -4,9 +4,10 @@
   <h1>観光地検索</h1>
   
   <!-- 検索フォーム -->
-  <form method="get">
-    <label for="query">キーワード:</label>
-    <input type="text" name="query" id="query" value="{{ request.GET.query }}">
+<form method="get">
+  <label for="query">キーワード:</label>
+  <input type="text" name="query" id="query" value="{{ request.GET.query }}" placeholder="検索したいキーワードを入力してください">
+  <small>施設名/都道府県名/キーワードで検索できます。</small>
     
     <label for="category">カテゴリ:</label>
     <select name="category" id="category">

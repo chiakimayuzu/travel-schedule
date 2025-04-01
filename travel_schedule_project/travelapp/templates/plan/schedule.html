@@ -5,21 +5,24 @@
 <form method="post" action="{% url 'travelapp:schedule' %}">
   {% csrf_token %}
 
-  
   <div>
     <label>旅行日程:</label>
     <div style="display: flex; align-items: center;">
       <input type="text" id="schedule-range" name="schedule_range" placeholder="日付を選択してください" readonly>
       <span id="calendar-icon" style="cursor: pointer; margin-left: 10px;">📅</span>
     </div>
-    <input type="hidden" name="start_date" id="start_date">
-    <input type="hidden" name="end_date" id="end_date">
   </div>
+  <input type="hidden" name="start_date" id="start_date">
+  <input type="hidden" name="end_date" id="end_date">
+
+  <br>
 
   <div>
     <label>プラン名:</label>
     <input type="text" name="touristplan_name" required>
   </div>
+
+  <br>
 
   <button type="submit">スケジュール作成</button>
 </form>
@@ -51,3 +54,4 @@
   });
 </script>
 {% endblock %}
+
