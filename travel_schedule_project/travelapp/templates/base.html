@@ -87,6 +87,16 @@
          });
        </script>
 
+       <script>
+        $(document).ready(function() {
+          // モーダルリンクがクリックされたときにモーダルを開く
+          $('[data-toggle="modal"]').on('click', function(event) {
+            var targetModal = $($(this).data('target'));
+            targetModal.modal('show');
+          });
+        });
+      </script>
+
                   <!-- モーダルの構造 -->
                   <div class="modal" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
                      <div class="modal-dialog">

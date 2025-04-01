@@ -29,6 +29,11 @@
                 {% endif %}
               {% empty %}
                 <p>なし</p>
+                <!-- モーダルを開くボタン -->
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#wantedSpotModal" 
+                        data-url="{% url 'travelapp:modal_wanted_spot' plan_id=plan.id visit_date=visit_date %}">
+                  行きたいリストを追加
+                </button>
               {% endfor %}
             </td>
           </tr>
@@ -38,5 +43,25 @@
 
     <a href="{% url 'travelapp:touristplan_list' %}">旅行プラン一覧に戻る</a>
   </div>
+
+  <script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    $(document).ready(function() {
+      $('#wantedSpotModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // ボタンがクリックされた時の情報を取得
+        var url = button.data('url'); // data-url 属性から URL を取得
+        var modal = $(this);
+    
+        console.log("URL: " + url); // デバッグ用にURLを表示
+    
+        // モーダルの中身を読み込む
+        $.get(url, function(data) {
+          modal.find('#modal-content').html(data);
+        }).fail(function() {
+          console.error("モーダルのコンテンツが読み込めませんでした。");
+        });
+      });
+    });
+  </script>
 
 {% endblock %}

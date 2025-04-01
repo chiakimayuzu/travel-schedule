@@ -1,30 +1,22 @@
-{% extends "base.html" %}
-
-{% block content %}
-  <div class="modal" id="wantedSpotModal" tabindex="-1" aria-labelledby="wantedSpotModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="wantedSpotModalLabel">行きたいリスト</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <h4>行きたいリスト</h4>
-          <ul>
-            {% for spot in wanted_spots %}
-              <li>
-                <form method="post" action="{% url 'travelapp:add_to_visit_date' plan_id=plan.id visit_date=visit_date %}">
-                  {% csrf_token %}
-                  <input type="hidden" name="spot_id" value="{{ spot.tourist_spot.id }}">
-                  <button type="submit" class="btn btn-link">{{ spot.tourist_spot.spot_name }}</button>
-                </form>
-              </li>
-            {% empty %}
-              <li>行きたいスポットがありません。</li>
-            {% endfor %}
-          </ul>
-        </div>
+<!-- モーダル -->
+<div class="modal fade" id="wantedSpotModal" tabindex="-1" aria-labelledby="wantedSpotModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="wantedSpotModalLabel">行きたいリスト</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- 行きたいリストの内容をここに表示 -->
+        <ul>
+          {% for spot in wanted_spots %}
+            <li>{{ spot.tourist_spot.spot_name }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
       </div>
     </div>
   </div>
-{% endblock %}
+</div>
