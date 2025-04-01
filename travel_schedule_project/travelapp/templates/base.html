@@ -1,65 +1,75 @@
 <!DOCTYPE html>
 <html lang="ja">
-   <head>
-      <meta charset="utf-8">
-      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-      <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-      <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet">
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-   </head>
-
-   <body>
-      <header>
-         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-             <div class="container-fluid">
-                 <!-- 左上のタイトル -->
-                 <a class="navbar-brand" href="{% url 'travelapp:home' %}">トラベルスケジュール</a>
-     
-                 <!-- ナビゲーションメニュー -->
-                 <div class="collapse navbar-collapse">
-                     <ul class="navbar-nav ms-auto">
-                         {% if request.user.is_authenticated %}
-                             <li class="nav-item header-info">
-                                 <p>こんにちは <a href="#" id="user-link">{{ request.user }}</a> さん</p>
-                             </li>
-                         {% else %}
-                             <li class="nav-item">
-                                 <a class="nav-link" href="{% url 'travelapp:login' %}">ログイン</a>
-                             </li>
-                         {% endif %}
-                     </ul>
-
-                     <!-- ログアウトボタンを右端に配置 -->
-                     {% if request.user.is_authenticated %}
-                     <form action="{% url 'travelapp:logout' %}" method="post" style="display: flex; margin-left: auto;">
-                         {% csrf_token %}
-                         <button type="submit" class="logout-btn">ログアウト</button>
-                     </form>
-                     {% endif %}
-                 </div>
-             </div>
-         </nav>
-
-         <!-- メニューバー -->
-         {% if request.user.is_authenticated %}
-         <div class="menu-links">
-             <a class="nav-link" href="{% url 'travelapp:home' %}">ホーム</a>
-             <a class="nav-link" href="{% url 'travelapp:schedule' %}">旅行プラン作成</a>
-             <a class="nav-link" href="{% url 'travelapp:touristplan_list' %}">保存した旅行プラン</a>
-             <a class="nav-link" href="{% url 'travelapp:wanted_spot_list' %}">行きたいリスト</a>
-             <a class="nav-link" href="{% url 'travelapp:my_review_list' %}">口コミリスト</a>
-             <a class="nav-link" href="{% url 'travelapp:regist_touristspot' %}">観光地登録</a>
-         </div>
-         {% endif %}
-     </header>
-     
-      <main class="container mt-4">
-         {% block content %}{% endblock %}
-      </main>
-
-      <footer class="text-center mt-4">
-         <p>© トラベルスケジュール</p>
-      </footer>
+  <head>
+    <meta charset="utf-8">
+    <!-- Bootstrap 4.3.1 CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  </head>
+  <body>
+    <header>
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <!-- 左上のタイトル -->
+          <a class="navbar-brand" href="{% url 'travelapp:home' %}">トラベルスケジュール</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent"
+                  aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+  
+          <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav mr-auto">
+              {% if request.user.is_authenticated %}
+                <li class="nav-item">
+                  <span class="navbar-text">
+                    こんにちは <a href="#" id="user-link">{{ request.user }}</a> さん
+                  </span>
+                </li>
+              {% endif %}
+            </ul>
+  
+            {% if not request.user.is_authenticated %}
+              <!-- ログインボタン（右寄せ） -->
+              <form action="{% url 'travelapp:login' %}" method="post" class="form-inline ml-auto">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-dark">ログイン</button>
+              </form>
+            {% else %}
+              <!-- ログアウトボタン（右寄せ） -->
+              <form action="{% url 'travelapp:logout' %}" method="post" class="form-inline ml-auto">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-dark">ログアウト</button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+      </nav>
+  
+      {% if request.user.is_authenticated %}
+      <!-- メニューバー -->
+      <div class="container">
+        <div class="menu-links mt-3">
+          <a class="nav-link d-inline-block" href="{% url 'travelapp:home' %}">ホーム</a>
+          <a class="nav-link d-inline-block" href="{% url 'travelapp:schedule' %}">旅行プラン作成</a>
+          <a class="nav-link d-inline-block" href="{% url 'travelapp:touristplan_list' %}">保存した旅行プラン</a>
+          <a class="nav-link d-inline-block" href="{% url 'travelapp:wanted_spot_list' %}">行きたいリスト</a>
+          <a class="nav-link d-inline-block" href="{% url 'travelapp:my_review_list' %}">口コミリスト</a>
+          <a class="nav-link d-inline-block" href="{% url 'travelapp:regist_touristspot' %}">観光地登録</a>
+        </div>
+      </div>
+      {% endif %}
+    </header>
+  
+    <main class="container mt-4">
+      {% block content %}{% endblock %}
+    </main>
+  
+    <footer class="text-center mt-4">
+      <p>© トラベルスケジュール</p>
+    </footer>
+  
 
       <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
@@ -148,6 +158,28 @@
             display: flex;
             margin-left: auto;
          }
+
+         /* ログインボタン */
+         .login-btn {
+            background-color: black;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+         }
+
+         .login-btn:hover {
+            background-color: #444;
+         }
+
+         /* ログインボタンを右端に配置 */
+         form {
+            display: flex;
+            margin-left: auto;
+         }
+
       </style>
    </body>
 </html>
