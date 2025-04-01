@@ -837,7 +837,7 @@ class CreateSchedule(LoginRequiredMixin, View):
                 touristplan_name=touristplan_name
             )
 
-            messages.success(request, 'プラン登録できました', extra_tags='touristplan_list')
+            messages.success(request, 'プラン登録できました', extra_tags='touristplan')
             return redirect('travelapp:touristplan_list')
         
         return redirect('travelapp:schedule')
@@ -867,6 +867,65 @@ class TouristplanList(LoginRequiredMixin, View):
         return render(request, 'plan/touristplan_list.html', context)
 
 
+class EditTouristPlanView(LoginRequiredMixin, View):
+    def get(self, request, pk=None, *args, **kwargs):
+        # 旅行プランをIDで取得、ユーザーが所有しているプランのみ
+        plan = get_object_or_404(TouristPlan, pk=pk, user=request.user)
+
+        # `start_date` と `end_date` を文字列として取得
+        start_date = plan.start_date.strftime('%Y-%m-%d') if plan.start_date else ''
+        end_date = plan.end_date.strftime('%Y-%m-%d') if plan.end_date else ''
+
+        visit_date = []
+
+        # `start_date` と `end_date` が両方存在する場合のみ日付を計算
+        if start_date and end_date:
+            start_date_dt = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date_dt = datetime.strptime(end_date, '%Y-%m-%d').date()
+
+            visit_date = [
+                (start_date_dt + timedelta(days=i)).strftime('%Y-%m-%d')
+                for i in range((end_date_dt - start_date_dt).days + 1)
+            ]
+
+        context = {
+            'plan': plan,
+            'visit_date': visit_date,
+        }
+
+        return render(request, 'plan/edit_touristplan.html', context)
+
+    def post(self, request, pk=None, *args, **kwargs):
+        plan = get_object_or_404(TouristPlan, pk=pk, user=request.user) if pk else None
+        form = TouristPlanForm(request.POST, instance=plan)
+
+        if form.is_valid():
+            with transaction.atomic():
+                tourist_plan = form.save(commit=False)
+                tourist_plan.user = request.user
+                tourist_plan.save()
+
+                # 既存のスポット情報を削除して再登録
+                if pk:
+                    TouristPlan_Spot.objects.filter(tourist_plan=tourist_plan).delete()
+
+                tourist_spot_ids = request.POST.getlist('tourist_spots')
+
+                for spot_id in tourist_spot_ids:
+                    visit_date_entry = request.POST.get(f'visit_date_{spot_id}')
+                    if visit_date_entry:
+                        tourist_spot = TouristSpot.objects.get(id=spot_id)
+                        TouristPlan_Spot.objects.create(
+                            tourist_plan=tourist_plan,
+                            tourist_spot=tourist_spot,
+                            visit_date=visit_date_entry
+                        )
+
+            messages.success(request, 'プランを保存しました', extra_tags='touristplan')
+            return redirect('travelapp:touristplan_list')
+
+        return render(request, 'plan/edit_touristplan.html', {'form': form, 'plan': plan})
+    
 
 # スケジュール作成 View
 def create_touristplan(request):
@@ -959,16 +1018,43 @@ class ModalSearchTouristSpotView(View):
         })
 
 
-# class ModalWantedSpotView(View):
-#     def get(self, request, *args, **kwargs):
-#         # ログインしているユーザーの行きたいリストを取得
-#         wanted_spots = WantedSpot.objects.filter(user=request.user)
+class ModalWantedSpotView(View):
+    def get(self, request, plan_id, visit_date, *args, **kwargs):
+        # ユーザーの行きたいリストを取得
+        wanted_spots = WantedSpot.objects.filter(user=request.user)
 
+        # 現在選択されたプランと訪問日
+        plan = TouristPlan.objects.get(id=plan_id)
 
-#         return render(request, 'modal_wanted_spot.html', {
-#             'wanted_spots': wanted_spots,
+        return render(request, 'plan/modal_wanted_spot.html', {
+            'wanted_spots': wanted_spots,
+            'plan': plan,
+            'visit_date': visit_date
+        })
+    
 
-#         })
+class AddToVisitDateView(View):
+    def post(self, request, plan_id, visit_date, *args, **kwargs):
+        # 送信されたスポットIDを取得
+        spot_id = request.POST.get('spot_id')
+        spot = TouristSpot.objects.get(id=spot_id)
+
+        # 旅行プランと該当の訪問日を取得
+        plan = TouristPlan.objects.get(id=plan_id)
+
+        # 訪問日と観光スポットがすでに関連付けられていないか確認
+        existing_spot = TouristPlan_Spot.objects.filter(
+            tourist_plan=plan, visit_date=visit_date, tourist_spot=spot
+        )
+        if not existing_spot.exists():
+            # 新たに観光スポットを追加
+            TouristPlan_Spot.objects.create(
+                tourist_plan=plan,
+                visit_date=visit_date,
+                tourist_spot=spot
+            )
+        
+        return redirect('travelapp:modal_wanted_spot', plan_id=plan_id, visit_date=visit_date)
 
 
 

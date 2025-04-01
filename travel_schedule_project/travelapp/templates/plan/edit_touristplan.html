@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>旅行プラン詳細</h1>
+
+  <div>
+    <h2>プラン名: {{ plan.name }}</h2>
+    <p><strong>開始日:</strong> {{ plan.start_date }}</p>
+    <p><strong>終了日:</strong> {{ plan.end_date }}</p>
+
+    <h3>訪問予定日と観光スポット</h3>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>訪問日</th>
+          <th>観光スポット</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for visit_date in visit_date %}
+          <tr>
+            <td>{{ visit_date }}</td>
+            <td>
+              {% for spot in plan.tourist_spots.all %}
+                {% if spot.visit_date == visit_date %}
+                  <a href="{% url 'travelapp:modal_wanted_spot' spot_id=spot.tourist_spot.id %}" data-toggle="modal" data-target="#wantedSpotModal">
+                    {{ spot.tourist_spot.name }}
+                  </a><br>
+                {% endif %}
+              {% empty %}
+                <p>なし</p>
+              {% endfor %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <a href="{% url 'travelapp:touristplan_list' %}">旅行プラン一覧に戻る</a>
+  </div>
+
+{% endblock %}

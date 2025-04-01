@@ -6,22 +6,14 @@
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}
-        {% if 'touristplan_list' in message.tags %}
+        {% if 'touristplan' in message.tags %}
             <li class="{{ message.tags }}">{{ message }}</li>
         {% endif %}
     {% endfor %}
 </ul>
 {% endif %}
 
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-        {% if 'create_touristplan' in message.tags %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-        {% endif %}
-    {% endfor %}
-</ul>
-{% endif %}
+
 
 <!-- 並び替えリンク -->
 <div style="margin-bottom: 20px;">
@@ -66,6 +58,7 @@
         <tr>
           <td>{{ forloop.counter }}</td>  <!-- 順番を表示 -->
           <td>
+            <a href="{% url 'travelapp:edit_touristplan' pk=plan.pk %}">
             {{ plan.start_date|date:"Y年m月d日 (l)" }} ～ 
             {{ plan.end_date|date:"Y年m月d日 (l)" }}
           </td>

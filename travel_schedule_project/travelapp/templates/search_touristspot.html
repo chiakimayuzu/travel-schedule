@@ -26,7 +26,7 @@
     {% if request.GET.sort == '-review_score_average' %}
       <span class="selected">評価がいい順</span>
     {% else %}
-      <a href="?sort=-review_score_average&query={{ request.GET.query }}&category={{ request.GET.category }}">評価がいい順</a>
+    <a href="?sort=-review_score_average&query={{ request.GET.query }}&category={{ request.GET.category }}">評価がいい順</a>
     {% endif %}
     |
     {% if request.GET.sort == '-created_at' %}
