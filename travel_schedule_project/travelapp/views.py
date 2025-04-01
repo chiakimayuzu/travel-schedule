@@ -822,29 +822,49 @@ class CreateSchedule(LoginRequiredMixin, View):
         return render(request, 'plan/schedule.html')
 
     def post(self, request, *args, **kwargs):
-        print("postメソッド呼び出し")
+        logger.debug("postメソッド呼び出し")
         schedule_range = request.POST.get('schedule_range')
-        logger.debug(f"受け取った schedule_range: {schedule_range}")  # デバッグログを追加
+        touristplan_name = request.POST.get('touristplan_name', '').strip()
+        
+        if schedule_range and ' to ' in schedule_range and touristplan_name:
+            start_date, end_date = schedule_range.split(' to ')
+            
+            # データベースに保存
+            TouristPlan.objects.create(
+                user=request.user,
+                start_date=start_date,
+                end_date=end_date,
+                touristplan_name=touristplan_name
+            )
 
-        if schedule_range:
-            try:
-                # schedule_range を 'start_date' と 'end_date' に分割
-                start_date, end_date = schedule_range.split(' to ')
-                
-                # クエリパラメータに 'start_date' と 'end_date' を追加
-                query_params = {
-                    'start_date': start_date,
-                    'end_date': end_date
-                }
-
-                # create_touristplan の URL にリダイレクト
-                return redirect('travelapp:touristplan_list')
-
-            except ValueError as e:
-                logger.error(f"日付の解析エラー: {e}")
-                return redirect('travelapp:schedule')
-
+            messages.success(request, 'プラン登録できました', extra_tags='touristplan_list')
+            return redirect('travelapp:touristplan_list')
+        
         return redirect('travelapp:schedule')
+
+
+class TouristplanList(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        # ログインユーザーの旅行プランを取得
+        queryset = TouristPlan.objects.filter(user=request.user)
+        # GETパラメータ 'sort' によって並び替えを切り替え（デフォルトは登録が新しい順）
+        sort_by = request.GET.get('sort', '-created_at')
+        if sort_by == '-updated_at':
+            queryset = queryset.order_by('-updated_at')
+        elif sort_by == 'updated_at':
+            queryset = queryset.order_by('updated_at')
+        elif sort_by == 'created_at':
+            queryset = queryset.order_by('created_at')
+        elif sort_by == '-created_at':
+            queryset = queryset.order_by('-created_at')
+        else:
+            queryset = queryset.order_by('-created_at')
+        
+        context = {
+            'touristplans': queryset,
+            'sort_by': sort_by,
+        }
+        return render(request, 'plan/touristplan_list.html', context)
 
 
 
@@ -952,9 +972,6 @@ class ModalSearchTouristSpotView(View):
 
 
 
-class TouristplanList(LoginRequiredMixin, View):
-    def get(self, request, *args, **kwargs):
 
-        return render(request, 'plan/touristplan_list.html')
 
     

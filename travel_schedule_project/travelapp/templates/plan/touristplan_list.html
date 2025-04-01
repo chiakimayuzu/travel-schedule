@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>📅保存した旅行プラン</h1>
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+        {% if 'touristplan_list' in message.tags %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endif %}
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+        {% if 'create_touristplan' in message.tags %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endif %}
+    {% endfor %}
+</ul>
+{% endif %}
+
+<!-- 並び替えリンク -->
+<div style="margin-bottom: 20px;">
+    並び替え:
+    
+    {% if sort_by == '-created_at' %}
+      <span style="color: gray; margin-right: 10px;">登録が新しい順</span>
+    {% else %}
+      <a href="{% url 'travelapp:touristplan_list' %}?sort=-created_at" style="margin-right: 10px;">登録が新しい順</a>
+    {% endif %}
+
+    {% if sort_by == 'created_at' %}
+      <span style="color: gray; margin-right: 10px;">登録が古い順</span>
+    {% else %}
+      <a href="{% url 'travelapp:touristplan_list' %}?sort=created_at" style="margin-right: 10px;">登録が古い順</a>
+    {% endif %}
+    
+    {% if sort_by == 'updated_at' %}
+      <span style="color: gray; margin-right: 10px;">更新が古い順</span>
+    {% else %}
+      <a href="{% url 'travelapp:touristplan_list' %}?sort=updated_at" style="margin-right: 10px;">更新が古い順</a>
+    {% endif %}
+    
+    {% if sort_by == '-updated_at' %}
+      <span style="color: gray;">更新が新しい順</span>
+    {% else %}
+      <a href="{% url 'travelapp:touristplan_list' %}?sort=-updated_at">更新が新しい順</a>
+    {% endif %}
+  </div>
+  
+  {% if touristplans %}
+    <table border="1" cellspacing="0" cellpadding="8">
+      <thead>
+        <tr>
+          <th>日付</th>
+          <th>プラン名</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for plan in touristplans %}
+          <tr>
+            <td>{{ plan.start_date }} ～ {{ plan.end_date }}</td>
+            <td>{{ plan.touristplan_name }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>旅行プランはまだありません。</p>
+  {% endif %}
+
+
+{% endblock %}

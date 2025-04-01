@@ -2,29 +2,23 @@
 
 {% block content %}
 <h2>スケジュール作成</h2>
-{% comment %} class CreateScheduleのpostを呼び出す {% endcomment %}
 <form method="post" action="{% url 'travelapp:schedule' %}">
-
   {% csrf_token %}
 
-
-  {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            {% if 'create_touristplan' in message.tags %}
-                <li class="{{ message.tags }}">{{ message }}</li>
-            {% endif %}
-        {% endfor %}
-    </ul>
-{% endif %}
   
   <div>
     <label>旅行日程:</label>
-    <input type="text" id="schedule-range" name="schedule_range" placeholder="日付を選択" readonly>
+    <div style="display: flex; align-items: center;">
+      <input type="text" id="schedule-range" name="schedule_range" placeholder="日付を選択してください" readonly>
+      <span id="calendar-icon" style="cursor: pointer; margin-left: 10px;">📅</span>
+    </div>
     <input type="hidden" name="start_date" id="start_date">
     <input type="hidden" name="end_date" id="end_date">
+  </div>
 
-
+  <div>
+    <label>プラン名:</label>
+    <input type="text" name="touristplan_name" required>
   </div>
 
   <button type="submit">スケジュール作成</button>
@@ -35,14 +29,10 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
-  flatpickr("#schedule-range", {
-    mode: "range",
-    dateFormat: "Y-m-d",
-    locale: "ja"
-  });
-</script>
-<script>
-  flatpickr("#schedule-range", {
+  const calendarInput = document.getElementById("schedule-range");
+  const calendarIcon = document.getElementById("calendar-icon");
+
+  const calendar = flatpickr(calendarInput, {
     mode: "range",
     dateFormat: "Y-m-d",
     locale: "ja",
@@ -51,10 +41,13 @@
         document.getElementById("start_date").value = selectedDates[0].toISOString().split('T')[0];
         document.getElementById("end_date").value = selectedDates[1].toISOString().split('T')[0];
 
-        // スケジュール範囲を hidden にセット
         document.getElementById("schedule-range").value = selectedDates[0].toISOString().split('T')[0] + ' to ' + selectedDates[1].toISOString().split('T')[0];
       }
     }
+  });
+
+  calendarIcon.addEventListener("click", function() {
+    calendar.open();
   });
 </script>
 {% endblock %}
