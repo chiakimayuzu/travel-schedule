@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    AddToVisitDateView, CreateSchedule, EditTouristPlanView, ModalSearchTouristSpotView, ModalWantedSpotView, RegistAccountView, 
+    CreateSchedule, EditTouristPlanView, ModalSearchTouristSpotView, RegistAccountView, 
     TouristSpotSearchView, TouristplanList, check_username, create_review, create_touristplan, edit_my_review, home,
     LoginView,LogoutView,change_password,change_email,
     PortfolioView, my_review_detail, my_review_list,regist_touristspot,check_dupe_tourist_spot,
@@ -39,6 +39,6 @@ urlpatterns = [
 
     path('touristplan_list/', TouristplanList.as_view(), name='touristplan_list'),
     path('edit_touristplan/<int:pk>/', EditTouristPlanView.as_view(), name='edit_touristplan'),
-    path('modal_wanted_spot/<int:plan_id>/<str:visit_date>/', ModalWantedSpotView.as_view(), name='modal_wanted_spot'),
-    path('add_to_visit_date/<int:plan_id>/<str:visit_date>/', AddToVisitDateView.as_view(), name='add_to_visit_date'),
+    # path('modal_wanted_spot/<int:plan_id>/<str:visit_date>/', ModalWantedSpotView.as_view(), name='modal_wanted_spot'),
+    # path('add_to_visit_date/<int:plan_id>/<str:visit_date>/', AddToVisitDateView.as_view(), name='add_to_visit_date'),
     ]

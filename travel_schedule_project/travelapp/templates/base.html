@@ -65,37 +65,36 @@
     <main class="container mt-4">
       {% block content %}{% endblock %}
     </main>
-  
     <footer class="text-center mt-4">
       <p>© トラベルスケジュール</p>
     </footer>
   
 
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
-      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <!-- jQueryを最初に読み込む -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-      <script>
-         // リンクをクリックしたときにモーダルを表示
-         document.getElementById('user-link').addEventListener('click', function(event) {
-           event.preventDefault(); // リンクのデフォルト動作（遷移）を防止
-           var userModal = new bootstrap.Modal(document.getElementById('userModal'));
-           userModal.show();
-         });
-       </script>
+    <!-- その後に必要なスクリプトを読み込む -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        console.log("jQueryのバージョン:", $.fn.jquery);
+      });
+    </script>
 
-       <script>
-        $(document).ready(function() {
-          // モーダルリンクがクリックされたときにモーダルを開く
-          $('[data-toggle="modal"]').on('click', function(event) {
-            var targetModal = $($(this).data('target'));
-            targetModal.modal('show');
-          });
-        });
-      </script>
+    <!-- モーダルの表示 -->
+    <script>
+      document.getElementById('user-link').addEventListener('click', function(event) {
+        event.preventDefault();
+        var userModal = new bootstrap.Modal(document.getElementById('userModal'));
+        userModal.show();
+      });
+    </script>
+
 
                   <!-- モーダルの構造 -->
                   <div class="modal" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">

@@ -4,12 +4,12 @@
   <h1>旅行プラン詳細</h1>
 
   <div>
-    <h2>プラン名: {{ plan.name }}</h2>
+    <h2>プラン名: {{ plan.touristplan_name }}</h2>
     <p><strong>開始日:</strong> {{ plan.start_date }}</p>
     <p><strong>終了日:</strong> {{ plan.end_date }}</p>
 
     <h3>訪問予定日と観光スポット</h3>
-    <table border="1">
+    <table class="table table-bordered">
       <thead>
         <tr>
           <th>訪問日</th>
@@ -17,49 +17,63 @@
         </tr>
       </thead>
       <tbody>
-        {% for visit_date in visit_date %}
-          <tr>
-            <td>{{ visit_date }}</td>
-            <td>
-              {% for spot in plan.tourist_spots.all %}
-                {% if spot.visit_date == visit_date %}
-                  <a href="{% url 'travelapp:modal_wanted_spot' spot_id=spot.tourist_spot.id %}" data-toggle="modal" data-target="#wantedSpotModal">
-                    {{ spot.tourist_spot.name }}
-                  </a><br>
+        {% for visit in visit_date %}
+          {% with modal_counter=forloop.counter %}
+            <tr>
+              <td>{{ visit }}</td>
+              <td>
+                {% for spot in plan.tourist_spots.all %}
+                  {% if spot.visit_date == visit %}
+                    <button type="button" class="btn btn-link openWantedSpotModal" data-modal-id="wantedSpotModal{{ modal_counter }}">
+                      {{ spot.tourist_spot.name }}
+                    </button><br>
+                  {% endif %}
+                {% endfor %}
+                {% if not plan.tourist_spots.all %}
+                  <button type="button" class="btn btn-primary openWantedSpotModal" data-modal-id="wantedSpotModal{{ modal_counter }}">
+                    行きたいリストを追加
+                  </button>
                 {% endif %}
-              {% empty %}
-                <p>なし</p>
-                <!-- モーダルを開くボタン -->
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#wantedSpotModal" 
-                        data-url="{% url 'travelapp:modal_wanted_spot' plan_id=plan.id visit_date=visit_date %}">
-                  行きたいリストを追加
-                </button>
-              {% endfor %}
-            </td>
-          </tr>
+              </td>
+            </tr>
+
+            <!-- 訪問日に対応するモーダル -->
+            <div id="wantedSpotModal{{ modal_counter }}" class="modal" style="display:none;">
+              <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2>行きたいリストを追加</h2>
+                <p>ここに行きたい観光地リストを表示</p>
+              </div>
+            </div>
+          {% endwith %}
         {% endfor %}
       </tbody>
     </table>
 
-    <a href="{% url 'travelapp:touristplan_list' %}">旅行プラン一覧に戻る</a>
+    <a href="{% url 'travelapp:touristplan_list' %}" class="btn btn-secondary">旅行プラン一覧に戻る</a>
   </div>
 
   <script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    $(document).ready(function() {
-      $('#wantedSpotModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); // ボタンがクリックされた時の情報を取得
-        var url = button.data('url'); // data-url 属性から URL を取得
-        var modal = $(this);
+    function openModal(modalId) {
+      var modalElement = document.getElementById(modalId);
+      if (modalElement) {
+        modalElement.style.display = 'block';
+      } else {
+        console.log("Modal element not found: " + modalId);
+      }
+    }
     
-        console.log("URL: " + url); // デバッグ用にURLを表示
+    function closeModal() {
+      var modals = document.querySelectorAll('.modal');
+      modals.forEach(function(modal) {
+        modal.style.display = 'none';
+      });
+    }
     
-        // モーダルの中身を読み込む
-        $.get(url, function(data) {
-          modal.find('#modal-content').html(data);
-        }).fail(function() {
-          console.error("モーダルのコンテンツが読み込めませんでした。");
-        });
+    document.querySelectorAll('.openWantedSpotModal').forEach(function(button) {
+      button.addEventListener('click', function() {
+        var modalId = this.getAttribute('data-modal-id');
+        openModal(modalId);
       });
     });
   </script>
