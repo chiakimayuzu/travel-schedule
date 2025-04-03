@@ -917,16 +917,19 @@ class EditTouristPlanView(LoginRequiredMixin, View):
         tourist_spots_info = []
         for spot in wanted_spots:
             spot_data = spot.tourist_spot
+            staytime = (
+                UserReview.objects.filter(tourist_spot=spot_data)
+                .aggregate(Avg('stay_time_min'))['stay_time_min__avg'] or 0
+            )
             spot_data_dict = {
                 'spot_name': spot_data.spot_name,
                 'picture': spot_data.picture.url if spot_data.picture else None,
                 'category': spot_data.get_category_display(),
                 'prefecture': spot_data.get_prefecture_display(),
                 'address': spot_data.address,
-                'staytime_average': (
-                    UserReview.objects.filter(tourist_spot=spot_data)
-                    .aggregate(Avg('stay_time_min'))['stay_time_min__avg'] or 0
-                ),
+                'staytime_average': staytime,  # 平均滞在時間（分）
+                'staytime_hours': int(staytime) // 60,
+                'staytime_minutes': int(staytime) % 60,
             }
             tourist_spots_info.append(spot_data_dict)
 
@@ -941,6 +944,7 @@ class EditTouristPlanView(LoginRequiredMixin, View):
         }
 
         return render(request, 'plan/edit_touristplan.html', context)
+
 
     def post(self, request, pk=None, *args, **kwargs):
         plan = get_object_or_404(TouristPlan, pk=pk, user=request.user) if pk else None
