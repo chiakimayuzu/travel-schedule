@@ -22,11 +22,11 @@
             <tr>
               <td>{{ visit }}</td>
               <td>
-                <!-- 選択済みの観光地をリンクではなくプレーンテキストで表示 -->
+                <!-- 選択済みの観光地をプレーンテキストで表示 -->
                 <span id="selectedSpot{{ modal_counter }}" class="selected-spot">
                   {% for spot in plan.tourist_spots.all %}
                     {% if spot.visit_date == visit %}
-                      {{ spot.tourist_spot.name }}
+                      {{ spot.tourist_spot.spot_name }}
                     {% endif %}
                   {% endfor %}
                 </span>
@@ -45,18 +45,29 @@
             <div id="wantedSpotModal{{ modal_counter }}" class="modal">
               <div class="modal-content">
                 <span class="close" onclick="closeModal()">&times;</span>
-                <h2>行きたいリストを追加</h2>
+                <h2>行きたいリストから選択</h2>
                 {% if wanted_spots %}
                   <ul>
                     {% for wanted in wanted_spots %}
-                      <li class="wanted-item"
-                          data-spot-id="{{ wanted.id }}"
-                          data-spot-name="{{ wanted.tourist_spot.spot_name }}"
-                          style="cursor: pointer;">
+                      <li>
+                        <input type="checkbox" class="wanted-checkbox" data-spot-name="{{ wanted.tourist_spot.spot_name }}" 
+                               data-spot-picture="{{ wanted.tourist_spot.picture.url }}" 
+                               data-spot-category="{{ wanted.tourist_spot.get_category_display }}" 
+                               data-spot-prefecture="{{ wanted.tourist_spot.get_prefecture_display }}" 
+                               data-spot-address="{{ wanted.tourist_spot.address }}" 
+                               data-spot-staytime="{{ wanted.tourist_spot.staytime_average }}">
                         {{ wanted.tourist_spot.spot_name }}
+                        <div>
+                          <img src="{{ wanted.tourist_spot.picture.url }}" alt="Tourist Spot Image" width="100">
+                          <p>カテゴリ: {{ wanted.tourist_spot.get_category_display }}</p>
+                          <p>都道府県: {{ wanted.tourist_spot.get_prefecture_display }}</p>
+                          <p>住所: {{ wanted.tourist_spot.address }}</p>
+                          <p>平均滞在時間: {{ wanted.tourist_spot.staytime_average }} 分</p>
+                        </div>
                       </li>
                     {% endfor %}
                   </ul>
+                  <button type="button" class="btn btn-success confirmSelection">選択完了</button>
                 {% else %}
                   <p>行きたいリストはありません。</p>
                 {% endif %}
@@ -129,9 +140,13 @@
       modals.forEach(function(modal) {
         modal.style.display = 'none';
       });
+      // チェック状態を全てリセット（オプション）
+      document.querySelectorAll('.wanted-checkbox').forEach(function(checkbox) {
+        checkbox.checked = false;
+      });
     }
     
-    // リンクをクリックした際、対象のspanのIDをグローバル変数に格納し、モーダルを開く
+    // リンククリック時、対象のspanのIDをグローバル変数に格納し、モーダルを開く
     document.querySelectorAll('.openWantedSpotModal').forEach(function(link) {
       link.addEventListener('click', function(e) {
         e.preventDefault(); // リンクのデフォルト動作を防ぐ
@@ -141,12 +156,19 @@
       });
     });
     
-    // モーダル内のリスト項目をクリック時の処理
-    document.querySelectorAll('.wanted-item').forEach(function(item) {
-      item.addEventListener('click', function() {
-        var selectedSpotName = this.getAttribute('data-spot-name');
+    // 「選択完了」ボタン押下時の処理
+    document.querySelectorAll('.confirmSelection').forEach(function(button) {
+      button.addEventListener('click', function() {
+        // 現在のモーダル内のチェックされた項目を取得
+        var modal = this.closest('.modal');
+        var checkedItems = modal.querySelectorAll('.wanted-checkbox:checked');
+        var selectedNames = [];
+        checkedItems.forEach(function(checkbox) {
+          selectedNames.push(checkbox.getAttribute('data-spot-name'));
+        });
+        // 対象のspanに選択された複数の名前をカンマ区切りで設定
         if (currentTargetId) {
-          document.getElementById(currentTargetId).textContent = selectedSpotName;
+          document.getElementById(currentTargetId).textContent = selectedNames.join(', ');
         }
         closeModal();
       });

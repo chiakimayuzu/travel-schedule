@@ -891,10 +891,34 @@ class EditTouristPlanView(LoginRequiredMixin, View):
         # ログインユーザーの行きたいリストを取得
         wanted_spots = request.user.wanted_spots.all()
 
+        # `tourist_spot_id` をリクエストから取得
+        tourist_spot_id = request.GET.get('tourist_spot_id')  # URLのクエリパラメータから取得
+        if tourist_spot_id:
+            tourist_spot = get_object_or_404(TouristSpot, id=tourist_spot_id)
+        elif wanted_spots.exists():
+            tourist_spot = wanted_spots.first().tourist_spot
+        else:
+            tourist_spot = None
+
+        # 滞在時間の平均を計算
+        stay_time_avg = (
+            UserReview.objects.filter(tourist_spot=tourist_spot)
+            .aggregate(Avg('stay_time_min'))['stay_time_min__avg']
+            if tourist_spot else 0
+        )
+
+        stay_time_avg = stay_time_avg if stay_time_avg is not None else 0
+        stay_time_hours = int(stay_time_avg) // 60
+        stay_time_minutes = int(stay_time_avg) % 60
+
         context = {
             'plan': plan,
             'visit_date': visit_date,
             'wanted_spots': wanted_spots,
+            'tourist_spot': tourist_spot,
+            'stay_time_avg': stay_time_avg,
+            'stay_time_hours': stay_time_hours,
+            'stay_time_minutes': stay_time_minutes,
         }
 
         return render(request, 'plan/edit_touristplan.html', context)
