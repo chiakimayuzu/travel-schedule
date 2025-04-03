@@ -22,27 +22,44 @@
             <tr>
               <td>{{ visit }}</td>
               <td>
-                {% for spot in plan.tourist_spots.all %}
-                  {% if spot.visit_date == visit %}
-                    <button type="button" class="btn btn-link openWantedSpotModal" data-modal-id="wantedSpotModal{{ modal_counter }}">
+                <!-- 選択済みの観光地をリンクではなくプレーンテキストで表示 -->
+                <span id="selectedSpot{{ modal_counter }}" class="selected-spot">
+                  {% for spot in plan.tourist_spots.all %}
+                    {% if spot.visit_date == visit %}
                       {{ spot.tourist_spot.name }}
-                    </button><br>
-                  {% endif %}
-                {% endfor %}
-                {% if not plan.tourist_spots.all %}
-                  <button type="button" class="btn btn-primary openWantedSpotModal" data-modal-id="wantedSpotModal{{ modal_counter }}">
-                    行きたいリストを追加
-                  </button>
-                {% endif %}
+                    {% endif %}
+                  {% endfor %}
+                </span>
+                <br>
+                <!-- モーダルを開くリンク（data-target-idで対象のspanを指定） -->
+                <a href="#"
+                   class="openWantedSpotModal"
+                   data-modal-id="wantedSpotModal{{ modal_counter }}"
+                   data-target-id="selectedSpot{{ modal_counter }}">
+                  行きたいリストから選択
+                </a>
               </td>
             </tr>
 
             <!-- 訪問日に対応するモーダル -->
-            <div id="wantedSpotModal{{ modal_counter }}" class="modal" style="display:none;">
+            <div id="wantedSpotModal{{ modal_counter }}" class="modal">
               <div class="modal-content">
                 <span class="close" onclick="closeModal()">&times;</span>
                 <h2>行きたいリストを追加</h2>
-                <p>ここに行きたい観光地リストを表示</p>
+                {% if wanted_spots %}
+                  <ul>
+                    {% for wanted in wanted_spots %}
+                      <li class="wanted-item"
+                          data-spot-id="{{ wanted.id }}"
+                          data-spot-name="{{ wanted.tourist_spot.spot_name }}"
+                          style="cursor: pointer;">
+                        {{ wanted.tourist_spot.spot_name }}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <p>行きたいリストはありません。</p>
+                {% endif %}
               </div>
             </div>
           {% endwith %}
@@ -53,7 +70,51 @@
     <a href="{% url 'travelapp:touristplan_list' %}" class="btn btn-secondary">旅行プラン一覧に戻る</a>
   </div>
 
+  <!-- モーダルのスタイル -->
+  <style>
+    .modal {
+      display: none;               /* 初期状態は非表示 */
+      position: fixed;             /* 画面全体に固定 */
+      z-index: 100;                /* 他の要素より前面に表示 */
+      left: 0;
+      top: 0;
+      width: 100%;                 /* 画面全体の幅 */
+      height: 100%;                /* 画面全体の高さ */
+      overflow: auto;              /* 必要に応じてスクロール */
+      background-color: rgba(0,0,0,0.4);  /* 半透明の背景 */
+    }
+    .modal-content {
+      position: relative;          /* 絶対配置の閉じるボタンの基準にする */
+      background-color: #fefefe;
+      margin: 15% auto;            /* 上から15%の位置に配置し、中央に水平寄せ */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;                  /* 幅はお好みで調整 */
+      max-width: 500px;            /* 最大幅を設定して中央寄せを維持 */
+      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+      border-radius: 4px;
+    }
+    .close {
+      position: absolute;          /* 絶対配置 */
+      top: 10px;                   /* 上からの余白 */
+      right: 10px;                 /* 右からの余白 */
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+    }
+  </style>
+
+  <!-- JavaScript -->
   <script>
+    // 現在開かれているモーダルの対象spanのIDを保持するための変数
+    var currentTargetId = null;
+
     function openModal(modalId) {
       var modalElement = document.getElementById(modalId);
       if (modalElement) {
@@ -70,10 +131,24 @@
       });
     }
     
-    document.querySelectorAll('.openWantedSpotModal').forEach(function(button) {
-      button.addEventListener('click', function() {
+    // リンクをクリックした際、対象のspanのIDをグローバル変数に格納し、モーダルを開く
+    document.querySelectorAll('.openWantedSpotModal').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault(); // リンクのデフォルト動作を防ぐ
+        currentTargetId = this.getAttribute('data-target-id');
         var modalId = this.getAttribute('data-modal-id');
         openModal(modalId);
+      });
+    });
+    
+    // モーダル内のリスト項目をクリック時の処理
+    document.querySelectorAll('.wanted-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        var selectedSpotName = this.getAttribute('data-spot-name');
+        if (currentTargetId) {
+          document.getElementById(currentTargetId).textContent = selectedSpotName;
+        }
+        closeModal();
       });
     });
   </script>

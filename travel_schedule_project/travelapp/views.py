@@ -888,9 +888,13 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 for i in range((end_date_dt - start_date_dt).days + 1)
             ]
 
+        # ログインユーザーの行きたいリストを取得
+        wanted_spots = request.user.wanted_spots.all()
+
         context = {
             'plan': plan,
             'visit_date': visit_date,
+            'wanted_spots': wanted_spots,
         }
 
         return render(request, 'plan/edit_touristplan.html', context)
@@ -925,6 +929,8 @@ class EditTouristPlanView(LoginRequiredMixin, View):
             return redirect('travelapp:touristplan_list')
 
         return render(request, 'plan/edit_touristplan.html', {'form': form, 'plan': plan})
+
+
     
 
 # スケジュール作成 View
