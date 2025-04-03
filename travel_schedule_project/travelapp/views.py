@@ -920,8 +920,8 @@ class EditTouristPlanView(LoginRequiredMixin, View):
             spot_data_dict = {
                 'spot_name': spot_data.spot_name,
                 'picture': spot_data.picture.url if spot_data.picture else None,
-                'category': spot_data.category,
-                'prefecture': spot_data.prefecture,
+                'category': spot_data.get_category_display(),
+                'prefecture': spot_data.get_prefecture_display(),
                 'address': spot_data.address,
                 'staytime_average': (
                     UserReview.objects.filter(tourist_spot=spot_data)
