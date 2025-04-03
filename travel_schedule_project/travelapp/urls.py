@@ -4,7 +4,7 @@ from .views import (
     TouristSpotSearchView, TouristplanList, check_username, create_review, create_touristplan, edit_my_review, home,
     LoginView,LogoutView,change_password,change_email,
     PortfolioView, my_review_detail, my_review_list,regist_touristspot,check_dupe_tourist_spot,
-    detail_touristspot,edit_touristspot, review_list, wanted_spot, wanted_spot_list, 
+    detail_touristspot,edit_touristspot, review_list, update_touristplan_order, wanted_spot, wanted_spot_list, 
     )   
 # from .views import ModalWantedSpotView
 
@@ -39,6 +39,8 @@ urlpatterns = [
 
     path('touristplan_list/', TouristplanList.as_view(), name='touristplan_list'),
     path('edit_touristplan/<int:pk>/', EditTouristPlanView.as_view(), name='edit_touristplan'),
+    path("update_touristplan_order/", update_touristplan_order, name="update_touristplan_order"),
+
     # path('modal_wanted_spot/<int:plan_id>/<str:visit_date>/', ModalWantedSpotView.as_view(), name='modal_wanted_spot'),
     # path('add_to_visit_date/<int:plan_id>/<str:visit_date>/', AddToVisitDateView.as_view(), name='add_to_visit_date'),
     ]

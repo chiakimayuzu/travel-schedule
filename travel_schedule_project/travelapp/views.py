@@ -952,7 +952,7 @@ class EditTouristPlanView(LoginRequiredMixin, View):
             'visit_date': visit_date,
             'wanted_spots': tourist_spots_info,  # モーダル用の観光地情報
             'selected_spots': selected_spots_info,  # 表示用の選択済み観光地情報
-            'selected_spot_names': selected_spot_names,  # 選択済みの観光地の名前リスト
+            'selected_spot_names': selected_spot_names,  # 選択済みの観光地の名前リスト 
             'tourist_spot': tourist_spot,
             'stay_time_avg': stay_time_avg,
             'stay_time_hours': stay_time_hours,
@@ -995,7 +995,24 @@ class EditTouristPlanView(LoginRequiredMixin, View):
 
         return render(request, 'plan/edit_touristplan.html', {'form': form, 'plan': plan})
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
+
+@csrf_exempt
+def update_touristplan_order(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            for item in data["order"]:
+                spot = TouristPlan_Spot.objects.get(id=item["id"])
+                spot.order = item["position"]
+                spot.save()
+            return JsonResponse({"message": "順番を更新しました"}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "無効なリクエスト"}, status=400)
     
 
 # スケジュール作成 View

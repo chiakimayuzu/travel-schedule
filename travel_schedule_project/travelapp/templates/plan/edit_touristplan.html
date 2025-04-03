@@ -46,6 +46,8 @@
                    data-target-id="selectedSpot{{ modal_counter }}">
                   行きたいリストから選択
                 </a>
+                          <!-- 並び替え用のアイコン -->
+          <span class="drag-handle">↔️</span>
               </td>
             </tr>
 
@@ -201,5 +203,36 @@ document.querySelectorAll('.confirmSelection').forEach(function (button) {
 });
 
   </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var sortable = new Sortable(document.getElementById("sortable-spots"), {
+        handle: ".drag-handle", // ↔️ アイコンをつかんで移動
+        animation: 150,
+        onEnd: function (evt) {
+          // 並び替え完了後にデータを送信する処理（オプション）
+          var newOrder = [];
+          document.querySelectorAll("#sortable-spots tr").forEach(function (row, index) {
+            newOrder.push({
+              id: row.getAttribute("data-id"),
+              position: index + 1
+            });
+          });
+  
+          // 並び順をサーバーに保存する（AJAX を使う）
+          fetch("{% url 'travelapp:update_touristplan_order' %}", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({ order: newOrder })
+          }).then(response => response.json())
+            .then(data => console.log("順番更新:", data))
+            .catch(error => console.error("エラー:", error));
+        }
+      });
+    });
+  </script>
+  
 
 {% endblock %}
