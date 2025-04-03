@@ -907,14 +907,33 @@ class EditTouristPlanView(LoginRequiredMixin, View):
             if tourist_spot else 0
         )
 
+        print(f"Tourist Spot ID: {tourist_spot.id if tourist_spot else 'None'}, Stay Time Avg: {stay_time_avg}")
+
         stay_time_avg = stay_time_avg if stay_time_avg is not None else 0
         stay_time_hours = int(stay_time_avg) // 60
         stay_time_minutes = int(stay_time_avg) % 60
 
+        # モーダル内で使用する観光地情報を取得
+        tourist_spots_info = []
+        for spot in wanted_spots:
+            spot_data = spot.tourist_spot
+            spot_data_dict = {
+                'spot_name': spot_data.spot_name,
+                'picture': spot_data.picture.url if spot_data.picture else None,
+                'category': spot_data.category,
+                'prefecture': spot_data.prefecture,
+                'address': spot_data.address,
+                'staytime_average': (
+                    UserReview.objects.filter(tourist_spot=spot_data)
+                    .aggregate(Avg('stay_time_min'))['stay_time_min__avg'] or 0
+                ),
+            }
+            tourist_spots_info.append(spot_data_dict)
+
         context = {
             'plan': plan,
             'visit_date': visit_date,
-            'wanted_spots': wanted_spots,
+            'wanted_spots': tourist_spots_info,  # 更新された観光地情報を渡す
             'tourist_spot': tourist_spot,
             'stay_time_avg': stay_time_avg,
             'stay_time_hours': stay_time_hours,

@@ -22,7 +22,7 @@
             <tr>
               <td>{{ visit }}</td>
               <td>
-                <!-- 選択済みの観光地をプレーンテキストで表示 -->
+                <!-- 選択済みの観光地を表示 -->
                 <span id="selectedSpot{{ modal_counter }}" class="selected-spot">
                   {% for spot in plan.tourist_spots.all %}
                     {% if spot.visit_date == visit %}
@@ -31,7 +31,7 @@
                   {% endfor %}
                 </span>
                 <br>
-                <!-- モーダルを開くリンク（data-target-idで対象のspanを指定） -->
+                <!-- モーダルを開くリンク -->
                 <a href="#"
                    class="openWantedSpotModal"
                    data-modal-id="wantedSpotModal{{ modal_counter }}"
@@ -48,22 +48,18 @@
                 <h2>行きたいリストから選択</h2>
                 {% if wanted_spots %}
                   <ul>
-                    {% for wanted in wanted_spots %}
+                    {% for spot in wanted_spots %}
                       <li>
-                        <input type="checkbox" class="wanted-checkbox" data-spot-name="{{ wanted.tourist_spot.spot_name }}" 
-                               data-spot-picture="{{ wanted.tourist_spot.picture.url }}" 
-                               data-spot-category="{{ wanted.tourist_spot.get_category_display }}" 
-                               data-spot-prefecture="{{ wanted.tourist_spot.get_prefecture_display }}" 
-                               data-spot-address="{{ wanted.tourist_spot.address }}" 
-                               data-spot-staytime="{{ wanted.tourist_spot.staytime_average }}">
-                        {{ wanted.tourist_spot.spot_name }}
-                        <div>
-                          <img src="{{ wanted.tourist_spot.picture.url }}" alt="Tourist Spot Image" width="100">
-                          <p>カテゴリ: {{ wanted.tourist_spot.get_category_display }}</p>
-                          <p>都道府県: {{ wanted.tourist_spot.get_prefecture_display }}</p>
-                          <p>住所: {{ wanted.tourist_spot.address }}</p>
-                          <p>平均滞在時間: {{ wanted.tourist_spot.staytime_average }} 分</p>
-                        </div>
+                        <input type="checkbox" class="wanted-checkbox" data-spot-name="{{ spot.spot_name }}" 
+                               data-picture="{{ spot.picture }}" data-category="{{ spot.category }}" 
+                               data-prefecture="{{ spot.prefecture }}" data-address="{{ spot.address }}" 
+                               data-staytime="{{ spot.staytime_average }}">
+                        <strong>{{ spot.spot_name }}</strong><br>
+                        <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width: 100px; height: auto;"><br>
+                        カテゴリ: {{ spot.category }}<br>
+                        都道府県: {{ spot.prefecture }}<br>
+                        住所: {{ spot.address }}<br>
+                        滞在時間（平均）: {{ spot.staytime_average }} 分
                       </li>
                     {% endfor %}
                   </ul>
