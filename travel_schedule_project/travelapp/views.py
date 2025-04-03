@@ -872,17 +872,14 @@ class EditTouristPlanView(LoginRequiredMixin, View):
         # 旅行プランをIDで取得、ユーザーが所有しているプランのみ
         plan = get_object_or_404(TouristPlan, pk=pk, user=request.user)
 
-        # `start_date` と `end_date` を文字列として取得
+        # start_date と end_date を文字列に変換
         start_date = plan.start_date.strftime('%Y-%m-%d') if plan.start_date else ''
         end_date = plan.end_date.strftime('%Y-%m-%d') if plan.end_date else ''
 
         visit_date = []
-
-        # `start_date` と `end_date` が両方存在する場合のみ日付を計算
         if start_date and end_date:
             start_date_dt = datetime.strptime(start_date, '%Y-%m-%d').date()
             end_date_dt = datetime.strptime(end_date, '%Y-%m-%d').date()
-
             visit_date = [
                 (start_date_dt + timedelta(days=i)).strftime('%Y-%m-%d')
                 for i in range((end_date_dt - start_date_dt).days + 1)
@@ -891,8 +888,8 @@ class EditTouristPlanView(LoginRequiredMixin, View):
         # ログインユーザーの行きたいリストを取得
         wanted_spots = request.user.wanted_spots.all()
 
-        # `tourist_spot_id` をリクエストから取得
-        tourist_spot_id = request.GET.get('tourist_spot_id')  # URLのクエリパラメータから取得
+        # tourist_spot_id をリクエストから取得
+        tourist_spot_id = request.GET.get('tourist_spot_id')
         if tourist_spot_id:
             tourist_spot = get_object_or_404(TouristSpot, id=tourist_spot_id)
         elif wanted_spots.exists():
@@ -900,20 +897,17 @@ class EditTouristPlanView(LoginRequiredMixin, View):
         else:
             tourist_spot = None
 
-        # 滞在時間の平均を計算
+        # 全体の平均滞在時間を計算
         stay_time_avg = (
             UserReview.objects.filter(tourist_spot=tourist_spot)
             .aggregate(Avg('stay_time_min'))['stay_time_min__avg']
             if tourist_spot else 0
         )
-
-        print(f"Tourist Spot ID: {tourist_spot.id if tourist_spot else 'None'}, Stay Time Avg: {stay_time_avg}")
-
         stay_time_avg = stay_time_avg if stay_time_avg is not None else 0
         stay_time_hours = int(stay_time_avg) // 60
         stay_time_minutes = int(stay_time_avg) % 60
 
-        # モーダル内で使用する観光地情報を取得
+        # モーダル用の観光地情報（wanted_spots_info）の作成
         tourist_spots_info = []
         for spot in wanted_spots:
             spot_data = spot.tourist_spot
@@ -927,16 +921,38 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 'category': spot_data.get_category_display(),
                 'prefecture': spot_data.get_prefecture_display(),
                 'address': spot_data.address,
-                'staytime_average': staytime,  # 平均滞在時間（分）
+                'staytime_average': staytime,
                 'staytime_hours': int(staytime) // 60,
                 'staytime_minutes': int(staytime) % 60,
             }
             tourist_spots_info.append(spot_data_dict)
 
+        # 選択済みの観光地情報（プランに紐づく観光地）を作成
+        # ※visit_date の比較のため、ps.visit_date を文字列に変換
+        selected_spots_info = []
+        for ps in plan.tourist_spots.all():
+            ts = ps.tourist_spot
+            staytime = (
+                UserReview.objects.filter(tourist_spot=ts)
+                .aggregate(Avg('stay_time_min'))['stay_time_min__avg'] or 0
+            )
+            selected_spots_info.append({
+                'visit_date': ps.visit_date.strftime('%Y-%m-%d') if ps.visit_date else '',
+                'spot_name': ts.spot_name,
+                'picture': ts.picture.url if ts.picture else None,
+                'prefecture': ts.get_prefecture_display(),
+                'address': ts.address,
+                'staytime_hours': int(staytime) // 60,
+                'staytime_minutes': int(staytime) % 60,
+            })
+        selected_spot_names = [spot['spot_name'] for spot in selected_spots_info]
+
         context = {
             'plan': plan,
             'visit_date': visit_date,
-            'wanted_spots': tourist_spots_info,  # 更新された観光地情報を渡す
+            'wanted_spots': tourist_spots_info,  # モーダル用の観光地情報
+            'selected_spots': selected_spots_info,  # 表示用の選択済み観光地情報
+            'selected_spot_names': selected_spot_names,  # 選択済みの観光地の名前リスト
             'tourist_spot': tourist_spot,
             'stay_time_avg': stay_time_avg,
             'stay_time_hours': stay_time_hours,
@@ -944,6 +960,8 @@ class EditTouristPlanView(LoginRequiredMixin, View):
         }
 
         return render(request, 'plan/edit_touristplan.html', context)
+
+
 
 
     def post(self, request, pk=None, *args, **kwargs):

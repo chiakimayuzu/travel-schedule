@@ -22,16 +22,24 @@
             <tr>
               <td>{{ visit }}</td>
               <td>
-                <!-- 選択済みの観光地をプレーンテキストで表示 -->
+                <!-- 選択済みの観光地を表示 -->
                 <span id="selectedSpot{{ modal_counter }}" class="selected-spot">
-                  {% for spot in plan.tourist_spots.all %}
+                  {% for spot in selected_spots %}
                     {% if spot.visit_date == visit %}
-                      {{ spot.tourist_spot.spot_name }}
+                      <div>
+                        <strong>{{ spot.spot_name }}</strong><br>
+                        {% if spot.picture %}
+                          <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width:100px; height:auto;"><br>
+                        {% endif %}
+                        都道府県: {{ spot.prefecture }}<br>
+                        住所: {{ spot.address }}<br>
+                        平均滞在時間: {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
+                      </div>
                     {% endif %}
                   {% endfor %}
                 </span>
                 <br>
-                <!-- モーダルを開くリンク（data-target-idで対象のspanを指定） -->
+                <!-- モーダルを開くリンク -->
                 <a href="#"
                    class="openWantedSpotModal"
                    data-modal-id="wantedSpotModal{{ modal_counter }}"
@@ -49,19 +57,26 @@
                 {% if wanted_spots %}
                   <ul>
                     {% for spot in wanted_spots %}
-                    <li>
-                      <input type="checkbox" class="wanted-checkbox" data-spot-name="{{ spot.spot_name }}" 
-                             data-picture="{{ spot.picture }}" data-category="{{ spot.category }}" 
-                             data-prefecture="{{ spot.prefecture }}" data-address="{{ spot.address }}" 
-                             data-staytime="{{ spot.staytime_average }}">
-                      <strong>{{ spot.spot_name }}</strong><br>
-                      <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width: 100px; height: auto;"><br>
-                      カテゴリ: {{ spot.category }}<br>
-                      都道府県: {{ spot.prefecture }}<br>
-                      住所: {{ spot.address }}<br>
-                      平均滞在時間: {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
-                    </li>
-                  {% endfor %}
+                      <li>
+                        <input type="checkbox" class="wanted-checkbox"
+                               data-spot-name="{{ spot.spot_name }}"
+                               data-picture="{{ spot.picture }}"
+                               data-category="{{ spot.category }}"
+                               data-prefecture="{{ spot.prefecture }}"
+                               data-address="{{ spot.address }}"
+                               data-staytime-hours="{{ spot.staytime_hours }}"
+                               data-staytime-minutes="{{ spot.staytime_minutes }}"
+                               {% if spot.spot_name in selected_spot_names %} checked {% endif %}>
+                        <strong>{{ spot.spot_name }}</strong><br>
+                        {% if spot.picture %}
+                          <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width: 100px; height: auto;"><br>
+                        {% endif %}
+                        カテゴリ: {{ spot.category }}<br>
+                        都道府県: {{ spot.prefecture }}<br>
+                        住所: {{ spot.address }}<br>
+                        平均滞在時間: {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
+                      </li>
+                    {% endfor %}
                   </ul>
                   <button type="button" class="btn btn-success confirmSelection">選択完了</button>
                 {% else %}
@@ -76,6 +91,9 @@
 
     <a href="{% url 'travelapp:touristplan_list' %}" class="btn btn-secondary">旅行プラン一覧に戻る</a>
   </div>
+
+
+
 
 
   <!-- モーダルのスタイル -->
@@ -121,55 +139,67 @@
   <!-- JavaScript -->
   <script>
     // 現在開かれているモーダルの対象spanのIDを保持するための変数
-    var currentTargetId = null;
 
-    function openModal(modalId) {
-      var modalElement = document.getElementById(modalId);
-      if (modalElement) {
-        modalElement.style.display = 'block';
-      } else {
-        console.log("Modal element not found: " + modalId);
+var currentTargetId = null;
+var selectedSpots = new Set(); // 選択済みの観光地を記録するSet
+
+function openModal(modalId) {
+  var modalElement = document.getElementById(modalId);
+  if (modalElement) {
+    modalElement.style.display = 'block';
+
+    // 既に選択されたスポットのチェックボックスを checked にする
+    var checkboxes = modalElement.querySelectorAll('.wanted-checkbox');
+    checkboxes.forEach(function (checkbox) {
+      if (selectedSpots.has(checkbox.getAttribute('data-spot-name'))) {
+        checkbox.checked = true;
       }
-    }
-    
-    function closeModal() {
-      var modals = document.querySelectorAll('.modal');
-      modals.forEach(function(modal) {
-        modal.style.display = 'none';
-      });
-      // チェック状態を全てリセット（オプション）
-      document.querySelectorAll('.wanted-checkbox').forEach(function(checkbox) {
-        checkbox.checked = false;
-      });
-    }
-    
-    // リンククリック時、対象のspanのIDをグローバル変数に格納し、モーダルを開く
-    document.querySelectorAll('.openWantedSpotModal').forEach(function(link) {
-      link.addEventListener('click', function(e) {
-        e.preventDefault(); // リンクのデフォルト動作を防ぐ
-        currentTargetId = this.getAttribute('data-target-id');
-        var modalId = this.getAttribute('data-modal-id');
-        openModal(modalId);
-      });
     });
-    
-    // 「選択完了」ボタン押下時の処理
-    document.querySelectorAll('.confirmSelection').forEach(function(button) {
-      button.addEventListener('click', function() {
-        // 現在のモーダル内のチェックされた項目を取得
-        var modal = this.closest('.modal');
-        var checkedItems = modal.querySelectorAll('.wanted-checkbox:checked');
-        var selectedNames = [];
-        checkedItems.forEach(function(checkbox) {
-          selectedNames.push(checkbox.getAttribute('data-spot-name'));
-        });
-        // 対象のspanに選択された複数の名前をカンマ区切りで設定
-        if (currentTargetId) {
-          document.getElementById(currentTargetId).textContent = selectedNames.join(', ');
-        }
-        closeModal();
-      });
+
+  } else {
+    console.log("Modal element not found: " + modalId);
+  }
+}
+
+function closeModal() {
+  var modals = document.querySelectorAll('.modal');
+  modals.forEach(function (modal) {
+    modal.style.display = 'none';
+  });
+}
+
+// リンククリック時、対象のspanのIDをグローバル変数に格納し、モーダルを開く
+document.querySelectorAll('.openWantedSpotModal').forEach(function (link) {
+  link.addEventListener('click', function (e) {
+    e.preventDefault(); // リンクのデフォルト動作を防ぐ
+    currentTargetId = this.getAttribute('data-target-id');
+    var modalId = this.getAttribute('data-modal-id');
+    openModal(modalId);
+  });
+});
+
+// 「選択完了」ボタン押下時の処理
+document.querySelectorAll('.confirmSelection').forEach(function (button) {
+  button.addEventListener('click', function () {
+    var modal = this.closest('.modal');
+    var checkedItems = modal.querySelectorAll('.wanted-checkbox:checked');
+
+    var selectedNames = [];
+    checkedItems.forEach(function (checkbox) {
+      var spotName = checkbox.getAttribute('data-spot-name');
+      selectedNames.push(spotName);
+      selectedSpots.add(spotName); // 選択済みのスポットを記録
     });
+
+    // 対象のspanに選択された複数の名前をカンマ区切りで設定
+    if (currentTargetId) {
+      document.getElementById(currentTargetId).textContent = selectedNames.join(', ');
+    }
+
+    closeModal();
+  });
+});
+
   </script>
 
 {% endblock %}
