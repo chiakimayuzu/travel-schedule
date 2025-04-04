@@ -8,18 +8,18 @@
     <p><strong>開始日:</strong> {{ plan.start_date }}</p>
     <p><strong>終了日:</strong> {{ plan.end_date }}</p>
 
-        <!-- フォームエラーの表示 -->
-        {% if form.errors %}
-        <div class="alert alert-danger">
-          <ul>
-            {% for field, errors in form.errors.items %}
-              {% for error in errors %}
-                <li>{{ field }}: {{ error }}</li>
-              {% endfor %}
-            {% endfor %}
-          </ul>
-        </div>
-      {% endif %}
+    <!-- フォームエラーの表示 -->
+    {% if form.errors %}
+    <div class="alert alert-danger">
+      <ul>
+        {% for field, errors in form.errors.items %}
+          {% for error in errors %}
+            <li>{{ field }}: {{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
 
     <h3>訪問予定日と観光スポット</h3>
     <form method="post">
@@ -41,7 +41,7 @@
                     {% for spot in selected_spots %}
                       {% if spot.visit_date == visit %}
                         <li class="sortable-item" data-spot-id="{{ spot.id }}" data-spot-name="{{ spot.spot_name }}">
-                          <strong>{{ spot.spot_name }}</strong>
+                          <strong>{{ spot.spot_name }}</strong><br>
                           {% if spot.picture %}
                             <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width:100px; height:auto;"><br>
                           {% endif %}
@@ -127,19 +127,34 @@
         var checkedItems = modal.querySelectorAll('.wanted-checkbox:checked');
 
         var selectedList = document.getElementById(currentTargetId);
-        selectedList.innerHTML = "";
+        selectedList.innerHTML = "";  // リストをクリア
 
         checkedItems.forEach(function (checkbox) {
           var spotId = checkbox.getAttribute('data-spot-id');
           var spotName = checkbox.getAttribute('data-spot-name');
+          var spotPicture = checkbox.getAttribute('data-picture');
+          var spotCategory = checkbox.getAttribute('data-category');
+          var spotPrefecture = checkbox.getAttribute('data-prefecture');
+          var spotAddress = checkbox.getAttribute('data-address');
+          var spotStaytimeHours = checkbox.getAttribute('data-staytime-hours');
+          var spotStaytimeMinutes = checkbox.getAttribute('data-staytime-minutes');
 
           // liタグにdata-spot-idとdata-spot-nameを設定する
           var listItem = document.createElement("li");
           listItem.classList.add("sortable-item");
           listItem.setAttribute("data-spot-id", spotId);
           listItem.setAttribute("data-spot-name", spotName);
-          listItem.innerHTML = `<strong>${spotName}</strong>
-                                <span class="drag-handle">↕️</span>`;
+
+          // リストアイテム内に情報を追加
+          listItem.innerHTML = `
+            <strong>${spotName}</strong><br>
+            ${spotPicture ? `<img src="${spotPicture}" alt="${spotName}" style="width: 100px; height: auto;"><br>` : ''}
+            カテゴリ: ${spotCategory}<br>
+            都道府県: ${spotPrefecture}<br>
+            住所: ${spotAddress}<br>
+            平均滞在時間: ${spotStaytimeHours}時間${spotStaytimeMinutes}分
+            <span class="drag-handle">↕️</span>
+          `;
 
           selectedList.appendChild(listItem);
         });
