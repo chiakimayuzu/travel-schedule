@@ -24,6 +24,9 @@
     <h3>訪問予定日と観光スポット</h3>
     <form method="post">
       {% csrf_token %}
+      <input type="hidden" name="selected_spot_ids" id="selected_spot_ids">
+      <input type="hidden" name="visit_dates" id="visit_dates">
+
       <table class="table table-bordered">
         <thead>
           <tr>
@@ -102,6 +105,12 @@
         </tbody>
       </table>
 
+
+      
+
+
+
+
       <!-- 保存ボタン -->
       <button type="submit" class="btn btn-primary">保存</button>
     </form>
@@ -114,6 +123,27 @@
   <div id="map" style="height: 500px;"></div>
 
   <!-- JavaScript部分 -->
+  <script>
+    function populateFormData() {
+      var selectedSpotIds = [];
+      var visitDates = [];
+  
+      // モーダル内で選択されたチェックボックスをすべて取得して選択IDと日付を格納
+      document.querySelectorAll('.modal-checkbox:checked').forEach(function(checkbox) {
+        selectedSpotIds.push(checkbox.getAttribute('data-spot-id'));
+        visitDates.push(checkbox.getAttribute('data-visit-date'));
+      });
+  
+      // 隠しフィールドに値を設定
+      document.getElementById('selected_spot_ids').value = selectedSpotIds.join(',');
+      document.getElementById('visit_dates').value = visitDates.join(',');
+    }
+    
+    // Attach this function to the form submission event or modal submit button
+    document.getElementById('submit_button').addEventListener('click', function() {
+      populateFormData();
+    });
+  </script>
   <script>
     // グローバル変数：マップと現在のマーカー群
     let map;

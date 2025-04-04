@@ -918,7 +918,6 @@ class EditTouristPlanView(LoginRequiredMixin, View):
         stay_time_minutes = int(stay_time_avg) % 60
         logger.debug(f"stay_time_hours: {stay_time_hours}, stay_time_minutes: {stay_time_minutes}")
 
-        # tourist_spots_infoに緯度(lat)と経度(lng)を追加
         tourist_spots_info = []
         for spot in wanted_spots_queryset:
             spot_data = spot.tourist_spot
@@ -936,8 +935,8 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 'staytime_average': staytime,
                 'staytime_hours': int(staytime) // 60,
                 'staytime_minutes': int(staytime) % 60,
-                'lat': spot_data.latitude,      # 追加
-                'lng': spot_data.longitude,     # 追加
+                'lat': spot_data.latitude,
+                'lng': spot_data.longitude,
             }
             tourist_spots_info.append(spot_data_dict)
         logger.debug(f"tourist_spots_info: {tourist_spots_info}")
@@ -992,17 +991,30 @@ class EditTouristPlanView(LoginRequiredMixin, View):
         plan = get_object_or_404(TouristPlan, pk=pk, user=request.user)
         logger.debug(f"Retrieved plan for POST: {plan}")
 
-        formset = TouristPlanSpotFormSet(request.POST)
-        if formset.is_valid():
-            formset.save()  # フォームセットが有効な場合、保存します
-            logger.debug("Formset is valid and saved successfully.")
-            return redirect('plan:some_success_url')  # 成功時にリダイレクトします
-        else:
-            logger.debug("Formset is invalid. Re-rendering form with errors.")
-            return render(request, 'plan/edit_touristplan.html', {
-                'plan': plan,
-                'formset': formset,# エラー情報を含むフォームセットを再表示
-            })
+        # formsetは使わずに選択された観光地を処理
+        selected_spot_ids = request.POST.getlist('selected_spot_ids')  # 選択された観光地のIDリスト
+        selected_visit_dates = request.POST.getlist('visit_dates')  # 各観光地の訪問日リスト
+
+        # 既存のTouristPlan_Spotインスタンスを削除（必要に応じて）
+        plan.tourist_spots.all().delete()
+
+        # 観光地を順番通りに保存
+        for order, (spot_id, visit_date) in enumerate(zip(selected_spot_ids, selected_visit_dates), start=1):
+            tourist_spot = get_object_or_404(TouristSpot, id=spot_id)  # 観光スポットを取得
+            # TouristPlan_Spotを新規作成
+            tourist_plan_spot = TouristPlan_Spot(
+                tourist_plan=plan,
+                tourist_spot=tourist_spot,
+                visit_date=visit_date,
+                order=order  # 順番を設定
+            )
+            tourist_plan_spot.save()  # 保存
+
+        logger.debug(f"Saved TouristPlan_Spot: {tourist_plan_spot}")
+
+        messages.success(request, 'プラン登録できました', extra_tags='touristplan')
+        return redirect('travelapp:touristplan_list')
+
 
 
 
