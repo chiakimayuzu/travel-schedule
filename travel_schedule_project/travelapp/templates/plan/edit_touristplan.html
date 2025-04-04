@@ -22,36 +22,29 @@
             <tr>
               <td>{{ visit }}</td>
               <td>
-                <!-- 選択済みの観光地を表示 -->
-                <span id="selectedSpot{{ modal_counter }}" class="selected-spot">
+                <ul id="selectedSpot{{ modal_counter }}" class="selected-spot sortable">
                   {% for spot in selected_spots %}
                     {% if spot.visit_date == visit %}
-                      <div>
-                        <strong>{{ spot.spot_name }}</strong><br>
+                      <li class="sortable-item" data-spot-name="{{ spot.spot_name }}">
+                        <strong>{{ spot.spot_name }}</strong>
                         {% if spot.picture %}
                           <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width:100px; height:auto;"><br>
                         {% endif %}
                         都道府県: {{ spot.prefecture }}<br>
                         住所: {{ spot.address }}<br>
                         平均滞在時間: {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
-                      </div>
+                        <span class="drag-handle">↕️</span>
+                      </li>
                     {% endif %}
                   {% endfor %}
-                </span>
+                </ul>
                 <br>
-                <!-- モーダルを開くリンク -->
-                <a href="#"
-                   class="openWantedSpotModal"
-                   data-modal-id="wantedSpotModal{{ modal_counter }}"
-                   data-target-id="selectedSpot{{ modal_counter }}">
+                <a href="#" class="openWantedSpotModal" data-modal-id="wantedSpotModal{{ modal_counter }}" data-target-id="selectedSpot{{ modal_counter }}">
                   行きたいリストから選択
                 </a>
-                          <!-- 並び替え用のアイコン -->
-          <span class="drag-handle">↔️</span>
               </td>
             </tr>
 
-            <!-- 訪問日に対応するモーダル -->
             <div id="wantedSpotModal{{ modal_counter }}" class="modal">
               <div class="modal-content">
                 <span class="close" onclick="closeModal()">&times;</span>
@@ -94,145 +87,59 @@
     <a href="{% url 'travelapp:touristplan_list' %}" class="btn btn-secondary">旅行プラン一覧に戻る</a>
   </div>
 
-
-
-
-
-  <!-- モーダルのスタイル -->
-  <style>
-    .modal {
-      display: none;               /* 初期状態は非表示 */
-      position: fixed;             /* 画面全体に固定 */
-      z-index: 100;                /* 他の要素より前面に表示 */
-      left: 0;
-      top: 0;
-      width: 100%;                 /* 画面全体の幅 */
-      height: 100%;                /* 画面全体の高さ */
-      overflow: auto;              /* 必要に応じてスクロール */
-      background-color: rgba(0,0,0,0.4);  /* 半透明の背景 */
-    }
-    .modal-content {
-      position: relative;          /* 絶対配置の閉じるボタンの基準にする */
-      background-color: #fefefe;
-      margin: 15% auto;            /* 上から15%の位置に配置し、中央に水平寄せ */
-      padding: 20px;
-      border: 1px solid #888;
-      width: 80%;                  /* 幅はお好みで調整 */
-      max-width: 500px;            /* 最大幅を設定して中央寄せを維持 */
-      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-      border-radius: 4px;
-    }
-    .close {
-      position: absolute;          /* 絶対配置 */
-      top: 10px;                   /* 上からの余白 */
-      right: 10px;                 /* 右からの余白 */
-      color: #aaa;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .close:hover,
-    .close:focus {
-      color: black;
-      text-decoration: none;
-    }
-  </style>
-
-  <!-- JavaScript -->
   <script>
-    // 現在開かれているモーダルの対象spanのIDを保持するための変数
-
-var currentTargetId = null;
-var selectedSpots = new Set(); // 選択済みの観光地を記録するSet
-
-function openModal(modalId) {
-  var modalElement = document.getElementById(modalId);
-  if (modalElement) {
-    modalElement.style.display = 'block';
-
-    // 既に選択されたスポットのチェックボックスを checked にする
-    var checkboxes = modalElement.querySelectorAll('.wanted-checkbox');
-    checkboxes.forEach(function (checkbox) {
-      if (selectedSpots.has(checkbox.getAttribute('data-spot-name'))) {
-        checkbox.checked = true;
-      }
-    });
-
-  } else {
-    console.log("Modal element not found: " + modalId);
-  }
-}
-
-function closeModal() {
-  var modals = document.querySelectorAll('.modal');
-  modals.forEach(function (modal) {
-    modal.style.display = 'none';
-  });
-}
-
-// リンククリック時、対象のspanのIDをグローバル変数に格納し、モーダルを開く
-document.querySelectorAll('.openWantedSpotModal').forEach(function (link) {
-  link.addEventListener('click', function (e) {
-    e.preventDefault(); // リンクのデフォルト動作を防ぐ
-    currentTargetId = this.getAttribute('data-target-id');
-    var modalId = this.getAttribute('data-modal-id');
-    openModal(modalId);
-  });
-});
-
-// 「選択完了」ボタン押下時の処理
-document.querySelectorAll('.confirmSelection').forEach(function (button) {
-  button.addEventListener('click', function () {
-    var modal = this.closest('.modal');
-    var checkedItems = modal.querySelectorAll('.wanted-checkbox:checked');
-
-    var selectedNames = [];
-    checkedItems.forEach(function (checkbox) {
-      var spotName = checkbox.getAttribute('data-spot-name');
-      selectedNames.push(spotName);
-      selectedSpots.add(spotName); // 選択済みのスポットを記録
-    });
-
-    // 対象のspanに選択された複数の名前をカンマ区切りで設定
-    if (currentTargetId) {
-      document.getElementById(currentTargetId).textContent = selectedNames.join(', ');
-    }
-
-    closeModal();
-  });
-});
-
-  </script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      var sortable = new Sortable(document.getElementById("sortable-spots"), {
-        handle: ".drag-handle", // ↔️ アイコンをつかんで移動
-        animation: 150,
-        onEnd: function (evt) {
-          // 並び替え完了後にデータを送信する処理（オプション）
-          var newOrder = [];
-          document.querySelectorAll("#sortable-spots tr").forEach(function (row, index) {
-            newOrder.push({
-              id: row.getAttribute("data-id"),
-              position: index + 1
-            });
-          });
-  
-          // 並び順をサーバーに保存する（AJAX を使う）
-          fetch("{% url 'travelapp:update_touristplan_order' %}", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": "{{ csrf_token }}"
-            },
-            body: JSON.stringify({ order: newOrder })
-          }).then(response => response.json())
-            .then(data => console.log("順番更新:", data))
-            .catch(error => console.error("エラー:", error));
-        }
+    document.querySelectorAll('.openWantedSpotModal').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        currentTargetId = this.getAttribute('data-target-id');
+        var modalId = this.getAttribute('data-modal-id');
+        openModal(modalId);
       });
     });
-  </script>
-  
 
+    document.querySelectorAll('.confirmSelection').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var modal = this.closest('.modal');
+        var checkedItems = modal.querySelectorAll('.wanted-checkbox:checked');
+
+        var selectedList = document.getElementById(currentTargetId);
+        selectedList.innerHTML = "";
+
+        checkedItems.forEach(function (checkbox) {
+          var spotName = checkbox.getAttribute('data-spot-name');
+          var listItem = document.createElement("li");
+          listItem.textContent = spotName;
+          listItem.classList.add("sortable-item");
+          listItem.setAttribute("data-spot-name", spotName);
+
+          var dragHandle = document.createElement("span");
+          dragHandle.textContent = "↕️";
+          dragHandle.classList.add("drag-handle");
+          listItem.appendChild(dragHandle);
+
+          selectedList.appendChild(listItem);
+        });
+
+        closeModal();
+        new Sortable(selectedList, { handle: ".drag-handle", animation: 150 });
+      });
+    });
+
+    function openModal(modalId) {
+      document.getElementById(modalId).style.display = 'block';
+    }
+
+    function closeModal() {
+      document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
+    }
+  </script>
+
+  <style>
+    .sortable { list-style: none; padding: 0; }
+    .sortable-item { display: flex; align-items: center; padding: 5px; border: 1px solid #ddd; margin: 5px 0; background: #f9f9f9; cursor: grab; }
+    .drag-handle { margin-left: auto; cursor: grab; }
+    .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
+    .modal-content { background-color: #fff; margin: 15% auto; padding: 20px; width: 80%; max-width: 500px; border-radius: 4px; }
+    .close { position: absolute; top: 10px; right: 10px; font-size: 28px; cursor: pointer; }
+  </style>
 {% endblock %}
