@@ -891,8 +891,8 @@ class EditTouristPlanView(LoginRequiredMixin, View):
             ]
         logger.debug(f"visit_date: {visit_date}")
 
-        wanted_spots = request.user.wanted_spots.all()
-        logger.debug(f"wanted_spots: {wanted_spots}")
+        wanted_spots_queryset = request.user.wanted_spots.all()
+        logger.debug(f"wanted_spots: {wanted_spots_queryset}")
 
         tourist_spot_id = request.GET.get('tourist_spot_id')
         logger.debug(f"tourist_spot_id: {tourist_spot_id}")
@@ -900,8 +900,8 @@ class EditTouristPlanView(LoginRequiredMixin, View):
         if tourist_spot_id:
             tourist_spot = get_object_or_404(TouristSpot, id=tourist_spot_id)
             logger.debug(f"Found tourist_spot: {tourist_spot}")
-        elif wanted_spots.exists():
-            tourist_spot = wanted_spots.first().tourist_spot
+        elif wanted_spots_queryset.exists():
+            tourist_spot = wanted_spots_queryset.first().tourist_spot
             logger.debug(f"Selected tourist_spot from wanted_spots: {tourist_spot}")
         else:
             tourist_spot = None
@@ -918,10 +918,9 @@ class EditTouristPlanView(LoginRequiredMixin, View):
         stay_time_minutes = int(stay_time_avg) % 60
         logger.debug(f"stay_time_hours: {stay_time_hours}, stay_time_minutes: {stay_time_minutes}")
 
-        
-        
+        # tourist_spots_infoに緯度(lat)と経度(lng)を追加
         tourist_spots_info = []
-        for spot in wanted_spots:
+        for spot in wanted_spots_queryset:
             spot_data = spot.tourist_spot
             staytime = (
                 UserReview.objects.filter(tourist_spot=spot_data)
@@ -937,9 +936,13 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 'staytime_average': staytime,
                 'staytime_hours': int(staytime) // 60,
                 'staytime_minutes': int(staytime) % 60,
+                'lat': spot_data.latitude,      # 追加
+                'lng': spot_data.longitude,     # 追加
             }
             tourist_spots_info.append(spot_data_dict)
         logger.debug(f"tourist_spots_info: {tourist_spots_info}")
+
+        google_maps_api_key = settings.GOOGLE_MAPS_API_KEY
 
         selected_spots_info = []
         for ps in plan.tourist_spots.all():
@@ -955,6 +958,8 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 'picture': ts.picture.url if ts.picture else None,
                 'prefecture': ts.get_prefecture_display(),
                 'address': ts.address,
+                'lat': ts.latitude,
+                'lng': ts.longitude,
                 'staytime_hours': int(staytime) // 60,
                 'staytime_minutes': int(staytime) % 60,
             })
@@ -975,9 +980,11 @@ class EditTouristPlanView(LoginRequiredMixin, View):
             'stay_time_hours': stay_time_hours,
             'stay_time_minutes': stay_time_minutes,
             'formset': formset,
+            'google_maps_api_key': google_maps_api_key,
         }
 
         return render(request, 'plan/edit_touristplan.html', context)
+
 
     def post(self, request, pk=None, *args, **kwargs):
         logger.debug("EditTouristPlanView.post called")

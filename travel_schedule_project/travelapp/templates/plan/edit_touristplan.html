@@ -40,7 +40,7 @@
                   <ul id="selectedSpot{{ modal_counter }}" class="selected-spot sortable">
                     {% for spot in selected_spots %}
                       {% if spot.visit_date == visit %}
-                        <li class="sortable-item" data-spot-id="{{ spot.id }}" data-spot-name="{{ spot.spot_name }}">
+                        <li class="sortable-item" data-spot-id="{{ spot.id }}" data-spot-name="{{ spot.spot_name }}" data-lat="{{ spot.lat }}" data-lng="{{ spot.lng }}">
                           <strong>{{ spot.spot_name }}</strong><br>
                           {% if spot.picture %}
                             <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width:100px; height:auto;"><br>
@@ -77,6 +77,8 @@
                                  data-address="{{ spot.address }}"
                                  data-staytime-hours="{{ spot.staytime_hours }}"
                                  data-staytime-minutes="{{ spot.staytime_minutes }}"
+                                 data-lat="{{ spot.lat }}"                {# 追加 #}
+                                 data-lng="{{ spot.lng }}"                {# 追加 #}
                                  {% if spot.spot_name in selected_spot_names %} checked {% endif %}>
                           <strong>{{ spot.spot_name }}</strong><br>
                           {% if spot.picture %}
@@ -107,96 +109,164 @@
     <a href="{% url 'travelapp:touristplan_list' %}" class="btn btn-secondary">旅行プラン一覧に戻る</a>
   </div>
 
+<!-- Google Maps APIの読み込み -->
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+<div id="map" style="height: 500px;"></div>
 
-  
-  <script>
-    let currentTargetId = null;  // 現在操作中のリストID
+<script>
+  // グローバル変数：マップと現在のマーカー群
+  let map;
+  let markers = [];
 
-    // モーダルを開く
-    document.querySelectorAll('.openWantedSpotModal').forEach(function (link) {
-      link.addEventListener('click', function (e) {
-        e.preventDefault();
-        currentTargetId = this.getAttribute('data-target-id');
-        var modalId = this.getAttribute('data-modal-id');
-        openModal(modalId);
-      });
+  // モーダルを開く
+  document.querySelectorAll('.openWantedSpotModal').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      currentTargetId = this.getAttribute('data-target-id');
+      var modalId = this.getAttribute('data-modal-id');
+      openModal(modalId);
     });
+  });
 
-    // モーダル内の「選択完了」ボタン押下時の処理
-    document.querySelectorAll('.confirmSelection').forEach(function (button) {
-      button.addEventListener('click', function () {
-        var modal = this.closest('.modal');
-        var checkedItems = modal.querySelectorAll('.wanted-checkbox:checked');
+  // モーダル内の「選択完了」ボタン押下時の処理
+  document.querySelectorAll('.confirmSelection').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var modal = this.closest('.modal');
+      var checkedItems = modal.querySelectorAll('.wanted-checkbox:checked');
 
-        var selectedList = document.getElementById(currentTargetId);
-        selectedList.innerHTML = "";  // リストをクリア
+      var selectedList = document.getElementById(currentTargetId);
+      selectedList.innerHTML = "";  // リストをクリア
 
-        checkedItems.forEach(function (checkbox) {
-          var spotId = checkbox.getAttribute('data-spot-id');
-          var spotName = checkbox.getAttribute('data-spot-name');
-          var spotPicture = checkbox.getAttribute('data-picture');
-          var spotCategory = checkbox.getAttribute('data-category');
-          var spotPrefecture = checkbox.getAttribute('data-prefecture');
-          var spotAddress = checkbox.getAttribute('data-address');
-          var spotStaytimeHours = checkbox.getAttribute('data-staytime-hours');
-          var spotStaytimeMinutes = checkbox.getAttribute('data-staytime-minutes');
+      checkedItems.forEach(function (checkbox) {
+        var spotId = checkbox.getAttribute('data-spot-id');
+        var spotName = checkbox.getAttribute('data-spot-name');
+        var spotPicture = checkbox.getAttribute('data-picture');
+        var spotCategory = checkbox.getAttribute('data-category');
+        var spotPrefecture = checkbox.getAttribute('data-prefecture');
+        var spotAddress = checkbox.getAttribute('data-address');
+        var spotStaytimeHours = checkbox.getAttribute('data-staytime-hours');
+        var spotStaytimeMinutes = checkbox.getAttribute('data-staytime-minutes');
+        var spotLat = checkbox.getAttribute('data-lat');
+        var spotLng = checkbox.getAttribute('data-lng');
 
-          // liタグにdata-spot-idとdata-spot-nameを設定する
-          var listItem = document.createElement("li");
-          listItem.classList.add("sortable-item");
-          listItem.setAttribute("data-spot-id", spotId);
-          listItem.setAttribute("data-spot-name", spotName);
+        // liタグにdata属性を設定する
+        var listItem = document.createElement("li");
+        listItem.classList.add("sortable-item");
+        listItem.setAttribute("data-spot-id", spotId);
+        listItem.setAttribute("data-spot-name", spotName);
+        listItem.setAttribute("data-lat", spotLat);
+        listItem.setAttribute("data-lng", spotLng);
 
-          // リストアイテム内に情報を追加
-          listItem.innerHTML = `
-            <strong>${spotName}</strong><br>
-            ${spotPicture ? `<img src="${spotPicture}" alt="${spotName}" style="width: 100px; height: auto;"><br>` : ''}
-            カテゴリ: ${spotCategory}<br>
-            都道府県: ${spotPrefecture}<br>
-            住所: ${spotAddress}<br>
-            平均滞在時間: ${spotStaytimeHours}時間${spotStaytimeMinutes}分
-            <span class="drag-handle">↕️</span>
-          `;
+        listItem.innerHTML = `
+          <strong>${spotName}</strong><br>
+          ${spotPicture ? `<img src="${spotPicture}" alt="${spotName}" style="width: 100px; height: auto;"><br>` : ''}
+          カテゴリ: ${spotCategory}<br>
+          都道府県: ${spotPrefecture}<br>
+          住所: ${spotAddress}<br>
+          平均滞在時間: ${spotStaytimeHours}時間${spotStaytimeMinutes}分
+          <span class="drag-handle">↕️</span>
+        `;
 
-          selectedList.appendChild(listItem);
-        });
-
-        closeModal();
-        // 新たにSortableを初期化（必要に応じて）
-        new Sortable(selectedList, { handle: ".drag-handle", animation: 150 });
+        selectedList.appendChild(listItem);
       });
-    });
 
-    // フォーム送信時にドラッグ順（スポットID）をhiddenフィールドに設定
-    document.querySelector('form').addEventListener('submit', function (e) {
-      let spots = [];
-      document.querySelectorAll('.sortable-item').forEach(function (item) {
-        spots.push(item.getAttribute('data-spot-id'));
-      });
+      closeModal();
+      // 新たにSortableを初期化（必要に応じて）
+      new Sortable(selectedList, { handle: ".drag-handle", animation: 150 });
       
-      // hiddenフィールドにカンマ区切りで設定（サーバ側でsplitします）
-      const spotsField = document.createElement('input');
-      spotsField.type = 'hidden';
-      spotsField.name = 'tourist_spots';
-      spotsField.value = spots.join(',');
-      this.appendChild(spotsField);
+      // 選択リストの変更をマップに反映
+      updateMapMarkers(currentTargetId);
     });
-  
-    function openModal(modalId) {
-      document.getElementById(modalId).style.display = 'block';
-    }
-  
-    function closeModal() {
-      document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
-    }
-  </script>
+  });
 
-  <style>
-    .sortable { list-style: none; padding: 0; }
-    .sortable-item { display: flex; align-items: center; padding: 5px; border: 1px solid #ddd; margin: 5px 0; background: #f9f9f9; cursor: grab; }
-    .drag-handle { margin-left: auto; cursor: grab; }
-    .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
-    .modal-content { background-color: #fff; margin: 15% auto; padding: 20px; width: 80%; max-width: 500px; border-radius: 4px; }
-    .close { position: absolute; top: 10px; right: 10px; font-size: 28px; cursor: pointer; }
-  </style>
+  // フォーム送信時にドラッグ順（スポットID）をhiddenフィールドに設定
+  document.querySelector('form').addEventListener('submit', function (e) {
+    let spots = [];
+    document.querySelectorAll('.sortable-item').forEach(function (item) {
+      spots.push(item.getAttribute('data-spot-id'));
+    });
+    
+    const spotsField = document.createElement('input');
+    spotsField.type = 'hidden';
+    spotsField.name = 'tourist_spots';
+    spotsField.value = spots.join(',');
+    this.appendChild(spotsField);
+  });
+  
+  function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+  }
+  
+  function closeModal() {
+    document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
+  }
+
+  // Google Map初期化
+  function initMap() {
+    // 初期表示の中心座標（例：東京）
+    var center = { lat: 35.6895, lng: 139.6917 };
+    map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 10,
+      center: center
+    });
+    
+    // サーバサイドで既に選択済みの観光地（selected_spots）もピン表示
+    {% for spot in selected_spots %}
+      addMarker({ lat: {{ spot.lat }}, lng: {{ spot.lng }} }, "{{ spot.spot_name }}", "{{ spot.address }}", {{ spot.staytime_hours }}, {{ spot.staytime_minutes }});
+    {% endfor %}
+  }
+
+  // 指定の位置にマーカーを追加する関数
+  function addMarker(position, title, address, stayHours, stayMinutes) {
+    var marker = new google.maps.Marker({
+      position: position,
+      map: map,
+      title: title
+    });
+
+    var infowindow = new google.maps.InfoWindow({
+      content: `
+        <h3>${title}</h3>
+
+      `
+    });
+
+    marker.addListener('click', function () {
+      infowindow.open(map, marker);
+    });
+
+    markers.push(marker);
+  }
+
+  // 選択リストから現在のマーカーを削除し、新たにピンを追加する
+  function updateMapMarkers(listId) {
+    // 既存マーカーを全て削除
+    markers.forEach(function(marker) {
+      marker.setMap(null);
+    });
+    markers = [];
+
+    // リスト内の各項目から位置情報を取得しマーカー追加
+    var listItems = document.getElementById(listId).querySelectorAll('.sortable-item');
+    listItems.forEach(function(item) {
+      var lat = parseFloat(item.getAttribute('data-lat'));
+      var lng = parseFloat(item.getAttribute('data-lng'));
+      var spotName = item.getAttribute('data-spot-name');
+      // ※住所や滞在時間の情報が必要な場合は、各項目にdata属性で付与して取得可能です
+      addMarker({lat: lat, lng: lng}, spotName, "", 0, 0);
+    });
+  }
+
+  // 初期化
+  google.maps.event.addDomListener(window, 'load', initMap);
+</script>
+
+<style>
+  .sortable { list-style: none; padding: 0; }
+  .sortable-item { display: flex; align-items: center; padding: 5px; border: 1px solid #ddd; margin: 5px 0; background: #f9f9f9; cursor: grab; }
+  .drag-handle { margin-left: auto; cursor: grab; }
+  .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
+  .modal-content { background-color: #fff; margin: 15% auto; padding: 20px; width: 80%; max-width: 500px; border-radius: 4px; }
+  .close { position: absolute; top: 10px; right: 10px; font-size: 28px; cursor: pointer; }
+</style>
 {% endblock %}
