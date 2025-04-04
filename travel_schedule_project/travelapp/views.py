@@ -9,7 +9,7 @@ from django.views import View
 from django.views.generic.edit import FormView
 from django.views.generic.edit import CreateView,UpdateView
 from django.contrib.auth.models import User
-from .forms import ChangeEmailForm, PasswordChangeForm, RegistAccountForm, TouristSpotSearchForm, UserLoginForm, UserReviewForm
+from .forms import ChangeEmailForm, PasswordChangeForm, RegistAccountForm, TouristPlanSpotFormSet, TouristSpotSearchForm, UserLoginForm, UserReviewForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages  
 from django.contrib.auth import authenticate, login, logout as auth_logout, update_session_auth_hash
@@ -867,14 +867,23 @@ class TouristplanList(LoginRequiredMixin, View):
         return render(request, 'plan/touristplan_list.html', context)
 
 
+import logging
+
+# ロガーの設定
+logger = logging.getLogger(__name__)
+
 class EditTouristPlanView(LoginRequiredMixin, View):
     def get(self, request, pk=None, *args, **kwargs):
+        logger.debug("EditTouristPlanView.get called")  # デバッグ: getメソッドが呼ばれた
+
         # 旅行プランをIDで取得、ユーザーが所有しているプランのみ
         plan = get_object_or_404(TouristPlan, pk=pk, user=request.user)
+        logger.debug(f"Retrieved plan: {plan}")  # デバッグ: プラン情報を表示
 
         # start_date と end_date を文字列に変換
         start_date = plan.start_date.strftime('%Y-%m-%d') if plan.start_date else ''
         end_date = plan.end_date.strftime('%Y-%m-%d') if plan.end_date else ''
+        logger.debug(f"start_date: {start_date}, end_date: {end_date}")  # デバッグ: 日付情報を表示
 
         visit_date = []
         if start_date and end_date:
@@ -884,18 +893,25 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 (start_date_dt + timedelta(days=i)).strftime('%Y-%m-%d')
                 for i in range((end_date_dt - start_date_dt).days + 1)
             ]
+        logger.debug(f"visit_date: {visit_date}")  # デバッグ: 訪問日一覧を表示
 
         # ログインユーザーの行きたいリストを取得
         wanted_spots = request.user.wanted_spots.all()
+        logger.debug(f"wanted_spots: {wanted_spots}")  # デバッグ: 行きたいリストを表示
 
-        # tourist_spot_id をリクエストから取得
+        # tourist_spot_id をリクエストから取得（モーダル用に利用）
         tourist_spot_id = request.GET.get('tourist_spot_id')
+        logger.debug(f"tourist_spot_id: {tourist_spot_id}")  # デバッグ: 観光地IDを表示
+
         if tourist_spot_id:
             tourist_spot = get_object_or_404(TouristSpot, id=tourist_spot_id)
+            logger.debug(f"Found tourist_spot: {tourist_spot}")  # デバッグ: 観光地を表示
         elif wanted_spots.exists():
             tourist_spot = wanted_spots.first().tourist_spot
+            logger.debug(f"Selected tourist_spot from wanted_spots: {tourist_spot}")  # デバッグ: 行きたいリストから選ばれた観光地
         else:
             tourist_spot = None
+            logger.debug("No tourist_spot selected.")  # デバッグ: 観光地が選ばれていない場合
 
         # 全体の平均滞在時間を計算
         stay_time_avg = (
@@ -904,8 +920,10 @@ class EditTouristPlanView(LoginRequiredMixin, View):
             if tourist_spot else 0
         )
         stay_time_avg = stay_time_avg if stay_time_avg is not None else 0
+        logger.debug(f"stay_time_avg: {stay_time_avg}")  # デバッグ: 平均滞在時間を表示
         stay_time_hours = int(stay_time_avg) // 60
         stay_time_minutes = int(stay_time_avg) % 60
+        logger.debug(f"stay_time_hours: {stay_time_hours}, stay_time_minutes: {stay_time_minutes}")  # デバッグ: 滞在時間（時間、分）
 
         # モーダル用の観光地情報（wanted_spots_info）の作成
         tourist_spots_info = []
@@ -916,6 +934,7 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 .aggregate(Avg('stay_time_min'))['stay_time_min__avg'] or 0
             )
             spot_data_dict = {
+                'id': spot_data.id,  # IDを追加
                 'spot_name': spot_data.spot_name,
                 'picture': spot_data.picture.url if spot_data.picture else None,
                 'category': spot_data.get_category_display(),
@@ -926,9 +945,9 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 'staytime_minutes': int(staytime) % 60,
             }
             tourist_spots_info.append(spot_data_dict)
+        logger.debug(f"tourist_spots_info: {tourist_spots_info}")  # デバッグ: モーダル用観光地情報
 
         # 選択済みの観光地情報（プランに紐づく観光地）を作成
-        # ※visit_date の比較のため、ps.visit_date を文字列に変換
         selected_spots_info = []
         for ps in plan.tourist_spots.all():
             ts = ps.tourist_spot
@@ -937,6 +956,7 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 .aggregate(Avg('stay_time_min'))['stay_time_min__avg'] or 0
             )
             selected_spots_info.append({
+                'id': ts.id,  # IDを追加
                 'visit_date': ps.visit_date.strftime('%Y-%m-%d') if ps.visit_date else '',
                 'spot_name': ts.spot_name,
                 'picture': ts.picture.url if ts.picture else None,
@@ -946,6 +966,11 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 'staytime_minutes': int(staytime) % 60,
             })
         selected_spot_names = [spot['spot_name'] for spot in selected_spots_info]
+        logger.debug(f"selected_spots_info: {selected_spots_info}")  # デバッグ: 選択済みの観光地情報
+        logger.debug(f"selected_spot_names: {selected_spot_names}")  # デバッグ: 選択済み観光地の名前
+
+        # TouristPlan_Spot用フォームセットを取得（この旅行プランに紐づくスポット情報）
+        formset = TouristPlanSpotFormSet(queryset=TouristPlan_Spot.objects.filter(tourist_plan=plan))
 
         context = {
             'plan': plan,
@@ -957,43 +982,40 @@ class EditTouristPlanView(LoginRequiredMixin, View):
             'stay_time_avg': stay_time_avg,
             'stay_time_hours': stay_time_hours,
             'stay_time_minutes': stay_time_minutes,
+            'formset': formset,  # TouristPlan_Spotのフォームセットを追加
         }
 
         return render(request, 'plan/edit_touristplan.html', context)
 
-
-
-
     def post(self, request, pk=None, *args, **kwargs):
-        plan = get_object_or_404(TouristPlan, pk=pk, user=request.user) if pk else None
-        form = TouristPlanForm(request.POST, instance=plan)
+        logger.debug("EditTouristPlanView.post called")  # デバッグ: postメソッドが呼ばれた
 
-        if form.is_valid():
+        plan = get_object_or_404(TouristPlan, pk=pk, user=request.user)
+        # TouristPlan_SpotのフォームセットをPOSTデータから生成
+        formset = TouristPlanSpotFormSet(request.POST, queryset=TouristPlan_Spot.objects.filter(tourist_plan=plan))
+        
+        if formset.is_valid():
             with transaction.atomic():
-                tourist_plan = form.save(commit=False)
-                tourist_plan.user = request.user
-                tourist_plan.save()
-
-                # 既存のスポット情報を削除して再登録
-                if pk:
-                    TouristPlan_Spot.objects.filter(tourist_plan=tourist_plan).delete()
-
-                tourist_spot_ids = request.POST.getlist('tourist_spots')
-
-                for spot_id in tourist_spot_ids:
-                    visit_date_entry = request.POST.get(f'visit_date_{spot_id}')
-                    if visit_date_entry:
-                        tourist_spot = TouristSpot.objects.get(id=spot_id)
-                        TouristPlan_Spot.objects.create(
-                            tourist_plan=tourist_plan,
-                            tourist_spot=tourist_spot,
-                            visit_date=visit_date_entry
-                        )
-
-            messages.success(request, 'プランを保存しました', extra_tags='touristplan')
+                # 各フォームを保存（削除が指定されているものは処理）
+                instances = formset.save(commit=False)
+                for instance in instances:
+                    instance.tourist_plan = plan
+                    instance.save()
+                # 削除されたフォームの処理
+                for obj in formset.deleted_objects:
+                    obj.delete()
+            messages.success(request, '観光スポット情報を保存しました', extra_tags='touristplan')
             return redirect('travelapp:touristplan_list')
+        
+        logger.debug(f"Formset is not valid. Errors: {formset.errors}")  # デバッグ: フォームセットのエラーメッセージ
+        
+        # エラーがある場合は再度GET時と同様のコンテキストで表示
+        context = {
+            'plan': plan,
+            'formset': formset,
+        }
+        return render(request, 'plan/edit_touristplan.html', context)
 
-        return render(request, 'plan/edit_touristplan.html', {'form': form, 'plan': plan})
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt

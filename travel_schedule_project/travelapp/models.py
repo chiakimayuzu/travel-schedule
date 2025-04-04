@@ -229,9 +229,10 @@ class TouristPlan(models.Model):
 
 
 class TouristPlan_Spot(models.Model):
-    tourist_spot = models.ForeignKey(TouristSpot,on_delete=models.CASCADE,related_name='tourist_plan_spots')
+    tourist_spot = models.ForeignKey(TouristSpot,on_delete=models.CASCADE,related_name='tourist_plan_spots',null=True)
     tourist_plan =  models.ForeignKey(TouristPlan,on_delete=models.CASCADE,related_name='tourist_spots' )
     visit_date = models.DateField()
+    order = models.PositiveIntegerField(default=0)  # 順番を保持するフィールド
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

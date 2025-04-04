@@ -8,86 +8,109 @@
     <p><strong>開始日:</strong> {{ plan.start_date }}</p>
     <p><strong>終了日:</strong> {{ plan.end_date }}</p>
 
-    <h3>訪問予定日と観光スポット</h3>
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>訪問日</th>
-          <th>観光スポット</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for visit in visit_date %}
-          {% with modal_counter=forloop.counter %}
-            <tr>
-              <td>{{ visit }}</td>
-              <td>
-                <ul id="selectedSpot{{ modal_counter }}" class="selected-spot sortable">
-                  {% for spot in selected_spots %}
-                    {% if spot.visit_date == visit %}
-                      <li class="sortable-item" data-spot-name="{{ spot.spot_name }}">
-                        <strong>{{ spot.spot_name }}</strong>
-                        {% if spot.picture %}
-                          <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width:100px; height:auto;"><br>
-                        {% endif %}
-                        都道府県: {{ spot.prefecture }}<br>
-                        住所: {{ spot.address }}<br>
-                        平均滞在時間: {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
-                        <span class="drag-handle">↕️</span>
-                      </li>
-                    {% endif %}
-                  {% endfor %}
-                </ul>
-                <br>
-                <a href="#" class="openWantedSpotModal" data-modal-id="wantedSpotModal{{ modal_counter }}" data-target-id="selectedSpot{{ modal_counter }}">
-                  行きたいリストから選択
-                </a>
-              </td>
-            </tr>
+        <!-- フォームエラーの表示 -->
+        {% if form.errors %}
+        <div class="alert alert-danger">
+          <ul>
+            {% for field, errors in form.errors.items %}
+              {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+              {% endfor %}
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
 
-            <div id="wantedSpotModal{{ modal_counter }}" class="modal">
-              <div class="modal-content">
-                <span class="close" onclick="closeModal()">&times;</span>
-                <h2>行きたいリストから選択</h2>
-                {% if wanted_spots %}
-                  <ul>
-                    {% for spot in wanted_spots %}
-                      <li>
-                        <input type="checkbox" class="wanted-checkbox"
-                               data-spot-name="{{ spot.spot_name }}"
-                               data-picture="{{ spot.picture }}"
-                               data-category="{{ spot.category }}"
-                               data-prefecture="{{ spot.prefecture }}"
-                               data-address="{{ spot.address }}"
-                               data-staytime-hours="{{ spot.staytime_hours }}"
-                               data-staytime-minutes="{{ spot.staytime_minutes }}"
-                               {% if spot.spot_name in selected_spot_names %} checked {% endif %}>
-                        <strong>{{ spot.spot_name }}</strong><br>
-                        {% if spot.picture %}
-                          <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width: 100px; height: auto;"><br>
-                        {% endif %}
-                        カテゴリ: {{ spot.category }}<br>
-                        都道府県: {{ spot.prefecture }}<br>
-                        住所: {{ spot.address }}<br>
-                        平均滞在時間: {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
-                      </li>
+    <h3>訪問予定日と観光スポット</h3>
+    <form method="post">
+      {% csrf_token %}
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>訪問日</th>
+            <th>観光スポット</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for visit in visit_date %}
+            {% with modal_counter=forloop.counter %}
+              <tr>
+                <td>{{ visit }}</td>
+                <td>
+                  <ul id="selectedSpot{{ modal_counter }}" class="selected-spot sortable">
+                    {% for spot in selected_spots %}
+                      {% if spot.visit_date == visit %}
+                        <li class="sortable-item" data-spot-id="{{ spot.id }}" data-spot-name="{{ spot.spot_name }}">
+                          <strong>{{ spot.spot_name }}</strong>
+                          {% if spot.picture %}
+                            <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width:100px; height:auto;"><br>
+                          {% endif %}
+                          都道府県: {{ spot.prefecture }}<br>
+                          住所: {{ spot.address }}<br>
+                          平均滞在時間: {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
+                          <span class="drag-handle">↕️</span>
+                        </li>
+                      {% endif %}
                     {% endfor %}
                   </ul>
-                  <button type="button" class="btn btn-success confirmSelection">選択完了</button>
-                {% else %}
-                  <p>行きたいリストはありません。</p>
-                {% endif %}
+                  <br>
+                  <a href="#" class="openWantedSpotModal" data-modal-id="wantedSpotModal{{ modal_counter }}" data-target-id="selectedSpot{{ modal_counter }}">
+                    行きたいリストから選択
+                  </a>
+                </td>
+              </tr>
+
+              <div id="wantedSpotModal{{ modal_counter }}" class="modal">
+                <div class="modal-content">
+                  <span class="close" onclick="closeModal()">&times;</span>
+                  <h2>行きたいリストから選択</h2>
+                  {% if wanted_spots %}
+                    <ul>
+                      {% for spot in wanted_spots %}
+                        <li>
+                          <input type="checkbox" class="wanted-checkbox"
+                                 data-spot-id="{{ spot.id }}"
+                                 data-spot-name="{{ spot.spot_name }}"
+                                 data-picture="{{ spot.picture }}"
+                                 data-category="{{ spot.category }}"
+                                 data-prefecture="{{ spot.prefecture }}"
+                                 data-address="{{ spot.address }}"
+                                 data-staytime-hours="{{ spot.staytime_hours }}"
+                                 data-staytime-minutes="{{ spot.staytime_minutes }}"
+                                 {% if spot.spot_name in selected_spot_names %} checked {% endif %}>
+                          <strong>{{ spot.spot_name }}</strong><br>
+                          {% if spot.picture %}
+                            <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width: 100px; height: auto;"><br>
+                          {% endif %}
+                          カテゴリ: {{ spot.category }}<br>
+                          都道府県: {{ spot.prefecture }}<br>
+                          住所: {{ spot.address }}<br>
+                          平均滞在時間: {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
+                        </li>
+                      {% endfor %}
+                    </ul>
+                    <button type="button" class="btn btn-success confirmSelection">選択完了</button>
+                  {% else %}
+                    <p>行きたいリストはありません。</p>
+                  {% endif %}
+                </div>
               </div>
-            </div>
-          {% endwith %}
-        {% endfor %}
-      </tbody>
-    </table>
+            {% endwith %}
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- 保存ボタン -->
+      <button type="submit" class="btn btn-primary">保存</button>
+    </form>
 
     <a href="{% url 'travelapp:touristplan_list' %}" class="btn btn-secondary">旅行プラン一覧に戻る</a>
   </div>
 
   <script>
+    let currentTargetId = null;  // 現在操作中のリストID
+
+    // モーダルを開く
     document.querySelectorAll('.openWantedSpotModal').forEach(function (link) {
       link.addEventListener('click', function (e) {
         e.preventDefault();
@@ -97,6 +120,7 @@
       });
     });
 
+    // モーダル内の「選択完了」ボタン押下時の処理
     document.querySelectorAll('.confirmSelection').forEach(function (button) {
       button.addEventListener('click', function () {
         var modal = this.closest('.modal');
@@ -106,29 +130,45 @@
         selectedList.innerHTML = "";
 
         checkedItems.forEach(function (checkbox) {
+          var spotId = checkbox.getAttribute('data-spot-id');
           var spotName = checkbox.getAttribute('data-spot-name');
-          var listItem = document.createElement("li");
-          listItem.textContent = spotName;
-          listItem.classList.add("sortable-item");
-          listItem.setAttribute("data-spot-name", spotName);
 
-          var dragHandle = document.createElement("span");
-          dragHandle.textContent = "↕️";
-          dragHandle.classList.add("drag-handle");
-          listItem.appendChild(dragHandle);
+          // liタグにdata-spot-idとdata-spot-nameを設定する
+          var listItem = document.createElement("li");
+          listItem.classList.add("sortable-item");
+          listItem.setAttribute("data-spot-id", spotId);
+          listItem.setAttribute("data-spot-name", spotName);
+          listItem.innerHTML = `<strong>${spotName}</strong>
+                                <span class="drag-handle">↕️</span>`;
 
           selectedList.appendChild(listItem);
         });
 
         closeModal();
+        // 新たにSortableを初期化（必要に応じて）
         new Sortable(selectedList, { handle: ".drag-handle", animation: 150 });
       });
     });
 
+    // フォーム送信時にドラッグ順（スポットID）をhiddenフィールドに設定
+    document.querySelector('form').addEventListener('submit', function (e) {
+      let spots = [];
+      document.querySelectorAll('.sortable-item').forEach(function (item) {
+        spots.push(item.getAttribute('data-spot-id'));
+      });
+      
+      // hiddenフィールドにカンマ区切りで設定（サーバ側でsplitします）
+      const spotsField = document.createElement('input');
+      spotsField.type = 'hidden';
+      spotsField.name = 'tourist_spots';
+      spotsField.value = spots.join(',');
+      this.appendChild(spotsField);
+    });
+  
     function openModal(modalId) {
       document.getElementById(modalId).style.display = 'block';
     }
-
+  
     function closeModal() {
       document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
     }

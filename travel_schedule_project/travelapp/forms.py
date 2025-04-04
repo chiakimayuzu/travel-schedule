@@ -10,7 +10,7 @@ from django.contrib.auth import authenticate
 from django import forms
 from .models import TouristPlan_Spot, TouristSpot, TouristSpotKeyword, Keyword, PREFECTURE_CHOICES, CATEGORY_CHOICES, WORKINGDAY_CHOICES, PARKING_CHOICES, UserReview
 from .models import TouristPlan
-from django.forms import formset_factory
+from django.forms import formset_factory, modelformset_factory
 from .models import TouristPlan
 from django import forms
 from .models import UserReview
@@ -291,4 +291,19 @@ class TouristPlanForm(forms.ModelForm):
         return tourist_plan
 
 
+class TouristPlanSpotForm(forms.ModelForm):
+    class Meta:
+        model = TouristPlan_Spot
+        fields = ['tourist_spot', 'visit_date', 'order']
+        # 必要に応じてウィジェットなども指定できます
+        widgets = {
+            'visit_date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
+# 既存のスポット群を編集するので、extra=0 としてフォームセットを作成
+TouristPlanSpotFormSet = modelformset_factory(
+    TouristPlan_Spot,
+    form=TouristPlanSpotForm,
+    extra=0,
+    can_delete=True  # 削除も行えるようにする場合
+)
