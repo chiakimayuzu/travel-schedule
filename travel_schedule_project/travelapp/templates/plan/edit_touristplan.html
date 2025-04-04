@@ -212,17 +212,22 @@
     
     // サーバサイドで既に選択済みの観光地（selected_spots）もピン表示
     {% for spot in selected_spots %}
-      addMarker({ lat: {{ spot.lat }}, lng: {{ spot.lng }} }, "{{ spot.spot_name }}", "{{ spot.address }}", {{ spot.staytime_hours }}, {{ spot.staytime_minutes }});
+      addMarker({ lat: {{ spot.lat }}, lng: {{ spot.lng }} }, "{{ spot.id }}", "{{ spot.spot_name }}", "{{ spot.address }}", {{ spot.staytime_hours }}, {{ spot.staytime_minutes }});
     {% endfor %}
+    
+    // リストのクリックイベントを設定（初回表示時）
+    setListClickHandlers();
   }
 
-  // 指定の位置にマーカーを追加する関数
-  function addMarker(position, title, address, stayHours, stayMinutes) {
+  // 指定の位置にマーカーを追加する関数（spotIdを追加）
+  function addMarker(position, spotId, title, address, stayHours, stayMinutes) {
     var marker = new google.maps.Marker({
       position: position,
       map: map,
       title: title
     });
+    // マーカーにスポットIDを設定
+    marker.spotId = spotId;
 
     var infowindow = new google.maps.InfoWindow({
       content: `
@@ -249,11 +254,38 @@
     // リスト内の各項目から位置情報を取得しマーカー追加
     var listItems = document.getElementById(listId).querySelectorAll('.sortable-item');
     listItems.forEach(function(item) {
+      var spotId = item.getAttribute('data-spot-id');
       var lat = parseFloat(item.getAttribute('data-lat'));
       var lng = parseFloat(item.getAttribute('data-lng'));
       var spotName = item.getAttribute('data-spot-name');
-      // ※住所や滞在時間の情報が必要な場合は、各項目にdata属性で付与して取得可能です
-      addMarker({lat: lat, lng: lng}, spotName, "", 0, 0);
+      // 住所や滞在時間の情報が必要な場合は、各項目にdata属性で付与して取得可能
+      addMarker({lat: lat, lng: lng}, spotId, spotName, "", 0, 0);
+    });
+
+    // リストのクリックイベントを再設定
+    setListClickHandlers();
+  }
+
+  // 各選択済みリストの項目にクリックイベントを設定し、対応するマーカーにフォーカスする
+  function setListClickHandlers() {
+    // 各リスト内の項目に対してイベントを設定（ドラッグハンドル部分のクリックは除く）
+    document.querySelectorAll('.selected-spot .sortable-item').forEach(function(item) {
+      item.addEventListener('click', function(e) {
+        // ドラッグ操作中の場合はクリック処理をしない
+        if(e.target.classList.contains('drag-handle')) return;
+        var spotId = item.getAttribute('data-spot-id');
+        // 対応するマーカーを探す
+        var marker = markers.find(m => m.spotId === spotId);
+        if(marker) {
+          // マップをそのマーカー位置へパン＆ズーム
+          map.panTo(marker.getPosition());
+          map.setZoom(14);
+          // マーカーのクリックイベントをトリガしてinfoWindowを表示
+          google.maps.event.trigger(marker, 'click');
+          // 必要に応じてマップ要素へスクロール
+          document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+        }
+      });
     });
   }
 
