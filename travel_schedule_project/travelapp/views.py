@@ -870,20 +870,16 @@ class TouristplanList(LoginRequiredMixin, View):
 import logging
 
 # ロガーの設定
-logger = logging.getLogger(__name__)
-
 class EditTouristPlanView(LoginRequiredMixin, View):
     def get(self, request, pk=None, *args, **kwargs):
-        logger.debug("EditTouristPlanView.get called")  # デバッグ: getメソッドが呼ばれた
+        logger.debug("EditTouristPlanView.get called")
 
-        # 旅行プランをIDで取得、ユーザーが所有しているプランのみ
         plan = get_object_or_404(TouristPlan, pk=pk, user=request.user)
-        logger.debug(f"Retrieved plan: {plan}")  # デバッグ: プラン情報を表示
+        logger.debug(f"Retrieved plan: {plan}")
 
-        # start_date と end_date を文字列に変換
         start_date = plan.start_date.strftime('%Y-%m-%d') if plan.start_date else ''
         end_date = plan.end_date.strftime('%Y-%m-%d') if plan.end_date else ''
-        logger.debug(f"start_date: {start_date}, end_date: {end_date}")  # デバッグ: 日付情報を表示
+        logger.debug(f"start_date: {start_date}, end_date: {end_date}")
 
         visit_date = []
         if start_date and end_date:
@@ -893,39 +889,37 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 (start_date_dt + timedelta(days=i)).strftime('%Y-%m-%d')
                 for i in range((end_date_dt - start_date_dt).days + 1)
             ]
-        logger.debug(f"visit_date: {visit_date}")  # デバッグ: 訪問日一覧を表示
+        logger.debug(f"visit_date: {visit_date}")
 
-        # ログインユーザーの行きたいリストを取得
         wanted_spots = request.user.wanted_spots.all()
-        logger.debug(f"wanted_spots: {wanted_spots}")  # デバッグ: 行きたいリストを表示
+        logger.debug(f"wanted_spots: {wanted_spots}")
 
-        # tourist_spot_id をリクエストから取得（モーダル用に利用）
         tourist_spot_id = request.GET.get('tourist_spot_id')
-        logger.debug(f"tourist_spot_id: {tourist_spot_id}")  # デバッグ: 観光地IDを表示
+        logger.debug(f"tourist_spot_id: {tourist_spot_id}")
 
         if tourist_spot_id:
             tourist_spot = get_object_or_404(TouristSpot, id=tourist_spot_id)
-            logger.debug(f"Found tourist_spot: {tourist_spot}")  # デバッグ: 観光地を表示
+            logger.debug(f"Found tourist_spot: {tourist_spot}")
         elif wanted_spots.exists():
             tourist_spot = wanted_spots.first().tourist_spot
-            logger.debug(f"Selected tourist_spot from wanted_spots: {tourist_spot}")  # デバッグ: 行きたいリストから選ばれた観光地
+            logger.debug(f"Selected tourist_spot from wanted_spots: {tourist_spot}")
         else:
             tourist_spot = None
-            logger.debug("No tourist_spot selected.")  # デバッグ: 観光地が選ばれていない場合
+            logger.debug("No tourist_spot selected.")
 
-        # 全体の平均滞在時間を計算
         stay_time_avg = (
             UserReview.objects.filter(tourist_spot=tourist_spot)
             .aggregate(Avg('stay_time_min'))['stay_time_min__avg']
             if tourist_spot else 0
         )
         stay_time_avg = stay_time_avg if stay_time_avg is not None else 0
-        logger.debug(f"stay_time_avg: {stay_time_avg}")  # デバッグ: 平均滞在時間を表示
+        logger.debug(f"stay_time_avg: {stay_time_avg}")
         stay_time_hours = int(stay_time_avg) // 60
         stay_time_minutes = int(stay_time_avg) % 60
-        logger.debug(f"stay_time_hours: {stay_time_hours}, stay_time_minutes: {stay_time_minutes}")  # デバッグ: 滞在時間（時間、分）
+        logger.debug(f"stay_time_hours: {stay_time_hours}, stay_time_minutes: {stay_time_minutes}")
 
-        # モーダル用の観光地情報（wanted_spots_info）の作成
+        
+        
         tourist_spots_info = []
         for spot in wanted_spots:
             spot_data = spot.tourist_spot
@@ -934,7 +928,7 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 .aggregate(Avg('stay_time_min'))['stay_time_min__avg'] or 0
             )
             spot_data_dict = {
-                'id': spot_data.id,  # IDを追加
+                'id': spot_data.id,
                 'spot_name': spot_data.spot_name,
                 'picture': spot_data.picture.url if spot_data.picture else None,
                 'category': spot_data.get_category_display(),
@@ -945,9 +939,8 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 'staytime_minutes': int(staytime) % 60,
             }
             tourist_spots_info.append(spot_data_dict)
-        logger.debug(f"tourist_spots_info: {tourist_spots_info}")  # デバッグ: モーダル用観光地情報
+        logger.debug(f"tourist_spots_info: {tourist_spots_info}")
 
-        # 選択済みの観光地情報（プランに紐づく観光地）を作成
         selected_spots_info = []
         for ps in plan.tourist_spots.all():
             ts = ps.tourist_spot
@@ -956,7 +949,7 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 .aggregate(Avg('stay_time_min'))['stay_time_min__avg'] or 0
             )
             selected_spots_info.append({
-                'id': ts.id,  # IDを追加
+                'id': ts.id,
                 'visit_date': ps.visit_date.strftime('%Y-%m-%d') if ps.visit_date else '',
                 'spot_name': ts.spot_name,
                 'picture': ts.picture.url if ts.picture else None,
@@ -966,55 +959,44 @@ class EditTouristPlanView(LoginRequiredMixin, View):
                 'staytime_minutes': int(staytime) % 60,
             })
         selected_spot_names = [spot['spot_name'] for spot in selected_spots_info]
-        logger.debug(f"selected_spots_info: {selected_spots_info}")  # デバッグ: 選択済みの観光地情報
-        logger.debug(f"selected_spot_names: {selected_spot_names}")  # デバッグ: 選択済み観光地の名前
+        logger.debug(f"selected_spots_info: {selected_spots_info}")
+        logger.debug(f"selected_spot_names: {selected_spot_names}")
 
-        # TouristPlan_Spot用フォームセットを取得（この旅行プランに紐づくスポット情報）
         formset = TouristPlanSpotFormSet(queryset=TouristPlan_Spot.objects.filter(tourist_plan=plan))
 
         context = {
             'plan': plan,
             'visit_date': visit_date,
-            'wanted_spots': tourist_spots_info,  # モーダル用の観光地情報
-            'selected_spots': selected_spots_info,  # 表示用の選択済み観光地情報
-            'selected_spot_names': selected_spot_names,  # 選択済みの観光地の名前リスト 
+            'wanted_spots': tourist_spots_info,
+            'selected_spots': selected_spots_info,
+            'selected_spot_names': selected_spot_names,
             'tourist_spot': tourist_spot,
             'stay_time_avg': stay_time_avg,
             'stay_time_hours': stay_time_hours,
             'stay_time_minutes': stay_time_minutes,
-            'formset': formset,  # TouristPlan_Spotのフォームセットを追加
+            'formset': formset,
         }
 
         return render(request, 'plan/edit_touristplan.html', context)
 
     def post(self, request, pk=None, *args, **kwargs):
-        logger.debug("EditTouristPlanView.post called")  # デバッグ: postメソッドが呼ばれた
+        logger.debug("EditTouristPlanView.post called")
 
         plan = get_object_or_404(TouristPlan, pk=pk, user=request.user)
-        # TouristPlan_SpotのフォームセットをPOSTデータから生成
-        formset = TouristPlanSpotFormSet(request.POST, queryset=TouristPlan_Spot.objects.filter(tourist_plan=plan))
-        
+        logger.debug(f"Retrieved plan for POST: {plan}")
+
+        formset = TouristPlanSpotFormSet(request.POST)
         if formset.is_valid():
-            with transaction.atomic():
-                # 各フォームを保存（削除が指定されているものは処理）
-                instances = formset.save(commit=False)
-                for instance in instances:
-                    instance.tourist_plan = plan
-                    instance.save()
-                # 削除されたフォームの処理
-                for obj in formset.deleted_objects:
-                    obj.delete()
-            messages.success(request, '観光スポット情報を保存しました', extra_tags='touristplan')
-            return redirect('travelapp:touristplan_list')
-        
-        logger.debug(f"Formset is not valid. Errors: {formset.errors}")  # デバッグ: フォームセットのエラーメッセージ
-        
-        # エラーがある場合は再度GET時と同様のコンテキストで表示
-        context = {
-            'plan': plan,
-            'formset': formset,
-        }
-        return render(request, 'plan/edit_touristplan.html', context)
+            formset.save()  # フォームセットが有効な場合、保存します
+            logger.debug("Formset is valid and saved successfully.")
+            return redirect('plan:some_success_url')  # 成功時にリダイレクトします
+        else:
+            logger.debug("Formset is invalid. Re-rendering form with errors.")
+            return render(request, 'plan/edit_touristplan.html', {
+                'plan': plan,
+                'formset': formset,# エラー情報を含むフォームセットを再表示
+            })
+
 
 
 from django.http import JsonResponse
