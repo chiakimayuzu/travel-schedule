@@ -132,13 +132,16 @@
 
 
 <script>
-  $(document).ready(function() {
-    // select2 を適用するセレクトボックスにクラス select2 を指定
-    $('.select2').select2({
-      width: '100%'  // 必要に応じて幅を調整
-    });
+$(document).ready(function() {
+  // select2 を適用するセレクトボックスにクラス select2 を指定
+  $('.select2').select2({
+    width: '100%',  // 必要に応じて幅を調整
+    placeholder: "都道府県を検索",  // プレースホルダーを設定
+    allowClear: true,  // クリア機能を有効にする
   });
+});
 </script>
+
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -182,5 +185,28 @@
 
 </body>
 </html>
+
+<style>
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* フォーム要素間の隙間 */
+}
+
+form div {
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    margin-bottom: 5px;
+}
+
+form input, form select, form textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+}
+</style>
 
 {% endblock %}

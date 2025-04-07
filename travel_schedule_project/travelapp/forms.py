@@ -152,7 +152,7 @@ class TouristSpotForm(forms.ModelForm):
         widget=forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
         required=False)
 
-    picture = forms.ImageField(required=False)
+    picture = forms.ImageField(required=True)
 
     keywords = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例: 海, 山, 温泉'}),  # ★自由入力可能なテキストボックスに変更
@@ -165,7 +165,12 @@ class TouristSpotForm(forms.ModelForm):
         model = TouristSpot
         fields = ['spot_name', 'prefecture', 'address', 'tel', 'category', 'workingday', 'parking', 
                   'opening_at', 'closing_at', 'picture', 'description', 'offical_url', 'keywords']
-
+        
+    def clean_picture(self):
+        picture = self.cleaned_data.get('picture')
+        if not picture:
+            raise forms.ValidationError('画像は必須です。')
+        return picture   
     
     def clean_workingday(self):
         workingdays = self.cleaned_data.get('workingday')
