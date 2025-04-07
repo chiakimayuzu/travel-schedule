@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h1>🔎観光地を検索</h1>
+<h1 class="heading">🔎観光地を検索</h1>
 <form method="get" action="{% url 'travelapp:search_touristspot' %}" class="search-form">
     <div class="search-input">
       <label for="query">検索したいキーワードを1つ入力してください</label><br>
@@ -18,10 +18,10 @@
             {% endfor %}
         </select>
     </div>
-    <button type="submit" class="search-btn">検索</button><br><br>
+    <button type="submit" class="search-btn">検索</button>
 </form><br><br>
 
-<h1>⭐おすすめ観光地</h1>
+<h1 class="heading">⭐おすすめ観光地</h1>
 {% if tourist_spot %}
   <div class="tourist-spot">
     <div class="tourist-spot-content">
@@ -47,26 +47,24 @@
 {% block extra_styles %}
 <style>
   /* home.html専用のスタイル */
-  h1 {
+  h1.heading {
       font-size: 24px;
       color: #333;
+      padding-left: 100px; /* ここで全角スペース5つ分右に寄せます */
   }
 
-  /* 検索フォームを横並びに */
+  /* 検索フォーム全体のスタイル */
   .search-form {
       display: flex;
-      align-items: center; /* 垂直方向で中央揃え */
-      justify-content: space-between;
+      flex-direction: column; /* 縦並びに変更 */
+      align-items: flex-start; /* 左揃え */
       gap: 20px;
       max-width: 800px;
       margin: 0 auto;
-      flex-wrap: nowrap; /* 折り返さないようにする */
   }
 
   .search-input, .search-category {
-      flex: 1; /* 各フォーム要素が平等に幅を取る */
-      display: flex;
-      align-items: center; /* セレクトボックスとラベルを縦に揃える */
+      width: 100%; /* 幅を100%にしてフォームを広げる */
   }
 
   /* 入力フィールドとセレクトボックスのスタイル調整 */
@@ -80,7 +78,7 @@
 
   /* ボタンのスタイル調整 */
   .search-btn {
-      background-color: #4CAF50;
+      background-color:rgb(69, 110, 160);
       color: white;
       border: none;
       padding: 10px 20px; /* ボタンのパディング */
@@ -88,10 +86,11 @@
       border-radius: 5px;
       cursor: pointer;
       max-width: 120px; /* ボタンの最大幅 */
+      align-self: flex-start; /* ボタンを左寄せ */
   }
 
   .search-btn:hover {
-      background-color: #45a049;
+      background-color:rgb(69, 110, 160);
   }
 
   small {
@@ -108,9 +107,12 @@
 
   .tourist-spot-content {
       display: flex;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 80%;
       padding: 20px;
       gap: 20px;
-      width: 80%;
   }
 
   .tourist-spot img {
