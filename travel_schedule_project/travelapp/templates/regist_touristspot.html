@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
 <h1>🚩観光地登録(*は必須です)</h1>
 
 <!-- extra_tags='regist_touristspot' を使ったメッセージ のみ regist_touristspot.html で表示 --> 
@@ -26,12 +27,12 @@
     </div>
     <p><span id="spot_name_error" style="display:none; color: red;"></span></p>
     <div>
-        <label for="{{ form.prefecture.id_for_label }}">都道府県*:</label>
-        {{ form.prefecture }}
-        {% if form.prefecture.errors %}
-            <div class="error">{{ form.prefecture.errors }}</div>
-        {% endif %}
-    </div>
+      <label for="{{ form.prefecture.id_for_label }}">都道府県*:</label>
+      {{ form.prefecture }}
+      {% if form.prefecture.errors %}
+          <div class="error">{{ form.prefecture.errors }}</div>
+      {% endif %}
+  </div>
 
     <div>
         <label for="{{ form.address.id_for_label }}">住所*:</label>
@@ -130,12 +131,14 @@
 
 
 
-  <script> //select2 を適用
-    $(document).ready(function() {
-      // select2 を適用したいセレクトボックスにクラスを付けます
-      $('.select2').select2();  // クラス名 .select2 を持つすべての <select> 要素に適用
+<script>
+  $(document).ready(function() {
+    // select2 を適用するセレクトボックスにクラス select2 を指定
+    $('.select2').select2({
+      width: '100%'  // 必要に応じて幅を調整
     });
-  </script>
+  });
+</script>
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {

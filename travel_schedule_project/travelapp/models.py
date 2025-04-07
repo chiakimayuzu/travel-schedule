@@ -139,18 +139,18 @@ REVIEW_PRICE_CHOICES = [
 ]
 
 class TouristSpot(models.Model):
-    spot_name = models.CharField(max_length=50)
-    prefecture = models.IntegerField(choices=PREFECTURE_CHOICES)
-    address = models.CharField(max_length=100)
-    tel = models.CharField(max_length=50)
-    category = models.IntegerField(choices=CATEGORY_CHOICES)
+    spot_name = models.CharField(max_length=50,blank=False, null=False)
+    prefecture = models.IntegerField(choices=PREFECTURE_CHOICES,blank=False, null=False)
+    address = models.CharField(max_length=100,blank=False, null=False)
+    tel = models.CharField(max_length=50,blank=False, null=False)
+    category = models.IntegerField(choices=CATEGORY_CHOICES,blank=False, null=False)
     workingday = models.CharField(max_length=50, blank=True, null=True)
-    parking = models.IntegerField(choices=PARKING_CHOICES)
+    parking = models.IntegerField(choices=PARKING_CHOICES,blank=False, null=False)
     opening_at = models.TimeField(null=True, blank=True)
     closing_at = models.TimeField(null=True, blank=True)
-    picture = models.ImageField(upload_to='tourist_spot_images/')  
-    description = models.TextField()
-    offical_url = models.CharField(max_length=100)
+    picture = models.ImageField(upload_to='tourist_spot_images/', blank=False, null=False)
+    description = models.TextField(blank=False, null=False)
+    offical_url = models.CharField(max_length=100,blank=False, null=False)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True) 
     created_at = models.DateTimeField(auto_now_add=True)  # 登録日
@@ -203,11 +203,11 @@ class TouristSpotKeyword(models.Model):
 class UserReview(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,related_name="reviews")
     tourist_spot = models.ForeignKey(TouristSpot,on_delete=models.CASCADE)
-    review_score = models.IntegerField()
-    review_title = models.CharField(max_length=50)
-    review_description = models.TextField()
-    review_price = models.IntegerField(choices=REVIEW_PRICE_CHOICES) #1人当たりの費用
-    stay_time_min = models.IntegerField()
+    review_score = models.IntegerField(blank=False, null=False)
+    review_title = models.CharField(max_length=50,blank=False, null=False)
+    review_description = models.TextField(blank=False, null=False)
+    review_price = models.IntegerField(choices=REVIEW_PRICE_CHOICES,blank=False, null=False) #1人当たりの費用
+    stay_time_min = models.IntegerField(blank=False, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

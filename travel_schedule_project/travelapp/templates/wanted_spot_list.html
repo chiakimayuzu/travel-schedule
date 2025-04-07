@@ -1,29 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>❤️行きたいリスト</h1>
-  <ul>
+  <h1 style="text-align: center; margin-bottom: 30px;">❤️行きたいリスト</h1>
+  <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
     {% for item in wanted_spots %}
-      <li>
-        <!-- 画像をクリックすると観光地の詳細ページに遷移 -->
+      <div style="width: 200px; border: 1px solid #ccc; border-radius: 10px; padding: 10px; text-align: center; background-color: #fff; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);">
         <a href="{% url 'travelapp:detail_touristspot' pk=item.tourist_spot.id %}">
           {% if item.tourist_spot.picture %}
-            <img src="{{ item.tourist_spot.picture.url }}" alt="{{ item.tourist_spot.spot_name }}" style="width: 100px; height: auto;">
+            <img src="{{ item.tourist_spot.picture.url }}" alt="{{ item.tourist_spot.spot_name }}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 5px;">
           {% else %}
-            <img src="/static/images/no-image.png" alt="No Image" style="width: 100px; height: auto;">
+            <img src="/static/images/no-image.png" alt="No Image" style="width: 100%; height: 120px; object-fit: cover; border-radius: 5px;">
           {% endif %}
         </a>
-
-        <p>{{ item.tourist_spot.spot_name }}</p>
-        <form method="post" style="display:inline;">
+        <p style="margin: 10px 0; font-weight: bold;">{{ item.tourist_spot.spot_name }}</p>
+        <form method="post" style="display: flex; justify-content: center;" onsubmit="return confirm('本当に削除しますか？');">
           {% csrf_token %}
-          <button type="submit" name="delete" value="{{ item.id }}">削除</button>
+          <button type="submit" name="delete" value="{{ item.id }}" style="background-color: #ff6b6b; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">
+            削除
+          </button>
         </form>
-      </li>
+      </div>
     {% empty %}
-      <li>行きたいリストにまだアイテムがありません。</li>
+      <p>行きたいリストにまだアイテムがありません。</p>
     {% endfor %}
-  </ul>
+  </div>
 {% endblock %}
-
 

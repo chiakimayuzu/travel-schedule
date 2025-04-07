@@ -1,18 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1 class="heading">観光地検索</h1>
-
+  
   <!-- 検索フォーム -->
   <form method="get" class="search-form">
     <div class="search-input">
-      <label for="query">検索したいキーワードを1つ入力してください</label><br>
       <input type="text" name="query" id="query" value="{{ request.GET.query }}" placeholder="例：世界遺産、京都">
-      <small>施設名/都道府県名/キーワードから検索できます。</small><br>
     </div>
     
     <div class="search-category">
-      <label for="category">カテゴリ</label><br>
       <select name="category" id="category">
           <option value="">カテゴリを選択</option>
           <option value="1" {% if request.GET.category == '1' %}selected{% endif %}>神社/仏閣/歴史的建造物</option>
@@ -35,6 +31,7 @@
     <button type="submit" class="search-btn">検索</button>
   </form>
 
+  <br><br><h1>検索結果:</h1>
   <div class="sort-options">
     {% if request.GET.sort == '-created_at' %}
       <span class="selected">登録が新しい順</span>
@@ -49,7 +46,6 @@
     {% endif %}
   </div>
 
-  <h2>検索結果:</h2>
 
   <div class="tourist-spot-list">
     {% if tourist_spots %}
@@ -86,11 +82,10 @@
 
     .search-form {
       display: flex;
-      flex-direction: column;
-      align-items: flex-start;
       gap: 20px;
       max-width: 800px;
       margin: 0 auto;
+      justify-content: flex-start; /* 左詰め */
     }
 
     .search-input,
@@ -117,6 +112,7 @@
       cursor: pointer;
       max-width: 120px;
       align-self: flex-start;
+      white-space: nowrap; /* 追加 */
     }
 
     .search-btn:hover {
