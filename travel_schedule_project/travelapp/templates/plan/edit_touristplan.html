@@ -116,7 +116,12 @@
 
   <!-- JavaScript部分 -->
   <script>
-    // モーダル制御や選択処理等の既存コードはそのまま
+    // ページ読み込み時に全ての選択済みリストに対してSortableを初期化
+    document.addEventListener("DOMContentLoaded", function() {
+      document.querySelectorAll('.selected-spot').forEach(function(list) {
+        new Sortable(list, { handle: ".drag-handle", animation: 150 });
+      });
+    });
 
     function openModal(modalId) {
       document.getElementById(modalId).style.display = 'block';
@@ -179,7 +184,7 @@
         });
 
         closeModal();
-        // 新たにSortableを初期化（必要に応じて）
+        // モーダル内で並び替えが行われた後は、再初期化
         new Sortable(selectedList, { handle: ".drag-handle", animation: 150 });
         
         // 選択リストの変更をマップに反映
