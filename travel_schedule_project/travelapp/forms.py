@@ -228,15 +228,7 @@ class TouristSpotSearchForm(forms.Form):
         error_messages={'invalid_choice': 'カテゴリが無効です。'},
     )
 
-    order_by = forms.ChoiceField(
-        choices=[
-            ('review_score_average', '評価がいい順'),
-            ('created_at', '新しい順'),
-            ('-created_at', '古い順'),
-        ], 
-        initial='review_score_average',
-        label='並び順'
-    )
+
     
     # 日付を選択するためのフィールド追加
     visit_date = forms.DateField(

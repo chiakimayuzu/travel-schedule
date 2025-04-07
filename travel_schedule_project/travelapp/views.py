@@ -211,11 +211,9 @@ class TouristSpotSearchView(ListView):
             queryset = queryset.filter(category=category)
 
         # 並び順の処理
-        sort_by = self.request.GET.get('sort', '-review_score_average')  # デフォルトは評価がいい順
-        if sort_by == '-review_score_average':
-            queryset = queryset.order_by('-review_score_average')  # 評価がいい順
-        elif sort_by == '-created_at':
-            queryset = queryset.order_by('-created_at')  # 登録が新しい順
+        sort_by = self.request.GET.get('sort', '-created_at')  # デフォルトは評価がいい順
+        if sort_by == '-created_at':
+            queryset = queryset.order_by('-created_at')  # 評価がいい順
         elif sort_by == 'created_at':
             queryset = queryset.order_by('created_at')  # 登録が古い順
 
