@@ -1,40 +1,41 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>観光地検索</h1>
-  
+  <h1 class="heading">観光地検索</h1>
+
   <!-- 検索フォーム -->
-  <form method="get">
-    <label for="query">キーワード:</label>
-    <input type="text" name="query" id="query" value="{{ request.GET.query }}" placeholder="検索したいキーワードを入力してください">
-    <small>施設名/都道府県名/キーワードで検索できます。</small>
+  <form method="get" class="search-form">
+    <div class="search-input">
+      <label for="query">検索したいキーワードを1つ入力してください</label><br>
+      <input type="text" name="query" id="query" value="{{ request.GET.query }}" placeholder="例：世界遺産、京都">
+      <small>施設名/都道府県名/キーワードから検索できます。</small><br>
+    </div>
     
-    <label for="category">カテゴリ:</label>
-    <select name="category" id="category">
-        <option value="">カテゴリを選択</option>
-        <option value="1" {% if request.GET.category == '1' %}selected{% endif %}>神社/仏閣/歴史的建造物</option>
-        <option value="2" {% if request.GET.category == '2' %}selected{% endif %}>アクティビティ</option>
-        <option value="3" {% if request.GET.category == '3' %}selected{% endif %}>テーマパーク</option>
-        <option value="4" {% if request.GET.category == '4' %}selected{% endif %}>景勝</option>
-        <option value="5" {% if request.GET.category == '5' %}selected{% endif %}>博物館/美術館</option>
-        <option value="6" {% if request.GET.category == '6' %}selected{% endif %}>動物園/水族館</option>
-        <option value="7" {% if request.GET.category == '7' %}selected{% endif %}>温泉/スパ</option>
-        <option value="8" {% if request.GET.category == '8' %}selected{% endif %}>ビーチ/海水浴場</option>
-        <option value="9" {% if request.GET.category == '9' %}selected{% endif %}>登山/ハイキング</option>
-        <option value="10" {% if request.GET.category == '10' %}selected{% endif %}>ショッピングモール</option>
-        <option value="11" {% if request.GET.category == '11' %}selected{% endif %}>カフェ/レストラン</option>
-        <option value="12" {% if request.GET.category == '12' %}selected{% endif %}>農場/園芸</option>
-        <option value="13" {% if request.GET.category == '13' %}selected{% endif %}>映画館/劇場</option>
-        <option value="14" {% if request.GET.category == '14' %}selected{% endif %}>その他</option>
-    </select>
+    <div class="search-category">
+      <label for="category">カテゴリ</label><br>
+      <select name="category" id="category">
+          <option value="">カテゴリを選択</option>
+          <option value="1" {% if request.GET.category == '1' %}selected{% endif %}>神社/仏閣/歴史的建造物</option>
+          <option value="2" {% if request.GET.category == '2' %}selected{% endif %}>アクティビティ</option>
+          <option value="3" {% if request.GET.category == '3' %}selected{% endif %}>テーマパーク</option>
+          <option value="4" {% if request.GET.category == '4' %}selected{% endif %}>景勝</option>
+          <option value="5" {% if request.GET.category == '5' %}selected{% endif %}>博物館/美術館</option>
+          <option value="6" {% if request.GET.category == '6' %}selected{% endif %}>動物園/水族館</option>
+          <option value="7" {% if request.GET.category == '7' %}selected{% endif %}>温泉/スパ</option>
+          <option value="8" {% if request.GET.category == '8' %}selected{% endif %}>ビーチ/海水浴場</option>
+          <option value="9" {% if request.GET.category == '9' %}selected{% endif %}>登山/ハイキング</option>
+          <option value="10" {% if request.GET.category == '10' %}selected{% endif %}>ショッピングモール</option>
+          <option value="11" {% if request.GET.category == '11' %}selected{% endif %}>カフェ/レストラン</option>
+          <option value="12" {% if request.GET.category == '12' %}selected{% endif %}>農場/園芸</option>
+          <option value="13" {% if request.GET.category == '13' %}selected{% endif %}>映画館/劇場</option>
+          <option value="14" {% if request.GET.category == '14' %}selected{% endif %}>その他</option>
+      </select>
+    </div>
     
-    <button type="submit">検索</button>
+    <button type="submit" class="search-btn">検索</button>
   </form>
 
-
-
-  <div>
-
+  <div class="sort-options">
     {% if request.GET.sort == '-created_at' %}
       <span class="selected">登録が新しい順</span>
     {% else %}
@@ -49,18 +50,18 @@
   </div>
 
   <h2>検索結果:</h2>
-  
-  <div>
+
+  <div class="tourist-spot-list">
     {% if tourist_spots %}
       <ul>
         {% for spot in tourist_spots %}
-          <li>
-            <div>
+          <li class="tourist-spot-item">
+            <div class="tourist-spot-image">
               <a href="{% url 'travelapp:detail_touristspot' pk=spot.pk %}">
                 <img src="{{ spot.picture.url }}" alt="{{ spot.spot_name }}" width="200" height="150">
               </a>
             </div>
-            <div>
+            <div class="tourist-spot-info">
               <strong>{{ spot.spot_name }}</strong><br>
               <span>{{ spot.get_category_display }}</span><br>
               <span>{{ spot.get_prefecture_display }}</span>
@@ -74,13 +75,99 @@
     {% endif %}
   </div>
 
+{% block extra_styles %}
   <style>
+    .heading {
+      font-size: 24px;
+      color: #333;
+      text-align: center;
+      padding-top: 20px;
+    }
+
+    .search-form {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .search-input,
+    .search-category {
+      width: 100%;
+    }
+
+    .search-input input[type="text"],
+    .search-category select {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .search-btn {
+      background-color: rgb(69, 110, 160);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      height: 50px;
+      border-radius: 5px;
+      cursor: pointer;
+      max-width: 120px;
+      align-self: flex-start;
+    }
+
+    .search-btn:hover {
+      background-color: rgb(69, 110, 160);
+    }
+
+    .sort-options {
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
     .selected {
       color: gray;
-      pointer-events: none; /* クリック無効 */
+      pointer-events: none;
       text-decoration: none;
+    }
+
+    .tourist-spot-list ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .tourist-spot-item {
+      width: 250px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      background-color: #fff;
+    }
+
+    .tourist-spot-image img {
+      border-radius: 8px;
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+
+    .tourist-spot-info {
+      padding: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .tourist-spot-info strong {
+      font-size: 16px;
+      color: #333;
     }
   </style>
 {% endblock %}
 
-  
+{% endblock %}
