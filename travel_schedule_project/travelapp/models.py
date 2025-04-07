@@ -145,9 +145,7 @@ class TouristSpot(models.Model):
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True) 
     created_at = models.DateTimeField(auto_now_add=True)  # 登録日
     updated_at = models.DateTimeField(auto_now=True)  # 更新日
-    review_score_average = models.FloatField(null=True, blank=True)
-    price_average = models.IntegerField(null=True, blank=True)
-    staytime_average = models.IntegerField(null=True, blank=True)
+
 
     def save(self, *args, **kwargs):
         if self.address:  # 住所が入力されている場合
