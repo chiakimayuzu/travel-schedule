@@ -3,13 +3,13 @@
 {% block content %}
 
 <h1>🔎観光地を検索</h1>
-<form method="get" action="{% url 'travelapp:search_touristspot' %}">
-    <div>
+<form method="get" action="{% url 'travelapp:search_touristspot' %}" class="search-form">
+    <div class="search-input">
       <label for="query">検索したいキーワードを1つ入力してください</label><br>
       <input type="text" name="query" id="query" value="{{ request.GET.query }}" placeholder="例：世界遺産、京都">
-      <small>施設名/都道府県名/キーワードで検索できます。</small><br>
+      <small>施設名/都道府県名/キーワードから検索できます。</small><br>
     </div>
-    <div>
+    <div class="search-category">
         <label for="category">カテゴリ</label><br>
         <select name="category" id="category">
             <option value="">カテゴリを選択</option>
@@ -24,21 +24,23 @@
 <h1>⭐おすすめ観光地</h1>
 {% if tourist_spot %}
   <div class="tourist-spot">
-    <a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">
-      <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}" width="200" height="150">
-    </a>
-    <div>
-      <strong>{{ tourist_spot.spot_name }}</strong><br>
-      <span>{{ tourist_spot.get_prefecture_display }}{{ tourist_spot.address }}</span><br>
-    </div>
-
-    {% if latest_review %}
-      <div>
-        <strong>💬最新のクチコミ</strong><br>
-        <span>{{ latest_review.review_title }}</span><br>
-        <span>{{ latest_review.review_description }}</span><br>
+    <div class="tourist-spot-content">
+      <a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">
+        <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}">
+      </a>
+      <div class="tourist-info">
+        <strong>{{ tourist_spot.spot_name }}</strong><br>
+        <span>{{ tourist_spot.get_prefecture_display }}{{ tourist_spot.address }}</span><br>
+        
+        {% if latest_review %}
+          <div class="review">
+            <strong>💬最新のクチコミ</strong><br>
+            <span>{{ latest_review.review_title }}</span><br>
+            <span>{{ latest_review.review_description }}</span><br>
+          </div>
+        {% endif %}
       </div>
-    {% endif %}
+    </div>
   </div>
 {% endif %}
 
@@ -50,32 +52,42 @@
       color: #333;
   }
 
-  form {
+  /* 検索フォームを横並びに */
+  .search-form {
       display: flex;
-      flex-direction: column;
-      gap: 15px;
-      max-width: 400px;
+      align-items: center; /* 垂直方向で中央揃え */
+      justify-content: space-between;
+      gap: 20px;
+      max-width: 800px;
       margin: 0 auto;
+      flex-wrap: nowrap; /* 折り返さないようにする */
   }
 
-  label {
-      font-weight: bold;
+  .search-input, .search-category {
+      flex: 1; /* 各フォーム要素が平等に幅を取る */
+      display: flex;
+      align-items: center; /* セレクトボックスとラベルを縦に揃える */
   }
 
-  input[type="text"], select {
+  /* 入力フィールドとセレクトボックスのスタイル調整 */
+  .search-input input[type="text"], .search-category select {
       padding: 10px;
       border-radius: 5px;
       border: 1px solid #ccc;
       width: 100%;
+      box-sizing: border-box; /* paddingやborderがwidthに含まれるように */
   }
 
+  /* ボタンのスタイル調整 */
   .search-btn {
       background-color: #4CAF50;
       color: white;
       border: none;
-      padding: 10px;
+      padding: 10px 20px; /* ボタンのパディング */
+      height: 50px; /* 明示的に高さを設定 */
       border-radius: 5px;
       cursor: pointer;
+      max-width: 120px; /* ボタンの最大幅 */
   }
 
   .search-btn:hover {
@@ -90,51 +102,45 @@
   /* おすすめ観光地のスタイル */
   .tourist-spot {
       display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: space-between;
+      justify-content: center;
+      margin: 20px 0;
   }
 
-  .tourist-spot > div {
+  .tourist-spot-content {
+      display: flex;
       background-color: #fff;
       border-radius: 8px;
-      padding: 20px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      width: 30%;
-      text-align: center;
+      width: 80%;
+      padding: 20px;
+      gap: 20px;
   }
 
   .tourist-spot img {
       border-radius: 8px;
-      width: 100%;
-      height: auto;
+      width: 300px;  /* 画像を1.5倍に */
+      height: 225px; /* 画像を1.5倍に */
   }
 
-  .tourist-spot div strong {
-      display: block;
-      margin-top: 10px;
-  }
-
-  .tourist-spot div span {
-      display: block;
-      margin-top: 5px;
+  .tourist-info {
       font-size: 14px;
       color: #555;
+      flex: 1;
   }
 
-  /* クチコミの表示スタイル */
-  .tourist-spot div > div {
-      margin-top: 20px;
-      background-color: #f9f9f9;
-      padding: 15px;
-      border-radius: 8px;
-      font-size: 14px;
-      color: #555;
-  }
-
-  .tourist-spot div > div strong {
-      color: #333;
+  .tourist-info strong {
       font-size: 16px;
+      color: #333;
+  }
+
+  .review {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+  }
+
+  .review strong {
+      color: #333;
   }
 </style>
 {% endblock %}
