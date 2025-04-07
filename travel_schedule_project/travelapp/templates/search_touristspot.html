@@ -12,15 +12,26 @@
     <label for="category">カテゴリ:</label>
     <select name="category" id="category">
         <option value="">カテゴリを選択</option>
-        <option value="1" {% if request.GET.category == '1' %}selected{% endif %}>神社/仏閣</option>
+        <option value="1" {% if request.GET.category == '1' %}selected{% endif %}>神社/仏閣/歴史的建造物</option>
         <option value="2" {% if request.GET.category == '2' %}selected{% endif %}>アクティビティ</option>
         <option value="3" {% if request.GET.category == '3' %}selected{% endif %}>テーマパーク</option>
         <option value="4" {% if request.GET.category == '4' %}selected{% endif %}>景勝</option>
-        <option value="5" {% if request.GET.category == '5' %}selected{% endif %}>その他</option>
+        <option value="5" {% if request.GET.category == '5' %}selected{% endif %}>博物館/美術館</option>
+        <option value="6" {% if request.GET.category == '6' %}selected{% endif %}>動物園/水族館</option>
+        <option value="7" {% if request.GET.category == '7' %}selected{% endif %}>温泉/スパ</option>
+        <option value="8" {% if request.GET.category == '8' %}selected{% endif %}>ビーチ/海水浴場</option>
+        <option value="9" {% if request.GET.category == '9' %}selected{% endif %}>登山/ハイキング</option>
+        <option value="10" {% if request.GET.category == '10' %}selected{% endif %}>ショッピングモール</option>
+        <option value="11" {% if request.GET.category == '11' %}selected{% endif %}>カフェ/レストラン</option>
+        <option value="12" {% if request.GET.category == '12' %}selected{% endif %}>農場/園芸</option>
+        <option value="13" {% if request.GET.category == '13' %}selected{% endif %}>映画館/劇場</option>
+        <option value="14" {% if request.GET.category == '14' %}selected{% endif %}>その他</option>
     </select>
     
     <button type="submit">検索</button>
   </form>
+
+
 
   <div>
 
