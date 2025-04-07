@@ -848,19 +848,21 @@ class TouristplanList(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         # ログインユーザーの旅行プランを取得
         queryset = TouristPlan.objects.filter(user=request.user)
-        # GETパラメータ 'sort' によって並び替えを切り替え（デフォルトは登録が新しい順）
-        sort_by = request.GET.get('sort', '-created_at')
-        if sort_by == '-updated_at':
-            queryset = queryset.order_by('-updated_at')
-        elif sort_by == 'updated_at':
-            queryset = queryset.order_by('updated_at')
+        
+        # GETパラメータ 'sort' によって並び替えを切り替え（デフォルトはstart_date順）
+        sort_by = request.GET.get('sort', 'start_date')
+        
+        if sort_by == 'start_date':
+            queryset = queryset.order_by('start_date')  # 開始日順 (昇順)
+        elif sort_by == '-start_date':
+            queryset = queryset.order_by('-start_date')  # 開始日順 (降順)
         elif sort_by == 'created_at':
             queryset = queryset.order_by('created_at')
         elif sort_by == '-created_at':
             queryset = queryset.order_by('-created_at')
         else:
-            queryset = queryset.order_by('-created_at')
-        
+            queryset = queryset.order_by('start_date')  # デフォルトは開始日順
+
         context = {
             'touristplans': queryset,
             'sort_by': sort_by,
