@@ -50,74 +50,78 @@
 (クチコミ: {{ review_count }}件)  <!-- クチコミ件数を表示 -->
 </p>  
 
-<table class="spot-info-table">
-  <tr>
-    <th>住所</th>
-    <td>{{ tourist_spot.get_prefecture_display }}{{ tourist_spot.address }}</td>
-  </tr>
-  <tr>
-    <th>カテゴリ</th>
-    <td>{{ tourist_spot.get_category_display }}</td>
-  </tr>
-  <tr>
-    <th>電話番号</th>
-    <td>{{ tourist_spot.tel }}</td>
-  </tr>
-  <tr>
-    <th>駐車場</th>
-    <td>{{ tourist_spot.get_parking_display }}</td>
-  </tr>
-  <tr>
-    <th>営業日</th>
-    <td>
-      {% if working_days %}
-        <ul>
-          {% for day in working_days %}
-            <li>{{ day }}</li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        未設定
-      {% endif %}
-    </td>
-  </tr>
-  <tr>
-    <th>営業時間</th>
-    <td>{{ tourist_spot.opening_at }} - {{ tourist_spot.closing_at }}</td>
-  </tr>
-  <tr>
-    <th>公式URL</th>
-    <td><a href="{{ tourist_spot.offical_url }}" target="_blank">{{ tourist_spot.offical_url }}</a></td>
-  </tr>
-  <tr>
-    <th>価格帯</th>
-    <td>{{ most_common_price }}</td>
-  </tr>
-  <tr>
-    <th>滞在時間平均</th>
-    <td>{{ stay_time_hours }} 時間 {{ stay_time_minutes }} 分</td>
-  </tr>
-  <tr>
-    <th>施設説明</th>
-    <td>{{ tourist_spot.description }}</td>
-  </tr>
-  <tr>
-    <th>キーワード</th>
-    <td>
-      {% if keywords %}
-        <ul>
-          {% for keyword in keywords %}
-            <li>{{ keyword }}</li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        キーワードなし
-      {% endif %}
-    </td>
-  </tr>
-</table>
+<div class="spot-info">
+  <div class="spot-info-image">
+    <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}">
+  </div>
 
-<img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}">
+  <table class="spot-info-table">
+    <tr>
+      <th>住所</th>
+      <td>{{ tourist_spot.get_prefecture_display }}{{ tourist_spot.address }}</td>
+    </tr>
+    <tr>
+      <th>カテゴリ</th>
+      <td>{{ tourist_spot.get_category_display }}</td>
+    </tr>
+    <tr>
+      <th>電話番号</th>
+      <td>{{ tourist_spot.tel }}</td>
+    </tr>
+    <tr>
+      <th>駐車場</th>
+      <td>{{ tourist_spot.get_parking_display }}</td>
+    </tr>
+    <tr>
+      <th>営業日</th>
+      <td>
+        {% if working_days %}
+          <ul>
+            {% for day in working_days %}
+              <li>{{ day }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          未設定
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th>営業時間</th>
+      <td>{{ tourist_spot.opening_at }} - {{ tourist_spot.closing_at }}</td>
+    </tr>
+    <tr>
+      <th>公式URL</th>
+      <td><a href="{{ tourist_spot.offical_url }}" target="_blank">{{ tourist_spot.offical_url }}</a></td>
+    </tr>
+    <tr>
+      <th>価格帯</th>
+      <td>{{ most_common_price }}</td>
+    </tr>
+    <tr>
+      <th>滞在時間平均</th>
+      <td>{{ stay_time_hours }} 時間 {{ stay_time_minutes }} 分</td>
+    </tr>
+    <tr>
+      <th>施設説明</th>
+      <td>{{ tourist_spot.description }}</td>
+    </tr>
+    <tr>
+      <th>キーワード</th>
+      <td>
+        {% if keywords %}
+          <ul>
+            {% for keyword in keywords %}
+              <li>{{ keyword }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          キーワードなし
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+</div>
 
 <h3>最新のクチコミ</h3>
 <p>
@@ -140,8 +144,6 @@
 {% else %}
     <p>まだクチコミはありません。</p>
 {% endif %}
-
-
 
 <!-- Google Maps APIの読み込み -->
 <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
@@ -169,8 +171,6 @@
     });
   }
 </script>
-
-
 
 <!-- 星の共通スタイル -->
 <style>
@@ -221,122 +221,124 @@
     left: 0;
     color: #ccc; /* 全体をグレーに塗りつぶす */
   }  
-  
 
-    /* 見出しやタイトルのスタイル */
-    h2, h3 {
-      margin-top: 1.5rem;
-      color: #333;
-      border-bottom: 2px solid #ccc;
-      padding-bottom: 4px;
-    }
+  /* 見出しやタイトルのスタイル */
+  h2, h3 {
+    margin-top: 1.5rem;
+    color: #333;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 4px;
+  }
   
-    /* 各情報のラベルと値の間に余白を */
-    p {
-      margin: 0.5rem 0;
-      font-size: 16px;
-      line-height: 1.6;
-    }
+  /* 各情報のラベルと値の間に余白を */
+  p {
+    margin: 0.5rem 0;
+    font-size: 16px;
+    line-height: 1.6;
+  }
   
-    /* ボタンスタイル（❤ 行きたい） */
-    .heart-button {
-      background-color: #ff6b81;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 16px;
-    }
+  /* ボタンスタイル（❤ 行きたい） */
+  .heart-button {
+    background-color: #ff6b81;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+  }
   
-    /* 行きたいボタン hover */
-    .heart-button:hover {
-      background-color: #ff4d6d;
-    }
-    .heart-button.registered {
-      background-color: #ccc;  /* グレー背景 */
-      color: #333;             /* 文字色を少し濃く */
-      cursor: default;         /* マウスカーソルを通常に */
-    }
+  /* 行きたいボタン hover */
+  .heart-button:hover {
+    background-color: #ff4d6d;
+  }
+  .heart-button.registered {
+    background-color: #ccc;  /* グレー背景 */
+    color: #333;             /* 文字色を少し濃く */
+    cursor: default;         /* マウスカーソルを通常に */
+  }
 
+  /* メッセージ表示 */
+  .messages {
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+  }
 
+  .messages li {
+    padding: 10px;
+    background-color: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+  }
 
-  
-    /* メッセージ表示 */
-    .messages {
-      list-style: none;
-      padding: 0;
-      margin-top: 1rem;
-    }
-  
-    .messages li {
-      padding: 10px;
-      background-color: #fef3c7;
-      border: 1px solid #fde68a;
-      border-radius: 6px;
-      margin-bottom: 0.5rem;
-    }
-  
-    /* クチコミ一覧の装飾 */
-    ul {
-      padding-left: 1.2rem;
-    }
-  
-    li {
-      margin-bottom: 1rem;
-      font-size: 15px;
-    }
-  
-    li strong {
-      font-size: 16px;
-      color: #333;
-    }
-  
-    /* リンクの装飾 */
-    a {
-      color: #007bff;
-      text-decoration: none;
-    }
-  
-    a:hover {
-      text-decoration: underline;
-    }
-  
-    /* 画像のスタイル */
-    img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 10px;
-      margin-top: 1rem;
-    }
+  /* クチコミ一覧の装飾 */
+  ul {
+    padding-left: 1.2rem;
+  }
 
+  li {
+    margin-bottom: 1rem;
+    font-size: 15px;
+  }
 
-      .spot-info-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-      }
-    
-      .spot-info-table th,
-      .spot-info-table td {
-        border: 1px solid #ccc;
-        padding: 8px 12px;
-        text-align: left;
-        vertical-align: top;
-      }
-    
-      .spot-info-table th {
-        background-color: #f5f5f5;
-        width: 20%;
-      }
-    
-      .spot-info-table ul {
-        margin: 0;
-        padding-left: 1em;
-      }
-    
+  li strong {
+    font-size: 16px;
+    color: #333;
+  }
+
+  /* リンクの装飾 */
+  a {
+    color: #007bff;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  /* 画像のスタイル */
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-top: 1rem;
+  }
+
+  .spot-info {
+    display: flex;
+    gap: 20px;
+  }
+
+  .spot-info-image {
+    flex: 0 0 30%;
+  }
+
+  .spot-info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+
+  .spot-info-table th,
+  .spot-info-table td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .spot-info-table th {
+    background-color: #f5f5f5;
+    width: 20%;
+  }
+
+  .spot-info-table ul {
+    margin: 0;
+    padding-left: 1em;
+  }
 
 </style>
-
 
 {% endblock %}

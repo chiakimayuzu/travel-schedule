@@ -503,7 +503,7 @@ def edit_touristspot(request, pk):
             # フォームを保存
             tourist_spot.save()
             messages.success(request, '観光地編集できました', extra_tags='detail_touristspot')
-            return redirect(reverse('travelapp:detail_touristspot', pk=tourist_spot.pk))
+            return redirect('travelapp:detail_touristspot', pk=tourist_spot.pk)
 
     else:
         form = TouristSpotForm(instance=tourist_spot)
