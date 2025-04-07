@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>⭐観光地を検索</h1>
+<h1>🔎観光地を検索</h1>
 <form method="get" action="{% url 'travelapp:search_touristspot' %}">
     <div>
       <input type="text" name="query" id="query" value="{{ request.GET.query }}" placeholder="検索したいキーワードを入力してください"><br>

@@ -22,14 +22,15 @@
 
         <a href="{% url 'travelapp:regist_account' %}">新規登録画面へ</a>
     </form>
-    {% if form.non_field_errors %}
+
+    {% if form.is_bound and form.non_field_errors %}
         <div class="error">
             {{ form.non_field_errors }}
         </div>
     {% endif %}
-
 </body>
 </html>
+
 
 <style>
     /* 上記CSSをここに記述 */
