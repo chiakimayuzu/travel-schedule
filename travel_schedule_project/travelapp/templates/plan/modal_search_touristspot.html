@@ -1,0 +1,18 @@
+<!-- modal_search_touristspot.html -->
+<form method="get" action="{% url 'travelapp:modal_search_touristspot' %}">
+  {{ form.query }}
+  {{ form.category }}
+  <button type="submit">検索</button>
+</form>
+
+<div>
+  {% if tourist_spots %}
+    <ul>
+      {% for spot in tourist_spots %}
+        <li>{{ spot.spot_name }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>検索結果はありません。</p>
+  {% endif %}
+</div>

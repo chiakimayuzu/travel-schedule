@@ -1,41 +1,40 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
 <h1>🔎観光地を検索</h1>
 <form method="get" action="{% url 'travelapp:search_touristspot' %}">
     <div>
-      <input type="text" name="query" id="query" value="{{ request.GET.query }}" placeholder="検索したいキーワードを入力してください"><br>
+      <label for="query">検索したいキーワードを1つ入力してください</label><br>
+      <input type="text" name="query" id="query" value="{{ request.GET.query }}" placeholder="例：世界遺産、京都">
       <small>施設名/都道府県名/キーワードで検索できます。</small><br>
     </div>
     <div>
-        <label for="category">カテゴリ:</label>
+        <label for="category">カテゴリ</label><br>
         <select name="category" id="category">
             <option value="">カテゴリを選択</option>
-            <!-- カテゴリの選択肢をリストにする -->
             {% for value, name in category_choices %}
                 <option value="{{ value }}" {% if value == request.GET.category %}selected{% endif %}>{{ name }}</option>
             {% endfor %}
         </select>
     </div>
-    <button type="submit">検索</button><br><br>
+    <button type="submit" class="search-btn">検索</button><br><br>
 </form><br><br>
 
-
-<h2>⭐おすすめ観光地</h2>
-  {% if tourist_spot %}
-  <div>
+<h1>⭐おすすめ観光地</h1>
+{% if tourist_spot %}
+  <div class="tourist-spot">
     <a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">
       <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}" width="200" height="150">
     </a>
     <div>
       <strong>{{ tourist_spot.spot_name }}</strong><br>
-      <span>{{ tourist_spot.get_prefecture_display }}</span>
-      <span>{{ tourist_spot.address }}</span><br>
+      <span>{{ tourist_spot.get_prefecture_display }}{{ tourist_spot.address }}</span><br>
     </div>
-    
+
     {% if latest_review %}
       <div>
-        <strong>最新のレビュー:</strong><br>
+        <strong>💬最新のクチコミ</strong><br>
         <span>{{ latest_review.review_title }}</span><br>
         <span>{{ latest_review.review_description }}</span><br>
       </div>
@@ -43,6 +42,101 @@
   </div>
 {% endif %}
 
+{% block extra_styles %}
+<style>
+  /* home.html専用のスタイル */
+  h1 {
+      font-size: 24px;
+      color: #333;
+  }
 
-  
+  form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-width: 400px;
+      margin: 0 auto;
+  }
+
+  label {
+      font-weight: bold;
+  }
+
+  input[type="text"], select {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 100%;
+  }
+
+  .search-btn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+  }
+
+  .search-btn:hover {
+      background-color: #45a049;
+  }
+
+  small {
+      font-size: 12px;
+      color: #888;
+  }
+
+  /* おすすめ観光地のスタイル */
+  .tourist-spot {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: space-between;
+  }
+
+  .tourist-spot > div {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 30%;
+      text-align: center;
+  }
+
+  .tourist-spot img {
+      border-radius: 8px;
+      width: 100%;
+      height: auto;
+  }
+
+  .tourist-spot div strong {
+      display: block;
+      margin-top: 10px;
+  }
+
+  .tourist-spot div span {
+      display: block;
+      margin-top: 5px;
+      font-size: 14px;
+      color: #555;
+  }
+
+  /* クチコミの表示スタイル */
+  .tourist-spot div > div {
+      margin-top: 20px;
+      background-color: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #555;
+  }
+
+  .tourist-spot div > div strong {
+      color: #333;
+      font-size: 16px;
+  }
+</style>
+{% endblock %}
+
 {% endblock %}
