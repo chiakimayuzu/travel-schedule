@@ -22,12 +22,9 @@
     {% endif %}
 
     <h3>訪問予定日と観光スポット</h3>
-    <form method="post">
+    <form method="post" id="touristplanForm">
       {% csrf_token %}
-      <input type="hidden" name="selected_spot_ids" id="selected_spot_ids">
-      <input type="hidden" name="visit_dates" id="visit_dates">
-
-      <table class="table table-bordered">
+      <table class="table table-bordered" id="planTable">
         <thead>
           <tr>
             <th>訪問日</th>
@@ -37,8 +34,9 @@
         <tbody>
           {% for visit in visit_date %}
             {% with modal_counter=forloop.counter %}
-              <tr>
-                <td>{{ visit }}</td>
+              <tr class="visit-row">
+                <!-- 訪問日セルに data-visit 属性を追加 -->
+                <td data-visit="{{ visit }}">{{ visit }}</td>
                 <td>
                   <ul id="selectedSpot{{ modal_counter }}" class="selected-spot sortable">
                     {% for spot in selected_spots %}
@@ -105,12 +103,6 @@
         </tbody>
       </table>
 
-
-      
-
-
-
-
       <!-- 保存ボタン -->
       <button type="submit" class="btn btn-primary">保存</button>
     </form>
@@ -124,32 +116,15 @@
 
   <!-- JavaScript部分 -->
   <script>
-    function populateFormData() {
-      var selectedSpotIds = [];
-      var visitDates = [];
-  
-      // モーダル内で選択されたチェックボックスをすべて取得して選択IDと日付を格納
-      document.querySelectorAll('.modal-checkbox:checked').forEach(function(checkbox) {
-        selectedSpotIds.push(checkbox.getAttribute('data-spot-id'));
-        visitDates.push(checkbox.getAttribute('data-visit-date'));
-      });
-  
-      // 隠しフィールドに値を設定
-      document.getElementById('selected_spot_ids').value = selectedSpotIds.join(',');
-      document.getElementById('visit_dates').value = visitDates.join(',');
+    // モーダル制御や選択処理等の既存コードはそのまま
+
+    function openModal(modalId) {
+      document.getElementById(modalId).style.display = 'block';
     }
     
-    // Attach this function to the form submission event or modal submit button
-    document.getElementById('submit_button').addEventListener('click', function() {
-      populateFormData();
-    });
-  </script>
-  <script>
-    // グローバル変数：マップと現在のマーカー群
-    let map;
-    let markers = [];
-    let selectedMarker = null;  // 現在選択されているマーカー
-    let selectedSpotId = null;   // 現在選択されている観光地ID
+    function closeModal() {
+      document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
+    }
 
     // モーダルを開く
     document.querySelectorAll('.openWantedSpotModal').forEach(function (link) {
@@ -212,75 +187,84 @@
       });
     });
 
-    // フォーム送信時にドラッグ順（スポットID）をhiddenフィールドに設定
-    document.querySelector('form').addEventListener('submit', function (e) {
-      let spots = [];
-      document.querySelectorAll('.sortable-item').forEach(function (item) {
-        spots.push(item.getAttribute('data-spot-id'));
+    // フォーム送信時に、各行の訪問日とその日のスポットIDを個別のhidden inputとして追加する
+    document.getElementById('touristplanForm').addEventListener('submit', function (e) {
+      // すでに追加されたhidden inputがあれば削除する
+      var existingInputs = document.querySelectorAll('.dynamic-hidden');
+      existingInputs.forEach(function(input){
+        input.remove();
       });
-      
-      const spotsField = document.createElement('input');
-      spotsField.type = 'hidden';
-      spotsField.name = 'tourist_spots';
-      spotsField.value = spots.join(',');
-      this.appendChild(spotsField);
+
+      // 各行（訪問日ごと）の処理
+      document.querySelectorAll('.visit-row').forEach(function(row) {
+        // 1列目のセルから訪問日を取得（data-visit属性）
+        var visitDate = row.querySelector('td[data-visit]').getAttribute('data-visit');
+        // その行内の selected-spot リストを取得
+        var spotList = row.querySelector('.selected-spot');
+        if (spotList) {
+          // 各スポットについてhidden inputを作成
+          spotList.querySelectorAll('.sortable-item').forEach(function(item) {
+            var spotId = item.getAttribute('data-spot-id');
+            // hidden input for spot id
+            var inputSpot = document.createElement('input');
+            inputSpot.type = 'hidden';
+            inputSpot.name = 'selected_spot_ids';
+            inputSpot.value = spotId;
+            inputSpot.classList.add('dynamic-hidden');
+            // hidden input for visit date (同じ訪問日を対応するスポットに設定)
+            var inputVisit = document.createElement('input');
+            inputVisit.type = 'hidden';
+            inputVisit.name = 'visit_dates';
+            inputVisit.value = visitDate;
+            inputVisit.classList.add('dynamic-hidden');
+            // フォームに追加
+            this.appendChild(inputSpot);
+            this.appendChild(inputVisit);
+          }.bind(this));  // thisはフォーム要素
+        }
+      }.bind(this));  // thisはフォーム要素
     });
-    
-    function openModal(modalId) {
-      document.getElementById(modalId).style.display = 'block';
-    }
-    
-    function closeModal() {
-      document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
-    }
+
+    // 以降はGoogle Map関連の処理
+    let map;
+    let markers = [];
+    let selectedMarker = null;  // 現在選択されているマーカー
+    let selectedSpotId = null;   // 現在選択されている観光地ID
 
     // Google Map初期化
     function initMap() {
-      // 初期表示の中心座標（例：東京）
       var center = { lat: 35.6895, lng: 139.6917 };
       map = new google.maps.Map(document.getElementById('map'), {
         zoom: 10,
         center: center
       });
       
-      // サーバサイドで既に選択済みの観光地（selected_spots）もピン表示
+      // サーバサイドで既に選択済みの観光地もピン表示
       {% for spot in selected_spots %}
         addMarker({ lat: {{ spot.lat }}, lng: {{ spot.lng }} }, "{{ spot.id }}", "{{ spot.spot_name }}", "{{ spot.address }}", {{ spot.staytime_hours }}, {{ spot.staytime_minutes }});
       {% endfor %}
       
-      // リストのクリックイベントを設定（初回表示時）
       setListClickHandlers();
     }
 
-    // 指定の位置にマーカーを追加する関数（spotIdを追加）
     function addMarker(position, spotId, title, address, stayHours, stayMinutes) {
       var marker = new google.maps.Marker({
         position: position,
         map: map,
         title: title
       });
-      // マーカーにスポットIDを設定
       marker.spotId = spotId;
-
       var infowindow = new google.maps.InfoWindow({
-        content: `
-          <h3 style="font-size: 16px; margin: 0;">${title}</h3>
-
-        `
+        content: `<h3 style="font-size: 16px; margin: 0;">${title}</h3>`
       });
-
       marker.addListener('click', function () {
         infowindow.open(map, marker);
-        // ピンをクリックした際に選択状態にする
         selectSpot(spotId);
       });
-
       markers.push(marker);
     }
 
-    // ピンをクリックしたときの処理（CSSクラスを使ってリスト項目全体を薄い青に変更）
     function selectSpot(spotId) {
-      // 既に選択されている場合は解除（対象はメインの選択済みリスト内の要素）
       if (selectedSpotId) {
         var prevSelectedItem = document.querySelector('.selected-spot [data-spot-id="' + selectedSpotId + '"]');
         if (prevSelectedItem) {
@@ -291,32 +275,22 @@
           prevMarker.setIcon(null);
         }
       }
-
-      // 新たに選択されたマーカーとリスト項目を取得（メインの選択済みリスト内から取得）
       selectedMarker = markers.find(m => m.spotId === spotId);
       const selectedItem = document.querySelector('.selected-spot [data-spot-id="' + spotId + '"]');
-
       if (selectedMarker) {
-        // 選択済みのピンは青いアイコンに変更
         selectedMarker.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
       }
       if (selectedItem) {
-        // CSSクラス「selected-item」を付与して、背景色・枠線を薄い青に変更
         selectedItem.classList.add('selected-item');
       }
-
       selectedSpotId = spotId;
     }
 
-    // 選択リストから現在のマーカーを削除し、新たにピンを追加する
     function updateMapMarkers(listId) {
-      // 既存マーカーを全て削除
       markers.forEach(function(marker) {
         marker.setMap(null);
       });
       markers = [];
-
-      // リスト内の各項目から位置情報を取得しマーカー追加
       var listItems = document.getElementById(listId).querySelectorAll('.sortable-item');
       listItems.forEach(function(item) {
         var spotId = item.getAttribute('data-spot-id');
@@ -325,12 +299,9 @@
         var spotName = item.getAttribute('data-spot-name');
         addMarker({lat: lat, lng: lng}, spotId, spotName, "", 0, 0);
       });
-
-      // リストのクリックイベントを再設定
       setListClickHandlers();
     }
 
-    // 各選択済みリストの項目にクリックイベントを設定し、対応するマーカーにフォーカスする
     function setListClickHandlers() {
       document.querySelectorAll('.selected-spot .sortable-item').forEach(function(item) {
         item.addEventListener('click', function(e) {
@@ -347,7 +318,6 @@
       });
     }
 
-    // 初期化
     google.maps.event.addDomListener(window, 'load', initMap);
   </script>
 
@@ -359,12 +329,7 @@
     .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
     .modal-content { background-color: #fff; margin: 15% auto; padding: 20px; width: 80%; max-width: 500px; border-radius: 4px; }
     .close { position: absolute; top: 10px; right: 10px; font-size: 28px; cursor: pointer; }
-    /* 選択中のリスト項目（□全体）の背景色と枠線 */
-    .selected-item {
-      background-color: #ADD8E6;
-      border: 2px solid #ADD8E6;
-    }
-    
+    .selected-item { background-color: #ADD8E6; border: 2px solid #ADD8E6; }
   </style>
   
 {% endblock %}
