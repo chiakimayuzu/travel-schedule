@@ -84,4 +84,9 @@
 
     <button type="submit">保存</button>
 </form>
+
+<form method="POST" action="{% url 'travelapp:delete_touristspot' pk=tourist_spot.pk %}" onsubmit="return confirm('本当に削除しますか？');">
+    {% csrf_token %}
+    <button type="submit" style="background-color: red; color: white;">この観光地を削除する</button>
+</form>
 {% endblock %}
