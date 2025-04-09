@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1 style="text-align: center; margin-bottom: 30px;">❤️行きたいリスト</h1>
-  <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+<h1 style="font-size: 24px;">❤️行きたいリスト</h1>
+  <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: flex-start;">
     {% for item in wanted_spots %}
-      <div style="width: 200px; border: 1px solid #ccc; border-radius: 10px; padding: 10px; text-align: center; background-color: #fff; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);">
+      <div style="width: 200px; border: 1px solid #ccc; border-radius: 10px; padding: 10px; text-align: center; background-color: #fff;">
         <a href="{% url 'travelapp:detail_touristspot' pk=item.tourist_spot.id %}">
           {% if item.tourist_spot.picture %}
             <img src="{{ item.tourist_spot.picture.url }}" alt="{{ item.tourist_spot.spot_name }}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 5px;">
@@ -25,4 +25,5 @@
     {% endfor %}
   </div>
 {% endblock %}
+
 

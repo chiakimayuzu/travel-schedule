@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h1>🚩観光地登録(*は必須です)</h1>
+<h1 style="font-size: 24px;">🚩観光地登録(*は必須です)</h1>
 
 <!-- extra_tags='regist_touristspot' を使ったメッセージ のみ regist_touristspot.html で表示 --> 
 {% if messages %} 
@@ -125,9 +125,15 @@
 
 
     <div>
-        <button type="submit" class="btn btn-primary">登録</button>
-    </div>
+      <button type="submit"
+      style="display: block !important; width: 100%; padding: 12px; font-size: 16px;
+             background-color:rgb(69, 110, 160); color: white; border: none; border-radius: 6px;">
+      登録
+      </button>
+      </div>
+      
 </form>
+
 
 
 
