@@ -5,7 +5,7 @@
 
   <div>
     <br><h2 style="font-size: 20px;">{{ plan.touristplan_name }}</h2>
-    <p><strong>{{ plan.start_date }} ～ {{ plan.end_date }}</strong></p>
+    <p><strong>{{ plan.start_date|date:"Y年m月d日 (l)" }} ～ {{ plan.end_date|date:"Y年m月d日 (l)" }}</strong></p>
 
     
     <a href="{% url 'travelapp:touristplan_list' %}" class="back-link">旅行プラン一覧に戻る</a><br>
