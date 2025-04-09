@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h1 style="font-size: 24px;">🚩観光地登録(*は必須です)</h1>
+<h1 style="font-size: 24px;">🚩観光地登録 <span style="color: red;">(*は必須です)</span></h1>
 
 <!-- extra_tags='regist_touristspot' を使ったメッセージ のみ regist_touristspot.html で表示 --> 
 {% if messages %} 
@@ -19,15 +19,16 @@
     {% csrf_token %}
     
     <div>
-        <label for="{{ form.spot_name.id_for_label }}">観光地名*:</label>
+        <label for="{{ form.spot_name.id_for_label }}">観光地名<span style="color: red;">*</span>:</label>
         {{ form.spot_name }}
         {% if form.spot_name.errors %}
             <div class="error">{{ form.spot_name.errors }}</div>
         {% endif %}
     </div>
     <p><span id="spot_name_error" style="display:none; color: red;"></span></p>
+    
     <div>
-      <label for="{{ form.prefecture.id_for_label }}">都道府県*:</label>
+      <label for="{{ form.prefecture.id_for_label }}">都道府県<span style="color: red;">*</span>:</label>
       {{ form.prefecture }}
       {% if form.prefecture.errors %}
           <div class="error">{{ form.prefecture.errors }}</div>
@@ -35,15 +36,16 @@
   </div>
 
     <div>
-        <label for="{{ form.address.id_for_label }}">住所*:</label>
+        <label for="{{ form.address.id_for_label }}">住所<span style="color: red;">*</span>:</label>
         {{ form.address }}
         {% if form.address.errors %}
             <div class="error">{{ form.address.errors }}</div>
         {% endif %}
     </div>
     <p><span id="address_error" style="display:none; color: red;"></span></p>
+    
     <div>
-        <label for="{{ form.tel.id_for_label }}">電話番号*:</label>
+        <label for="{{ form.tel.id_for_label }}">電話番号<span style="color: red;">*</span>:</label>
         {{ form.tel }}
         {% if form.tel.errors %}
             <div class="error">{{ form.tel.errors }}</div>
@@ -51,7 +53,7 @@
     </div>
 
     <div>
-        <label for="{{ form.category.id_for_label }}">カテゴリ*:</label>
+        <label for="{{ form.category.id_for_label }}">カテゴリ<span style="color: red;">*</span>:</label>
         {{ form.category }}
         {% if form.category.errors %}
             <div class="error">{{ form.category.errors }}</div>
@@ -83,7 +85,7 @@
     </div>
 
     <div>
-        <label for="{{ form.parking.id_for_label }}">駐車場*:</label>
+        <label for="{{ form.parking.id_for_label }}">駐車場<span style="color: red;">*</span>:</label>
         {{ form.parking }}
         {% if form.parking.errors %}
             <div class="error">{{ form.parking.errors }}</div>
@@ -91,7 +93,7 @@
     </div>
 
     <div>
-        <label for="{{ form.keywords.id_for_label }}">キーワード*:</label>
+        <label for="{{ form.keywords.id_for_label }}">キーワード<span style="color: red;">*</span>:</label>
         {{ form.keywords }}
         <small>{{ form.keywords.help_text }}</small>
         {% if form.keywords.errors %}
@@ -100,7 +102,7 @@
     </div>
 
     <div>
-        <label for="{{ form.picture.id_for_label }}">画像*:</label>
+        <label for="{{ form.picture.id_for_label }}">画像<span style="color: red;">*</span>:</label>
         {{ form.picture }}
         {% if form.picture.errors %}
             <div class="error">{{ form.picture.errors }}</div>
@@ -108,7 +110,7 @@
     </div>
 
     <div>
-        <label for="{{ form.offical_url.id_for_label }}">公式URL*:</label>
+        <label for="{{ form.offical_url.id_for_label }}">公式URL<span style="color: red;">*</span>:</label>
         {{ form.offical_url }}
         {% if form.offical_url.errors %}
             <div class="error">{{ form.offical_url.errors }}</div>
@@ -116,13 +118,12 @@
     </div>
 
     <div>
-        <label for="{{ form.description.id_for_label }}">説明*:</label>
+        <label for="{{ form.description.id_for_label }}">説明<span style="color: red;">*</span>:</label>
         {{ form.description }}
         {% if form.description.errors %}
             <div class="error">{{ form.description.errors }}</div>
         {% endif %}
     </div>
-
 
     <div>
       <button type="submit"
@@ -133,9 +134,6 @@
       </div>
       
 </form>
-
-
-
 
 <script>
 $(document).ready(function() {
@@ -148,49 +146,45 @@ $(document).ready(function() {
 });
 </script>
 
-
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        function checkDuplicate() {
-          const spotName = document.getElementById('id_spot_name').value.trim();
-          const address = document.getElementById('id_address').value.trim();
-      
-          if (spotName || address) {
-            const url = `{% url 'travelapp:check_dupe_tourist_spot' %}?spot_name=${encodeURIComponent(spotName)}&address=${encodeURIComponent(address)}`;
-      
-            fetch(url)
-              .then(response => response.json())
-              .then(data => {
-                const spotNameError = document.getElementById('spot_name_error');
-                const addressError = document.getElementById('address_error');
-      
-                // titleだけが重複している場合
-                if (data.spot_name_exists) {
-                  spotNameError.textContent = "この観光地名は既に登録されています";
-                  spotNameError.style.display = 'block';
-                } else {
-                  spotNameError.style.display = 'none';
-                }
-      
-                // addressだけが重複している場合
-                if (data.address_exists) {
-                  addressError.textContent = "この住所は既に登録されています";
-                  addressError.style.display = 'block';
-                } else {
-                  addressError.style.display = 'none';
-                }
-              })
-              .catch(error => console.error('Error:', error));
-          }
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      function checkDuplicate() {
+        const spotName = document.getElementById('id_spot_name').value.trim();
+        const address = document.getElementById('id_address').value.trim();
+    
+        if (spotName || address) {
+          const url = `{% url 'travelapp:check_dupe_tourist_spot' %}?spot_name=${encodeURIComponent(spotName)}&address=${encodeURIComponent(address)}`;
+    
+          fetch(url)
+            .then(response => response.json())
+            .then(data => {
+              const spotNameError = document.getElementById('spot_name_error');
+              const addressError = document.getElementById('address_error');
+    
+              // titleだけが重複している場合
+              if (data.spot_name_exists) {
+                spotNameError.textContent = "この観光地名は既に登録されています";
+                spotNameError.style.display = 'block';
+              } else {
+                spotNameError.style.display = 'none';
+              }
+    
+              // addressだけが重複している場合
+              if (data.address_exists) {
+                addressError.textContent = "この住所は既に登録されています";
+                addressError.style.display = 'block';
+              } else {
+                addressError.style.display = 'none';
+              }
+            })
+            .catch(error => console.error('Error:', error));
         }
-      
-        document.getElementById('id_spot_name').addEventListener("input", checkDuplicate);
-        document.getElementById('id_address').addEventListener("input", checkDuplicate);
-      });
-  </script>
-
-</body>
-</html>
+      }
+    
+      document.getElementById('id_spot_name').addEventListener("input", checkDuplicate);
+      document.getElementById('id_address').addEventListener("input", checkDuplicate);
+    });
+</script>
 
 <style>
   form {
