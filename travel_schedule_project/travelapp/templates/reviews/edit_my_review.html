@@ -127,6 +127,74 @@
 
 {% block extra_styles %}
 <style>
+  
+  /* フォームの入力要素を柔らかくする */
+input, select, textarea {
+  border-radius: 8px; /* 角を丸くする */
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  transition: border-color 0.3s ease; /* フォーカス時の色変更をスムーズに */
+}
+
+/* フォーカス時のスタイルを追加 */
+input:focus, select:focus, textarea:focus {
+  border-color: #4ca7af; /* フォーカス時のボーダーカラーを変更 */
+  outline: none; /* フォーカス時のアウトラインを削除 */
+}
+
+/* フォームラベルと入力フィールドの縦並び */
+.form-group {
+  margin-bottom: 20px; /* 各フォームの間隔を調整 */
+}
+
+.form-label {
+  display: block; /* ラベルをブロック要素として表示 */
+  font-weight: bold; /* ラベルの太文字化 */
+  margin-bottom: 5px; /* ラベルと入力フォームの間隔を調整 */
+}
+
+input, select, textarea {
+  width: 100%; /* 入力フォームを横幅100%に */
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px; /* 角を丸くする */
+  margin-bottom: 10px; /* 入力フォームと次の要素との間隔 */
+}
+
+  .spot-image {
+    max-width: 100%;
+    height: auto;
+    width: 300px; /* 画像の幅を調整 */
+    object-fit: cover;
+    border-radius: 10px; /* 画像の角を丸くする */
+  }
+
+  .stay-time {
+    display: flex;
+    gap: 15px;
+    font-size: 16px;
+  }
+  
+  .stay-time select {
+    padding: 8px;
+    font-size: 14px;  /* フォントサイズを小さく */
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    width: 120px;  /* 幅を小さく */
+  }
+  .submit-button {
+    background-color: rgb(76, 167, 175);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
   .rating-stars {
     display: inline-block;
     gap: 4px;
@@ -139,34 +207,19 @@
     transition: color 0.2s, transform 0.2s ease-in-out;
   }
 
-  .star.selected {
-    color: gold;
-    transform: scale(1.2);
-  }
-
+  .star.selected,
   .star:hover {
     color: gold;
     transform: scale(1.2);
   }
 
-  /* 観光地情報のスタイル */
-  .spot-info {
-    margin-bottom: 20px;
-    text-align: left; /* 左詰めに強制 */
+  .error {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
   }
 
-  .spot-info h2 {
-    font-size: 24px;
-    margin-bottom: 10px;
-    font-weight: bold;
-    color: #333;
-  }
-
-  .spot-info img {
-    border-radius: 8px;
-    max-width: 100%;
-  }
-
+  /* 戻るボタンのスタイル */
   .back-link {
     margin-top: 30px;
     font-size: 14px;
@@ -180,91 +233,6 @@
   .back-link a:hover {
     text-decoration: underline;
   }
-
-  /* フォーム全体のスタイル */
-  form {
-    display: flex;
-    flex-direction: column; /* 要素を縦並びに */
-    gap: 20px;
-    max-width: 600px;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: left; /* 左詰め強制 */
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    text-align: left; /* 左詰め強制 */
-  }
-
-  .form-label {
-    font-size: 16px;
-    font-weight: bold;
-    color: #555;
-  }
-
-  /* 入力フィールドのスタイル */
-  input, select, textarea {
-    padding: 12px;
-    font-size: 16px;
-    border-radius: 8px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    transition: all 0.3s ease;
-    text-align: left !important; /* 左詰め強制 */
-  }
-
-  /* ボタンのスタイル */
-  .submit-button {
-    background-color: rgb(76, 167, 175);
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-  }
-
-  /* エラーメッセージのスタイル */
-  .error {
-    color: red;
-    font-size: 14px;
-    margin-top: 5px;
-  }
-
-  /* 滞在時間のスタイル */
-  .stay-time {
-    display: flex;
-    gap: 15px;
-    font-size: 16px;
-  }
-
-  .stay-time select {
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-  }
-
-  .spot-info img {
-    border-radius: 8px;
-    max-width: 300px; /* 画像の幅を300pxに制限 */
-    max-height: 200px; /* 画像の高さを200pxに制限 */
-    object-fit: cover; /* 画像の比率を保ちながら切り取ります */
-  }
-
-  .back-link {
-    margin-top: 30px;
-    font-size: 14px;
-  }
-
-  .back-link a:hover {
-    text-decoration: underline;
-  }
 </style>
 {% endblock %}
-
 {% endblock %}
