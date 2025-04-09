@@ -1,30 +1,40 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>📅旅行プラン作成</h1>
-<form method="post" action="{% url 'travelapp:schedule' %}">
+<h1 style="font-size: 28px;">📅旅行プラン作成</h1>
+
+<form method="post" action="{% url 'travelapp:schedule' %}" style="max-width: 500px; margin-left: 20px;">
   {% csrf_token %}
 
-  <div>
-    <label>旅行日程:</label>
-    <div style="display: flex; align-items: center;">
-      <input type="text" id="schedule-range" name="schedule_range" placeholder="日付を選択してください" readonly>
-      <span id="calendar-icon" style="cursor: pointer; margin-left: 10px;">📆</span>
-    </div>
+<!-- 旅行日程 -->
+<div style="display: block !important; margin-bottom: 20px;">
+  <label for="schedule-range" style="display: block !important; margin-bottom: 8px;">旅行日程</label>
+  <div style="display: flex; align-items: center;">
+    <input type="text" id="schedule-range" name="schedule_range"
+           placeholder="日付を選択してください" readonly
+           style="flex: 1; padding: 10px; margin-right: 10px;">
+    <span id="calendar-icon" style="cursor: pointer; font-size: 20px;">📆</span>
   </div>
+</div>
   <input type="hidden" name="start_date" id="start_date">
   <input type="hidden" name="end_date" id="end_date">
 
-  <br>
-
-  <div>
-    <label>プラン名:</label>
-    <input type="text" name="touristplan_name" required>
+  <!-- プラン名 -->
+  <div style="display: block !important; margin-bottom: 20px;">
+    <label for="touristplan_name" style="display: block !important; margin-bottom: 8px;">プラン名</label>
+    <input type="text" id="touristplan_name" name="touristplan_name" required
+       placeholder="例: 北海道3日間の旅"
+       style="display: block !important; width: 100%; padding: 10px;">
   </div>
 
-  <br>
-
-  <button type="submit">スケジュール作成</button>
+  <!-- スケジュール作成ボタン -->
+  <div style="display: block !important; margin-top: 30px;">
+    <button type="submit"
+            style="display: block !important; width: 100%; padding: 12px; font-size: 16px;
+                   background-color: #007bff; color: white; border: none; border-radius: 6px;">
+      スケジュール作成
+    </button>
+  </div>
 </form>
 
 <!-- flatpickrのCDN -->
@@ -43,15 +53,15 @@
       if (selectedDates.length === 2) {
         document.getElementById("start_date").value = selectedDates[0].toISOString().split('T')[0];
         document.getElementById("end_date").value = selectedDates[1].toISOString().split('T')[0];
-
-        document.getElementById("schedule-range").value = selectedDates[0].toISOString().split('T')[0] + ' to ' + selectedDates[1].toISOString().split('T')[0];
+        document.getElementById("schedule-range").value =
+          selectedDates[0].toISOString().split('T')[0] + ' to ' +
+          selectedDates[1].toISOString().split('T')[0];
       }
     }
   });
 
-  calendarIcon.addEventListener("click", function() {
+  calendarIcon.addEventListener("click", function () {
     calendar.open();
   });
 </script>
 {% endblock %}
-
