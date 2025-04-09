@@ -88,8 +88,7 @@
                             <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width: 100px; height: auto;"><br>
                           {% endif %}
                           カテゴリ: {{ spot.category }}<br>
-                          都道府県: {{ spot.prefecture }}<br>
-                          住所: {{ spot.address }}<br>
+                          住所: {{ spot.prefecture }}{{ spot.address }}<br>
                           平均滞在時間: {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
                         </li>
                       {% endfor %}
@@ -113,7 +112,7 @@
   </div>
 
   <!-- Google Maps APIの読み込み -->
-  <br><script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
   <div id="map" style="height: 500px;"></div>
 
   <!-- JavaScript部分 -->
