@@ -1,102 +1,196 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>💬{{ review.user.username }} さんのクチコミ詳細</h1>
+  <div class="review-detail-container">
+    <h1>💬{{ review.user.username }} さんのクチコミ詳細</h1>
 
-  <div>
-    <h2>{{ review.tourist_spot.spot_name }}</h2>
-    {% if review.tourist_spot.picture %}
-      <img src="{{ review.tourist_spot.picture.url }}" alt="{{ review.tourist_spot.spot_name }}" style="width: 300px; height: 200px; object-fit: cover;">
-    {% else %}
-      <img src="/static/images/no-image.png" alt="No Image" style="width: 300px; height: 200px; object-fit: cover;">
-    {% endif %}
-    <p>{{ review.review_title }}</p>
-    <p>{{ review.review_description }}</p>
-    <p>
-      評価スコア:
-<!-- 塗りつぶし星 -->
-{% for star in filled_stars %}
-  <span class="star filled">&#9733;</span>
-{% endfor %}
+    <div class="review-detail-box">
+      <h2 class="spot-name">{{ review.tourist_spot.spot_name }}</h2>
 
-<!-- 半分塗りつぶし星 -->
-{% if half_star %}
-  <span class="star half">&#9733;</span>
-{% endif %}
+      {% if review.tourist_spot.picture %}
+        <img src="{{ review.tourist_spot.picture.url }}" alt="{{ review.tourist_spot.spot_name }}" class="spot-image">
+      {% else %}
+        <img src="/static/images/no-image.png" alt="No Image" class="spot-image">
+      {% endif %}
 
-<!-- 空の星 -->
-{% for star in empty_stars %}
-  <span class="star empty">&#9734;</span>
-{% endfor %}
-    </p>
+      <div class="review-info">
+        <p class="review-title">{{ review.review_title }}</p>
+        <p class="review-description">{{ review.review_description }}</p>
 
+        <p class="review-score">
+          評価スコア:
+          <span class="rating-stars">
+            {% for star in filled_stars %}
+              <span class="star filled">&#9733;</span>
+            {% endfor %}
+            {% if half_star %}
+              <span class="star half">&#9733;</span>
+            {% endif %}
+            {% for star in empty_stars %}
+              <span class="star empty">&#9734;</span>
+            {% endfor %}
+          </span>
+        </p>
 
+        <p>費用: {{ review.get_review_price_display }}</p>
+        <p>滞在時間: {{ review.stay_time_hours }}時間 {{ review.stay_time_minutes }}分</p>
+        <p>投稿日: {{ review.created_at|date:"Y年m月d日 H:i" }}</p>
+        <p>更新日: {{ review.updated_at|date:"Y年m月d日 H:i" }}</p>
+      </div>
+    </div>
 
-    <p>費用: {{ review.get_review_price_display }}</p>
-    <p>滞在時間: {{ review.stay_time_hours }}時間 {{ review.stay_time_minutes }}分</p>
-    <p>投稿日: {{ review.created_at|date:"Y年m月d日 H:i" }}</p>
-    <p>更新日: {{ review.updated_at|date:"Y年m月d日 H:i" }}</p>
+    <div class="review-buttons">
+      <a href="{% url 'travelapp:edit_my_review' pk=review.id %}" class="edit-button">編集</a>
+      <form method="post" class="delete-form" onsubmit="return confirm('本当に削除しますか？');">
+        {% csrf_token %}
+        <button type="submit" name="delete" value="1" class="delete-button">レビューを削除</button>
+      </form>
+    </div>
+
+    <div class="back-link">
+      <a href="{% url 'travelapp:my_review_list' %}">← クチコミリストに戻る</a>
+    </div>
   </div>
-  <a href="{% url 'travelapp:edit_my_review' pk=review.id %}">編集</a>
-  
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit" name="delete" value="1">レビューを削除</button>
-  </form>
+
+{% block extra_styles %}
+  <style>
+    .review-detail-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      font-family: sans-serif;
+    }
+
+    .review-detail-box {
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .spot-name {
+      margin-bottom: 10px;
+      font-size: 22px;
+      color: #333;
+    }
+
+    .spot-image {
+      width: 100%;
+      height: auto;
+      max-height: 300px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+
+    .review-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .review-description {
+      margin-bottom: 12px;
+      color: #555;
+    }
+
+    .review-score {
+      margin: 10px 0;
+    }
+
+    /* 星の共通スタイル */
+    .star {
+      font-size: 30px;
+      color: #ccc; /* デフォルトの空の星をグレー */
+      position: relative;
+      display: inline-block;
+    }
+    
+    /* 塗りつぶしの星 */
+    .star.filled {
+      color: gold; /* 完全に塗りつぶし */
+    }
+    
+    /* 半分塗りつぶしの星 */
+    .star.half {
+      position: relative;
+    }
+    
+    /* 半分塗りつぶしの星 - 背景をグレーに */
+    .star.half::before {
+      content: '★'; /* 星の形 */
+      position: absolute;
+      left: 0;
+      width: 50%;
+      overflow: hidden;
+      color: gold; /* 左半分をゴールド */
+    }
+    
+    /* 完全な空の星も背景をグレーにする */
+    .star.empty {
+      color: #ccc; /* グレーに設定 */
+      position: relative;
+    }
+    
+    /* 空の星をグレー背景に */
+    .star.empty::before {
+      content: '★'; /* 星の形 */
+      position: absolute;
+      left: 0;
+      color: #ccc; /* 全体をグレーに塗りつぶす */
+    }  
+
+    .review-buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 20px;
+    }
+
+    .edit-button,
+    .delete-button {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .edit-button {
+      background-color: rgb(206, 228, 248);
+      color: #000;
+    }
 
 
-  <a href="{% url 'travelapp:my_review_list' %}">レビュー一覧に戻る</a>
 
-<!-- ⭐ CSS for styling -->
-<style>
-  /* 星のコンテナ */
-  .rating-stars {
-    display: flex;
-    gap: 4px;
-  }
-  
-  /* 星の共通スタイル */
-  .star {
-    font-size: 30px;
-    color: #ccc; /* デフォルトの空の星をグレー */
-    position: relative;
-    display: inline-block;
-  }
-  
-  /* 塗りつぶしの星 */
-  .star.filled {
-    color: gold; /* 完全に塗りつぶし */
-  }
-  
-  /* 半分塗りつぶしの星 */
-  .star.half {
-    position: relative;
-  }
-  
-  /* 半分塗りつぶしの星 - 背景をグレーに */
-  .star.half::before {
-    content: '★'; /* 星の形 */
-    position: absolute;
-    left: 0;
-    width: 50%;
-    overflow: hidden;
-    color: gold; /* 左半分をゴールド */
-  }
-  
-  /* 完全な空の星も背景をグレーにする */
-  .star.empty {
-    color: #ccc; /* グレーに設定 */
-    position: relative;
-  }
-  
-  /* 空の星をグレー背景に */
-  .star.empty::before {
-    content: '★'; /* 星の形 */
-    position: absolute;
-    left: 0;
-    color: #ccc; /* 全体をグレーに塗りつぶす */
-  }  
-</style>
+    .delete-button {
+      background-color: #ff4d4f;
+      color: #fff;
+    }
 
 
+
+    .back-link {
+      margin-top: 30px;
+      font-size: 14px;
+    }
+
+    .back-link a {
+      color: #555;
+      text-decoration: none;
+    }
+
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .review-buttons {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+{% endblock %}
 {% endblock %}

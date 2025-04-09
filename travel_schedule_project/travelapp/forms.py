@@ -208,6 +208,15 @@ class UserReviewForm(forms.ModelForm):
             'review_description', 'review_price', 'stay_time_hours', 'stay_time_minutes'
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:  # インスタンスがある場合
+            hours = self.instance.stay_time_min // 60
+            minutes = (self.instance.stay_time_min % 60)
+            # 初期値を設定
+            self.fields['stay_time_hours'].initial = hours
+            self.fields['stay_time_minutes'].initial = minutes
+
     def save(self, commit=True):
         instance = super().save(commit=False)
         hours = int(self.cleaned_data.get('stay_time_hours', 0))

@@ -41,6 +41,7 @@
   <p>まだクチコミがありません。</p>
 {% endif %}
 
+{% block extra_styles %}
 <style>
   .review-list {
     display: flex;
@@ -93,7 +94,7 @@
 
   .edit-button {
     display: inline-block;
-    background-color: #a0c4ff;
+    background-color:rgb(206, 228, 248);
     color: #000 !important; /* 常に黒文字 */
     padding: 6px 12px;
     border-radius: 6px;
@@ -103,10 +104,7 @@
     transition: background-color 0.2s ease;
   }
 
-  .edit-button:hover {
-    background-color: #8bb6f2;
-    color: #000 !important; /* ホバー時も黒文字 */
-  }
+
 
   .delete-button {
     background-color: #ff4d4f;
@@ -118,10 +116,9 @@
     font-size: 13px;
   }
 
-  .delete-button:hover {
-    background-color: #e63946;
-  }
+
 
 
 </style>
+{% endblock %}
 {% endblock %}

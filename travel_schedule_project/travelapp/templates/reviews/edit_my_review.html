@@ -5,20 +5,20 @@
 <div class="spot-info">
   <h2>{{ review.tourist_spot.spot_name }}</h2>
   {% if review.tourist_spot.picture %}
-    <img src="{{ review.tourist_spot.picture.url }}" alt="{{ review.tourist_spot.spot_name }}" style="width: 200px; height: 150px; object-fit: cover;">
+    <img src="{{ review.tourist_spot.picture.url }}" alt="{{ review.tourist_spot.spot_name }}" class="spot-image">
   {% else %}
-    <img src="/static/images/no-image.png" alt="No Image" style="width: 200px; height: 150px; object-fit: cover;">
+    <img src="/static/images/no-image.png" alt="No Image" class="spot-image">
   {% endif %}
 </div>
 
-<a href="{% url 'travelapp:my_review_detail' review_id=review.id %}">戻る</a>
+<a href="{% url 'travelapp:my_review_detail' review_id=review.id %}" class="back-link">戻る</a>
 
 <form method="POST">
   {% csrf_token %}
   
   <!-- 評価スコア -->
-  <div>
-    <label for="{{ form.review_score.id_for_label }}">評価スコア*:</label>
+  <div class="form-group">
+    <label for="{{ form.review_score.id_for_label }}" class="form-label">評価スコア*:</label>
     <div class="rating-stars" id="rating-stars">
       {% for i in "12345" %}
         <span class="star" data-value="{{ i }}">&#9733;</span>
@@ -35,8 +35,8 @@
   </div>
 
   <!-- レビュータイトル -->
-  <div>
-    <label for="{{ form.review_title.id_for_label }}">レビュータイトル*:</label>
+  <div class="form-group">
+    <label for="{{ form.review_title.id_for_label }}" class="form-label">レビュータイトル*:</label>
     {{ form.review_title }}
     {% if form.review_title.errors %}
       <div class="error">
@@ -48,8 +48,8 @@
   </div>
 
   <!-- レビュー内容 -->
-  <div>
-    <label for="{{ form.review_description.id_for_label }}">レビュー内容*:</label>
+  <div class="form-group">
+    <label for="{{ form.review_description.id_for_label }}" class="form-label">レビュー内容*:</label>
     {{ form.review_description }}
     {% if form.review_description.errors %}
       <div class="error">
@@ -61,8 +61,8 @@
   </div>
 
   <!-- 価格 -->
-  <div>
-    <label for="{{ form.review_price.id_for_label }}">レビュー価格*:</label>
+  <div class="form-group">
+    <label for="{{ form.review_price.id_for_label }}" class="form-label">レビュー価格*:</label>
     {{ form.review_price }}
     {% if form.review_price.errors %}
       <div class="error">
@@ -74,9 +74,12 @@
   </div>
 
   <!-- 滞在時間 -->
-  <div>
-    <label>滞在時間*:</label>
-    {{ form.stay_time_hours }} 時 {{ form.stay_time_minutes }} 分
+  <div class="form-group time-group">
+    <label class="form-label">滞在時間*:</label>
+    <div class="stay-time">
+      {{ form.stay_time_hours }} 時
+      {{ form.stay_time_minutes }} 分
+    </div>
     {% if form.stay_time_hours.errors or form.stay_time_minutes.errors %}
       <div class="error">
         {% for error in form.stay_time_hours.errors %}
@@ -90,7 +93,7 @@
   </div>
 
   <!-- 更新ボタン -->
-  <button type="submit">更新</button>
+  <button type="submit" class="submit-button">更新</button>
 </form>
 
 <!-- ⭐ JS for star rating -->
@@ -120,10 +123,11 @@
   });
 </script>
 
+{% block extra_styles %}
 <!-- ⭐ CSS for styling -->
 <style>
   .rating-stars {
-    display: flex;
+    display: inline-block;
     gap: 4px;
   }
 
@@ -131,16 +135,123 @@
     font-size: 30px;
     color: #ccc;
     cursor: pointer;
-    transition: color 0.2s;
+    transition: color 0.2s, transform 0.2s ease-in-out;
   }
 
   .star.selected {
     color: gold;
+    transform: scale(1.2);
   }
 
   .star:hover {
     color: gold;
+    transform: scale(1.2);
+  }
+
+  /* 観光地情報のスタイル */
+  .spot-info {
+    margin-bottom: 20px;
+  }
+
+  .spot-info h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .spot-info img {
+    border-radius: 8px;
+    max-width: 100%;
+  }
+
+  .back-link {
+    color: #007BFF;
+    font-size: 16px;
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  /* フォーム全体のスタイル */
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 600px;
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .form-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
+  }
+
+  /* 入力フィールドのスタイル */
+  input, select, textarea {
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    transition: all 0.3s ease;
+  }
+
+  /* フォーカス時 */
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #4CAF50;
+  }
+
+  /* ボタンのスタイル */
+  .submit-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .submit-button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+  }
+
+  /* エラーメッセージのスタイル */
+  .error {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+
+  /* 滞在時間のスタイル */
+  .stay-time {
+    display: flex;
+    gap: 15px;
+    font-size: 16px;
+  }
+
+  .stay-time select {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
   }
 </style>
+{% endblock %}
 
 {% endblock %}
