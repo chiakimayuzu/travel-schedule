@@ -11,7 +11,11 @@
   {% endif %}
 </div>
 
-<a href="{% url 'travelapp:my_review_detail' review_id=review.id %}" class="back-link">戻る</a>
+
+
+<div class="back-link">
+<a href="{% url 'travelapp:my_review_detail' review_id=review.id %}" class="back-link">←クチコミ詳細へ戻る</a>
+</div>
 
 <form method="POST">
   {% csrf_token %}
@@ -165,16 +169,19 @@
     max-width: 100%;
   }
 
-  .back-link {
-    color: #007BFF;
-    font-size: 16px;
-    text-decoration: none;
-    margin-bottom: 20px;
-  }
+    .back-link {
+      margin-top: 30px;
+      font-size: 14px;
+    }
+    .back-link a {
+      color: #555;
+      text-decoration: none;
+    }
 
-  .back-link:hover {
-    text-decoration: underline;
-  }
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+
 
   /* フォーム全体のスタイル */
   form {
@@ -208,15 +215,11 @@
     transition: all 0.3s ease;
   }
 
-  /* フォーカス時 */
-  input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: #4CAF50;
-  }
+
 
   /* ボタンのスタイル */
   .submit-button {
-    background-color: #4CAF50;
+    background-color:rgb(76, 167, 175);
     color: white;
     padding: 12px 20px;
     border: none;
@@ -226,10 +229,7 @@
     transition: background-color 0.3s ease, transform 0.3s ease;
   }
 
-  .submit-button:hover {
-    background-color: #45a049;
-    transform: translateY(-2px);
-  }
+
 
   /* エラーメッセージのスタイル */
   .error {
@@ -250,6 +250,22 @@
     font-size: 16px;
     border-radius: 8px;
     border: 1px solid #ddd;
+  }
+
+  .spot-info img {
+    border-radius: 8px;
+    max-width: 300px; /* 画像の幅を300pxに制限 */
+    max-height: 200px; /* 画像の高さを200pxに制限 */
+    object-fit: cover; /* 画像の比率を保ちながら切り取ります */
+  }
+  .back-link {
+    margin-top: 30px;
+    font-size: 14px;
+  }
+
+
+  .back-link a:hover {
+    text-decoration: underline;
   }
 </style>
 {% endblock %}
