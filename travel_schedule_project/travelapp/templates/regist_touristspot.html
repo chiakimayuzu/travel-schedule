@@ -68,7 +68,7 @@
               <div class="error">{{ form.workingday.errors }}</div>
           {% endif %}
       </div>
-  </div>
+    </div>
 
     <div>
         <label for="{{ form.opening_at.id_for_label }}">営業開始時間:</label>
@@ -188,7 +188,12 @@ $(document).ready(function() {
       document.getElementById('id_address').addEventListener("input", checkDuplicate);
     });
 </script>
-  
+<style>
+  .workingday-checkboxes input {
+    display: inline-block;
+    margin-right: 10px;
+  }
+</style>
 
 
 {% endblock %}
