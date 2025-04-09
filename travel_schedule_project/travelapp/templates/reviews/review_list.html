@@ -1,34 +1,35 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{ tourist_spot.spot_name }} のクチコミ</h1>
+<h1 style="font-size: 24px; text-align: center;">💬{{ tourist_spot.spot_name }} のクチコミ</h1>
 
 <!-- 観光地の画像と名前 -->
-<div>
+<div style="text-align: center; margin-bottom: 20px;">
     {% if tourist_spot.picture %}
-        <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}" style="width: 200px; height: auto;">
+        <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px;">
     {% else %}
-        <img src="/static/images/no-image.png" alt="No Image" style="width: 200px; height: auto;">
+        <img src="/static/images/no-image.png" alt="No Image" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px;">
     {% endif %}
 </div>
 
-<h3>クチコミ一覧</h3>
+<br>
 
 {% if reviews %}
-    <ul>
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
         {% for review in reviews %}
-            <li>
-                <strong>{{ review.review_title }}</strong>
-                <p>{{ review.review_description }}</p>
-                <p>投稿者: {{ review.user.username }}</p>
-                <p>投稿日: {{ review.created_at|date:"Y年m月d日 H:i" }}</p>
-            </li>
+            <div style="width: 500px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 10px; text-align: center;">
+                <strong style="font-size: 18px; color: #333; display: block; margin-bottom: 10px;">{{ review.review_title }}</strong>
+                <p style="font-size: 14px; color: #555; margin-bottom: 10px;">{{ review.review_description }}</p>
+                <p style="font-size: 14px; color: #777; margin-bottom: 10px;">投稿者: {{ review.user.username }}</p>
+                <p style="font-size: 14px; color: #777;">投稿日: {{ review.created_at|date:"Y年m月d日 H:i" }}</p>
+            </div>
         {% endfor %}
-    </ul>
+    </div>
 {% else %}
-    <p>まだクチコミはありません。</p>
+    <p style="text-align: center; font-size: 16px; color: #888;">まだクチコミはありません。</p>
 {% endif %}
 
-
-<a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">戻る</a>
+<div style="text-align: center; margin-top: 20px;">
+    <a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}" style="font-size: 16px; color: #007bff; text-decoration: none; border: 1px solid #007bff; padding: 8px 16px; border-radius: 5px;">戻る</a>
+</div>
 {% endblock %}
