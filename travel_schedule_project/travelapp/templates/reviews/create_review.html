@@ -1,19 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>新規レビューの作成</h1>
+  <h1 class="page-title">新規レビューの作成</h1>
 
   <!-- 🔹 観光地名と画像を表示 -->
   <div class="spot-info">
     <h2>{{ tourist_spot.spot_name }}</h2>
-    <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}">
+    {% if tourist_spot.picture %}
+      <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}" class="spot-image">
+    {% else %}
+      <img src="/static/images/no-image.png" alt="No Image" class="spot-image">
+    {% endif %}
   </div>
 
-  <a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">戻る</a>
+  <div class="back-link">
+    <a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">←戻る</a>
+  </div>
+
   <form method="post">
     {% csrf_token %}
-    <div>
-      <label for="{{ form.review_score.id_for_label }}">評価スコア*:</label>
+
+    <!-- 評価スコア -->
+    <div class="form-group">
+      <label for="{{ form.review_score.id_for_label }}" class="form-label">評価スコア*:</label>
       <div class="rating-stars" id="rating-stars">
         {% for i in "12345" %}
           <span class="star" data-value="{{ i }}">&#9733;</span>
@@ -29,8 +38,9 @@
       {% endif %}
     </div>
 
-    <div>
-      <label for="{{ form.review_title.id_for_label }}">レビュータイトル*:</label>
+    <!-- レビュータイトル -->
+    <div class="form-group">
+      <label for="{{ form.review_title.id_for_label }}" class="form-label">レビュータイトル*:</label>
       {{ form.review_title }}
       {% if form.review_title.errors %}
         <div class="error">
@@ -41,8 +51,9 @@
       {% endif %}
     </div>
 
-    <div>
-      <label for="{{ form.review_description.id_for_label }}">レビュー内容*:</label>
+    <!-- レビュー内容 -->
+    <div class="form-group">
+      <label for="{{ form.review_description.id_for_label }}" class="form-label">レビュー内容*:</label>
       {{ form.review_description }}
       {% if form.review_description.errors %}
         <div class="error">
@@ -53,8 +64,9 @@
       {% endif %}
     </div>
 
-    <div>
-      <label for="{{ form.review_price.id_for_label }}">レビュー価格*:</label>
+    <!-- レビュー価格 -->
+    <div class="form-group">
+      <label for="{{ form.review_price.id_for_label }}" class="form-label">レビュー価格*:</label>
       {{ form.review_price }}
       {% if form.review_price.errors %}
         <div class="error">
@@ -65,9 +77,12 @@
       {% endif %}
     </div>
 
-    <div>
-      <label>滞在時間*:</label>
-      {{ form.stay_time_hours }} 時 {{ form.stay_time_minutes }} 分
+    <!-- 滞在時間 -->
+    <div class="form-group time-group">
+      <label class="form-label">滞在時間*:</label>
+      <div class="stay-time">
+        {{ form.stay_time_hours }} 時 {{ form.stay_time_minutes }} 分
+      </div>
       {% if form.stay_time_hours.errors or form.stay_time_minutes.errors %}
         <div class="error">
           {% for error in form.stay_time_hours.errors %}
@@ -80,7 +95,8 @@
       {% endif %}
     </div>
 
-    <button type="submit">作成</button>
+    <!-- 送信ボタン -->
+    <button type="submit" class="submit-button">作成</button>
   </form>
 
 <!-- ⭐ JS for star rating -->
@@ -88,10 +104,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     const stars = document.querySelectorAll('.star');
     const ratingInput = document.querySelector('input[name="review_score"]');
-    let tempRating = parseInt(ratingInput.value || 1);  // 最初の評価を保持
-    let finalRating = tempRating;  // 仮評価と最終評価を一致させる
 
-    // 星を選択した際の評価変更
     function setRating(rating) {
       stars.forEach((star, index) => {
         if (index < rating) {
@@ -100,64 +113,137 @@
           star.classList.remove('selected');
         }
       });
-      tempRating = rating; // 仮評価を更新
-      ratingInput.value = rating; // inputの値も更新
+      ratingInput.value = rating;
     }
 
-    // マウスオーバー時の評価変更
     stars.forEach((star, index) => {
-      star.addEventListener('mouseover', () => {
-        setRating(index + 1);  // 1~5の評価に変更
-      });
+      star.addEventListener('click', () => setRating(index + 1));
+      star.addEventListener('mouseover', () => setRating(index + 1));
+      star.addEventListener('mouseleave', () => setRating(ratingInput.value || 1));
     });
 
-    // マウスを離した時に最終評価として確定
-    stars.forEach((star) => {
-      star.addEventListener('mouseleave', () => {
-        finalRating = tempRating;  // 最後に選択された評価で確定
-        setRating(finalRating);    // 最終評価を反映
-      });
-    });
-
-    // クリック時に評価を確定
-    stars.forEach((star, index) => {
-      star.addEventListener('click', () => {
-        finalRating = index + 1;  // 最終評価を確定
-        setRating(finalRating);  // 最終評価を反映
-      });
-    });
-
-    // フォーム送信時に最終評価を確定
-    document.querySelector('form').addEventListener('submit', (e) => {
-      ratingInput.value = finalRating;  // 最終評価をinputにセット
-    });
-
-    // 初期状態で評価を設定
-    setRating(tempRating);
+    setRating(ratingInput.value || 1);
   });
 </script>
 
-<!-- ⭐ CSS for styling -->
+{% block extra_styles %}
 <style>
-  .rating-stars {
+  .page-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  .spot-info {
+    margin-bottom: 20px;
+  }
+
+  .spot-info h2 {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .spot-info img {
+    border-radius: 8px;
+    max-width: 300px;
+    max-height: 200px;
+    object-fit: cover;
+  }
+
+  .back-link {
+    margin: 20px 0;
+    font-size: 14px;
+  }
+
+  .back-link a {
+    color: #555;
+    text-decoration: none;
+  }
+
+  .back-link a:hover {
+    text-decoration: underline;
+  }
+
+  form {
     display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 600px;
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .form-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
+  }
+
+  input, select, textarea {
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    transition: all 0.3s ease;
+  }
+
+  .stay-time {
+    display: flex;
+    gap: 15px;
+    font-size: 16px;
+  }
+
+  .stay-time select {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+  }
+
+  .submit-button {
+    background-color: rgb(76, 167, 175);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .rating-stars {
+    display: inline-block;
     gap: 4px;
   }
 
   .star {
     font-size: 30px;
-    color: #ccc; /* 初期の空の星の色 */
+    color: #ccc;
     cursor: pointer;
-    transition: color 0.2s;
+    transition: color 0.2s, transform 0.2s ease-in-out;
   }
 
-  .star.selected {
-    color: gold; /* 塗りつぶしの星 */
-  }
-
+  .star.selected,
   .star:hover {
-    color: gold; /* マウスオーバー時の色 */
+    color: gold;
+    transform: scale(1.2);
+  }
+
+  .error {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
   }
 </style>
+{% endblock %}
 
 {% endblock %}
