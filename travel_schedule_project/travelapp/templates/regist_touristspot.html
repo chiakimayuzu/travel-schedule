@@ -61,12 +61,14 @@
     </div>
 
     <div>
-        <label for="{{ form.workingday.id_for_label }}">営業日：</label>
-        {{ form.workingday }}
-        {% if form.workingday.errors %}
-            <div class="error">{{ form.workingday.errors }}</div>
-        {% endif %}
-    </div>
+      <label for="{{ form.workingday.id_for_label }}">営業日：</label>
+      <div class="workingday-checkboxes">
+          {{ form.workingday }}
+          {% if form.workingday.errors %}
+              <div class="error">{{ form.workingday.errors }}</div>
+          {% endif %}
+      </div>
+  </div>
 
     <div>
         <label for="{{ form.opening_at.id_for_label }}">営業開始時間:</label>
@@ -186,28 +188,7 @@ $(document).ready(function() {
       document.getElementById('id_address').addEventListener("input", checkDuplicate);
     });
 </script>
+  
 
-<style>
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem; /* フォーム要素間の隙間 */
-}
-
-form div {
-    display: flex;
-    flex-direction: column;
-}
-
-form label {
-    margin-bottom: 5px;
-}
-
-form input, form select, form textarea {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-}
-</style>
 
 {% endblock %}
