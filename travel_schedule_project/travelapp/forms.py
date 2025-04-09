@@ -201,7 +201,7 @@ class UserReviewForm(forms.ModelForm):
         required=True,  # 必須に設定
         error_messages={
             'required': '滞在時間（時間）を入力してください。',
-        }
+        },
     )
     stay_time_minutes = forms.ChoiceField(
         choices=[(i, str(i)) for i in range(0, 60, 10)],  # 0～50分（10分刻み）
@@ -209,9 +209,9 @@ class UserReviewForm(forms.ModelForm):
         required=True,  # 必須に設定
         error_messages={
             'required': '滞在時間（分）を入力してください。',
-        }
+        },
     )
-    
+
     review_score = forms.IntegerField(widget=forms.HiddenInput())
 
     class Meta:
@@ -238,6 +238,7 @@ class UserReviewForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
 
 
 
