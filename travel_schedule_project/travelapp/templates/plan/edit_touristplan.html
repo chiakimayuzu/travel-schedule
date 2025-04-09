@@ -1,12 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>旅行プラン詳細</h1>
+<h1 style="font-size: 24px;">旅行プラン詳細</h1>
 
   <div>
-    <h2>プラン名: {{ plan.touristplan_name }}</h2>
-    <p><strong>開始日:</strong> {{ plan.start_date }}</p>
-    <p><strong>終了日:</strong> {{ plan.end_date }}</p>
+    <br><h2 style="font-size: 20px;">{{ plan.touristplan_name }}</h2>
+    <p><strong>{{ plan.start_date }} ～ {{ plan.end_date }}</strong></p>
+
+    
+    <a href="{% url 'travelapp:touristplan_list' %}" class="back-link">旅行プラン一覧に戻る</a><br>
+
 
     <!-- フォームエラーの表示 -->
     {% if form.errors %}
@@ -21,8 +24,7 @@
     </div>
     {% endif %}
 
-    <h3>訪問予定日と観光スポット</h3>
-    <form method="post" id="touristplanForm">
+    <br><form method="post" id="touristplanForm">
       {% csrf_token %}
       <table class="table table-bordered" id="planTable">
         <thead>
@@ -42,12 +44,11 @@
                     {% for spot in selected_spots %}
                       {% if spot.visit_date == visit %}
                         <li class="sortable-item" data-spot-id="{{ spot.id }}" data-spot-name="{{ spot.spot_name }}" data-lat="{{ spot.lat }}" data-lng="{{ spot.lng }}">
-                          <strong>{{ spot.spot_name }}</strong><br>
                           {% if spot.picture %}
                             <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width:100px; height:auto;"><br>
                           {% endif %}
-                          都道府県: {{ spot.prefecture }}<br>
-                          住所: {{ spot.address }}<br>
+                          {{ spot.spot_name }}
+                          <br>{{ spot.prefecture }} {{ spot.address }}<br>
                           平均滞在時間: {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
                           <span class="drag-handle">↕️</span>
                           <button type="button" class="delete-spot btn btn-danger btn-sm">削除</button>
@@ -105,14 +106,14 @@
       </table>
 
       <!-- 保存ボタン -->
-      <button type="submit" class="btn btn-primary">保存</button>
+      <button type="submit" class="save-button">保存</button>
     </form>
 
-    <a href="{% url 'travelapp:touristplan_list' %}" class="btn btn-secondary">旅行プラン一覧に戻る</a>
+    <br><a href="{% url 'travelapp:touristplan_list' %}" class="back-link">旅行プラン一覧に戻る</a>
   </div>
 
   <!-- Google Maps APIの読み込み -->
-  <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+  <br><script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
   <div id="map" style="height: 500px;"></div>
 
   <!-- JavaScript部分 -->
@@ -355,6 +356,57 @@
     .close { position: absolute; top: 10px; right: 10px; font-size: 28px; cursor: pointer; }
     .selected-item { background-color: #ADD8E6; border: 2px solid #ADD8E6; }
   </style>
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+  
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-height: 80vh;         /* ← 高さ制限 */
+      overflow-y: auto;         /* ← 縦方向にスクロール */
+      border-radius: 10px;
+    }
+  </style>
+  <style>
+    .save-button {
+      background-color: rgb(69, 110, 160);  /* ボタンの背景色 */
+      color: white;                         /* 文字色を白に */
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+  </style>
+  <style>
+    .back-link {
+      color: #555;              /* 通常の文字色 */
+      text-decoration: none;    /* アンダーバーなし */
+      font-size: 16px;
+      transition: text-decoration 0.2s ease;
+    }
+  
+    .back-link:hover {
+      text-decoration: underline; /* ホバー時にアンダーライン追加 */
+      color: #555;                /* 色は変更しない */
+    }
+  </style>
+  
+  
   
 {% endblock %}
 
