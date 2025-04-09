@@ -126,22 +126,27 @@ class PasswordChangeForm(AuthPasswordChangeForm):
     
 class TouristSpotForm(forms.ModelForm):
     prefecture = forms.ChoiceField(
-        choices=PREFECTURE_CHOICES,
+        choices=[('', '都道府県を選択')] + PREFECTURE_CHOICES,
         widget=forms.Select(attrs={'class': 'select2'})  # 検索機能付きセレクトボックス
     )
     #Djangoのフォームフィールド に HTMLのクラス属性 (class="select2") を追加するもの
     #select2 は Django の標準機能ではなく、Select2 という JavaScript ライブラリのクラス名
+
     category = forms.ChoiceField(
-        choices=CATEGORY_CHOICES,
-        widget=forms.Select(attrs={'class': 'select2'})  # 検索機能付きセレクトボックス
+        required=False,
+        choices=[('', 'カテゴリを選択')] + CATEGORY_CHOICES,
+        label='カテゴリ',
+        initial='',
+        error_messages={'invalid_choice': 'カテゴリが無効です。'},
     )
+
     workingday = forms.MultipleChoiceField(
         choices=WORKINGDAY_CHOICES,
         widget=forms.CheckboxSelectMultiple,  # 複数チェック可能
         required=False
     )
     parking = forms.ChoiceField(
-        choices=PARKING_CHOICES,
+        choices=[('', '駐車場情報を選択')] +PARKING_CHOICES,
         widget=forms.Select  # プルダウン
     )
     opening_at = forms.TimeField(
