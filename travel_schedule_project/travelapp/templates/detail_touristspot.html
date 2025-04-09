@@ -146,6 +146,8 @@
     <p>まだクチコミはありません。</p>
   {% endif %}
 
+  <a class="nav-link d-inline-block" href="{% url 'travelapp:home' %}">ホームへ</a>
+
   <!-- Google Maps APIの読み込み -->
   <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
 

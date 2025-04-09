@@ -33,6 +33,7 @@
   
             {% if not request.user.is_authenticated %}
               <!-- ログインボタン（右寄せ） -->
+
               <form action="{% url 'travelapp:login' %}" method="post" class="form-inline ml-auto">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-dark login-btn">ログイン</button>
