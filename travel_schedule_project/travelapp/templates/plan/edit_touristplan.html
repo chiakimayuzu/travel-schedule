@@ -108,11 +108,11 @@
       <button type="submit" class="save-button">保存</button>
     </form>
 
-    <br><a href="{% url 'travelapp:touristplan_list' %}" class="back-link">旅行プラン一覧に戻る</a>
+    <br><a href="{% url 'travelapp:touristplan_list' %}" class="back-link">旅行プラン一覧に戻る</a><br>
   </div>
 
   <!-- Google Maps APIの読み込み -->
-  <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+  <br><script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
   <div id="map" style="height: 500px;"></div>
 
   <!-- JavaScript部分 -->
@@ -404,6 +404,21 @@
       color: #555;                /* 色は変更しない */
     }
   </style>
+  <style>
+    .sortable-item {
+      display: flex;
+      align-items: center;
+    }
+  
+    .drag-handle {
+      margin-right: 20px; /* ↕️と削除ボタンの間に10pxの間隔を追加 */
+    }
+  
+    .delete-spot {
+      margin-left: 10px; /* 削除ボタンと他の要素（もしあれば）の間に10pxの間隔を追加 */
+    }
+  </style>
+  
   
   
   
