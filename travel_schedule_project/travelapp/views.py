@@ -346,7 +346,7 @@ def detail_touristspot(request, pk):
     # 最頻値の価格帯を取得し、対応する価格帯の文字列に変換
     most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
 
-    # 滞在時間の表示形式（時間と分）
+    # 滞在時間の表示形式（時間と分
     if stay_time_avg and stay_time_avg > 0:  # stay_time_avg が None または 0 でない場合
         stay_time_hours = int(stay_time_avg) // 60
         stay_time_minutes = int(stay_time_avg) % 60
@@ -440,7 +440,7 @@ def edit_touristspot(request, pk):
     price_choices_dict = dict(REVIEW_PRICE_CHOICES)
 
     # 最頻値の価格帯を取得し、対応する価格帯の文字列に変換
-    most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
+    most_common_price_str = price_choices_dict.get(most_common_price, "情報なし")
 
     # 滞在時間の表示形式（時間と分）
     if stay_time_avg and stay_time_avg > 0:  # stay_time_avg が None または 0 でない場合
@@ -567,7 +567,7 @@ def create_review(request, pk):  # 🔹 引数名を pk に変更
     price_choices_dict = dict(REVIEW_PRICE_CHOICES)
 
     # 最頻値の価格帯を取得し、対応する価格帯の文字列に変換
-    most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
+    most_common_price_str = price_choices_dict.get(most_common_price, "情報なし")
 
     # 滞在時間の表示形式（時間と分）
     if stay_time_avg and stay_time_avg > 0:  # stay_time_avg が None または 0 でない場合

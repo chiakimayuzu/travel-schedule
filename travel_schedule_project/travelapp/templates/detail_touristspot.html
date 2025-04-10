@@ -144,7 +144,7 @@
     </div>
   </div>
 
-  <a class="nav-link d-inline-block" href="{% url 'travelapp:home' %}">ホームへ</a>
+  <a href="{% url 'travelapp:home' %}">ホームへ戻る</a>
   <div id="map"></div>
  <!-- Google Maps APIの読み込み -->
  <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
@@ -348,6 +348,15 @@
     width: 100%;
     height: 300px; /* 高さを1.5倍に設定 */
     margin-top: 1rem;
+  }
+  /* リンクの装飾 */
+  a {
+    color: #007bff;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline; /* マウスオーバー時にアンダーバー */
   }
 </style>
 
