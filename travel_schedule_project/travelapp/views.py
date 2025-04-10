@@ -347,8 +347,14 @@ def detail_touristspot(request, pk):
     most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
 
     # 滞在時間の表示形式（時間と分）
-    stay_time_hours = int(stay_time_avg) // 60
-    stay_time_minutes = int(stay_time_avg) % 60
+    if stay_time_avg and stay_time_avg > 0:  # stay_time_avg が None または 0 でない場合
+        stay_time_hours = int(stay_time_avg) // 60
+        stay_time_minutes = int(stay_time_avg) % 60
+        stay_time_display = f"{stay_time_hours}時間 {stay_time_minutes}分"
+    else:
+        stay_time_display = "情報なし"  # 情報がない場合は「情報なし」と表示
+        stay_time_hours = None  # 変数を None に設定してエラーを防止
+        stay_time_minutes = None 
 
     # クチコミ件数を取得
     review_count = UserReview.objects.filter(tourist_spot=tourist_spot).count()
@@ -384,7 +390,8 @@ def detail_touristspot(request, pk):
         'stay_time_minutes': stay_time_minutes, # 滞在時間（分）
         'most_common_price': most_common_price_str, # 価格帯（最頻値）
         'review_count': review_count,   # クチコミ件数
-        'google_maps_api_key': google_maps_api_key  # APIキーを渡す
+        'google_maps_api_key': google_maps_api_key, # APIキーを渡す
+        'stay_time_display':stay_time_display
     }
 
     return render(request, 'detail_touristspot.html', context)
@@ -436,8 +443,14 @@ def edit_touristspot(request, pk):
     most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
 
     # 滞在時間の表示形式（時間と分）
-    stay_time_hours = int(stay_time_avg) // 60
-    stay_time_minutes = int(stay_time_avg) % 60
+    if stay_time_avg and stay_time_avg > 0:  # stay_time_avg が None または 0 でない場合
+        stay_time_hours = int(stay_time_avg) // 60
+        stay_time_minutes = int(stay_time_avg) % 60
+        stay_time_display = f"{stay_time_hours}時間 {stay_time_minutes}分"
+    else:
+        stay_time_display = "情報なし"  # 情報がない場合は「情報なし」と表示
+        stay_time_hours = None  # 変数を None に設定してエラーを防止
+        stay_time_minutes = None 
 
     # クチコミ件数を取得
     review_count = UserReview.objects.filter(tourist_spot=tourist_spot).count()
@@ -476,6 +489,7 @@ def edit_touristspot(request, pk):
             'most_common_price': most_common_price_str, # 価格帯（最頻値）
             'review_count': review_count,   # クチコミ件数
             'google_maps_api_key': google_maps_api_key,  # APIキーを渡す
+            'stay_time_display':stay_time_display,
 
             'error_message': "この機能を利用するにはログインしてください。",
     })
@@ -556,8 +570,14 @@ def create_review(request, pk):  # 🔹 引数名を pk に変更
     most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
 
     # 滞在時間の表示形式（時間と分）
-    stay_time_hours = int(stay_time_avg) // 60
-    stay_time_minutes = int(stay_time_avg) % 60
+    if stay_time_avg and stay_time_avg > 0:  # stay_time_avg が None または 0 でない場合
+        stay_time_hours = int(stay_time_avg) // 60
+        stay_time_minutes = int(stay_time_avg) % 60
+        stay_time_display = f"{stay_time_hours}時間 {stay_time_minutes}分"
+    else:
+        stay_time_display = "情報なし"  # 情報がない場合は「情報なし」と表示
+        stay_time_hours = None  # 変数を None に設定してエラーを防止
+        stay_time_minutes = None 
 
     # クチコミ件数を取得
     review_count = UserReview.objects.filter(tourist_spot=tourist_spot).count()
@@ -597,6 +617,7 @@ def create_review(request, pk):  # 🔹 引数名を pk に変更
             'review_count': review_count,   # クチコミ件数
             'google_maps_api_key': google_maps_api_key,  # APIキーを渡す
             'error_message': "この機能を利用するにはログインしてください。",
+            'stay_time_display':stay_time_display
         })
 
 

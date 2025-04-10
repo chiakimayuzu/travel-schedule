@@ -24,7 +24,7 @@
       <button type="submit" class="heart-button">❤ 行きたい</button>
     </form>
     {% else %}
-    <p><span class="heart-button registered">❤ 登録済み</span></p><br><br>
+    <p><span class="heart-button registered">❤ 登録済み</span></p>
     {% endif %}
   </h2>
 
@@ -48,7 +48,7 @@
   <div class="spot-info">
     <div class="spot-info-left">
       <div class="spot-info-image">
-        <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}">
+        <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}" style="max-width: 80%; height: auto;">
       </div>
 
       <h3>最新のクチコミ</h3>
@@ -76,7 +76,7 @@
 
     <!-- 2つの全角スペースを開けて右側にテーブルを表示 -->
     <div class="spot-info-right">
-      <table class="spot-info-table">
+      <table class="spot-info-table" style="width: 130%;">
         <tr>
           <th>住所</th>
           <td>{{ tourist_spot.get_prefecture_display }}{{ tourist_spot.address }}</td>
@@ -121,13 +121,8 @@
         </tr>
         <tr>
           <th>滞在時間平均</th>
-          <td>{{ stay_time_hours }} 時間 {{ stay_time_minutes }} 分</td>
+          <td>{{ stay_time_display }}</td>
         </tr>
-        <tr>
-          <th>施設説明</th>
-          <td>{{ tourist_spot.description }}</td>
-        </tr>
-        <tr>
           <th>キーワード</th>
           <td>
             {% if keywords %}
@@ -140,6 +135,10 @@
               キーワードなし
             {% endif %}
           </td>
+        </tr>
+        <tr>
+          <th>施設説明</th>
+          <td>{{ tourist_spot.description }}</td>
         </tr>
       </table>
     </div>
@@ -171,181 +170,186 @@
    }
  </script>
 
-  <style>
-    /* 星のコンテナ */
-    .rating-stars {
-      display: flex;
-      gap: 4px;
-    }
+ <style>
+  /* 星のコンテナ */
+  .rating-stars {
+    display: flex;
+    gap: 4px;
+  }
 
-    /* 星の共通スタイル */
-    .star {
-      font-size: 30px;
-      color: #ccc; /* デフォルトの空の星をグレー */
-      position: relative;
-      display: inline-block;
-    }
+  /* 星の共通スタイル */
+  .star {
+    font-size: 30px;
+    color: #ccc; /* デフォルトの空の星をグレー */
+    position: relative;
+    display: inline-block;
+  }
 
-    /* 塗りつぶしの星 */
-    .star.filled {
-      color: gold; /* 完全に塗りつぶし */
-    }
+  /* 塗りつぶしの星 */
+  .star.filled {
+    color: gold; /* 完全に塗りつぶし */
+  }
 
-    /* 半分塗りつぶしの星 */
-    .star.half {
-      position: relative;
-    }
+  /* 半分塗りつぶしの星 */
+  .star.half {
+    position: relative;
+  }
 
-    /* 半分塗りつぶしの星 - 背景をグレーに */
-    .star.half::before {
-      content: '★'; /* 星の形 */
-      position: absolute;
-      left: 0;
-      width: 50%;
-      overflow: hidden;
-      color: gold; /* 左半分をゴールド */
-    }
+  /* 半分塗りつぶしの星 - 背景をグレーに */
+  .star.half::before {
+    content: '★'; /* 星の形 */
+    position: absolute;
+    left: 0;
+    width: 50%;
+    overflow: hidden;
+    color: gold; /* 左半分をゴールド */
+  }
 
-    /* 完全な空の星も背景をグレーにする */
-    .star.empty {
-      color: #ccc; /* グレーに設定 */
-      position: relative;
-    }
+  /* 完全な空の星も背景をグレーにする */
+  .star.empty {
+    color: #ccc; /* グレーに設定 */
+    position: relative;
+  }
 
-    /* 空の星をグレー背景に */
-    .star.empty::before {
-      content: '★'; /* 星の形 */
-      position: absolute;
-      left: 0;
-      color: #ccc; /* 全体をグレーに塗りつぶす */
-    }
+  /* 空の星をグレー背景に */
+  .star.empty::before {
+    content: '★'; /* 星の形 */
+    position: absolute;
+    left: 0;
+    color: #ccc; /* 全体をグレーに塗りつぶす */
+  }
 
-    /* 見出しやタイトルのスタイル */
-    h2, h3 {
-      margin-top: 1.5rem;
-      color: #333;
-    }
+  /* 見出しやタイトルのスタイル */
+  h2, h3 {
+    margin-top: 1.5rem;
+    color: #333;
+  }
 
-    /* 各情報のラベルと値の間に余白を */
-    p {
-      margin: 0.5rem 0;
-      font-size: 16px;
-      line-height: 1.6;
-    }
+  /* 各情報のラベルと値の間に余白を */
+  p {
+    margin: 0.5rem 0;
+    font-size: 16px;
+    line-height: 1.6;
+  }
 
-    /* ボタンスタイル（❤ 行きたい） */
-    .heart-button {
-      background-color: #ff6b81;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 16px;
-    }
+  /* ボタンスタイル（❤ 行きたい） */
+  .heart-button {
+    background-color: #ff6b81;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+  }
 
-    /* 行きたいボタン hover */
-    .heart-button:hover {
-      background-color: #ff4d6d;
-    }
+  /* 行きたいボタン hover */
+  .heart-button:hover {
+    background-color: #ff4d6d;
+  }
 
-    .heart-button.registered {
-      background-color: #ccc;  /* グレー背景 */
-      color: #333;             /* 文字色を少し濃く */
-      cursor: default;         /* マウスカーソルを通常に */
-    }
+  .heart-button.registered {
+    background-color: #ccc;  /* グレー背景 */
+    color: #333;             /* 文字色を少し濃く */
+    cursor: default;         /* マウスカーソルを通常に */
+  }
 
-    /* メッセージ表示 */
-    .messages {
-      list-style: none;
-      padding: 0;
-      margin-top: 1rem;
-    }
+  /* メッセージ表示 */
+  .messages {
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+  }
 
-    .messages li {
-      padding: 10px;
-      background-color:rgb(199, 252, 254);
-      border: 1px solidrgb(199, 252, 254);
-      border-radius: 6px;
-      margin-bottom: 0.5rem;
-    }
+  .messages li {
+    padding: 10px;
+    background-color:rgb(199, 252, 254);
+    border: 1px solidrgb(199, 252, 254);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+  }
 
-    /* クチコミ一覧の装飾 */
-    ul {
-      padding-left: 1.2rem;
-    }
+  /* クチコミ一覧の装飾 */
+  ul {
+    padding-left: 1.2rem;
+  }
 
-    li {
-      margin-bottom: 1rem;
-      font-size: 15px;
-    }
+  li {
+    margin-bottom: 1rem;
+    font-size: 15px;
+  }
 
-    li strong {
-      font-size: 16px;
-      color: #333;
-    }
+  li strong {
+    font-size: 16px;
+    color: #333;
+  }
 
-    /* リンクの装飾 */
-    a {
-      color: #007bff;
-      text-decoration: none;
-    }
+  /* リンクの装飾 */
+  a {
+    color: #007bff;
+    text-decoration: none;
+  }
 
-    a:hover {
-      text-decoration: underline;
-    }
+  a:hover {
+    text-decoration: underline;
+  }
 
-    /* 画像のスタイル */
-    img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 10px;
-      margin-top: 1rem;
-    }
+  /* 画像のスタイル */
+  img {
+    max-width: 100%; /* 画像を少し小さく */
+    height: auto;
+    border-radius: 10px;
+    margin-top: 1rem;
+  }
 
-    .spot-info {
-      display: flex;
-      gap: 20px;
-    }
+  .spot-info {
+    display: flex;
+    gap: 20px;
+  }
 
-    .spot-info-left {
-      width: 65%;
-    }
+  .spot-info-left {
+    width: 50%; /* 左側の画像の幅を50%に */
+  }
 
-    .spot-info-right {
-      width: 35%;
-    }
+  .spot-info-right {
+    width: 40%; /* 右側のテーブルを50%に */
+  }
 
-    .spot-info-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 20px 0;
-    }
+  .spot-info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0; /* スペースなし */
+  }
 
-    .spot-info-table th,
-    .spot-info-table td {
-      border: 1px solid #ccc;
-      padding: 8px 12px;
-      text-align: left;
-      vertical-align: top;
-    }
+  .spot-info-table th,
+  .spot-info-table td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
 
-    .spot-info-table th {
-      background-color: #f5f5f5;
-      width: 20%;
-    }
+  .spot-info-table th {
+    background-color: #f5f5f5;
+    width: 25%; /* 項目の幅を25%にして、項目側を広げる */
+  }
 
-    .spot-info-table ul {
-      margin: 0;
-      padding-left: 1em;
-    }
+  .spot-info-table td {
+    width: 75%; /* 値側の幅を広げる */
+  }
 
-    /* 地図と画像を並べて表示 */
-    #map {
-      width: 100%;
-      height: 200px; /* 高さを小さく設定 */
-      margin-top: 1rem;
-    }
-  </style>
+  .spot-info-table ul {
+    margin: 0;
+    padding-left: 1em;
+  }
+
+  /* 地図と画像を並べて表示 */
+  #map {
+    width: 100%;
+    height: 300px; /* 高さを1.5倍に設定 */
+    margin-top: 1rem;
+  }
+</style>
+
 
 {% endblock %}
