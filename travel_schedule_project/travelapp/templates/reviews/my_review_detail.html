@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if messages %}
+<ul class="messages">
+  {% for message in messages %}
+    {% if 'review_list' in message.tags %}
+      <li class="{{ message.tags }}">{{ message }}</li>
+    {% endif %}
+  {% endfor %}
+</ul>
+{% endif %}
+
   <div class="review-detail-container">
     <h1>💬{{ review.user.username }} さんのクチコミ詳細</h1>
 
@@ -190,6 +200,14 @@
         flex-direction: column;
         gap: 10px;
       }
+    }
+
+    .messages li {
+      padding: 10px;
+      background-color:rgb(199, 243, 254);
+      border: 1px solidrgb(199, 252, 254);
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
     }
   </style>
 {% endblock %}

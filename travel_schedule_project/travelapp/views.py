@@ -641,7 +641,8 @@ def create_review(request, pk):  # 🔹 引数名を pk に変更
             review.tourist_spot = tourist_spot  # 観光地を設定
             review.user = request.user  # 現在のログインユーザーを設定
             review.save()  # 保存
-
+       
+            messages.success(request, 'レビュー作成できました', extra_tags='create_review')
             return redirect('travelapp:detail_touristspot', pk=tourist_spot.pk)
     else:
         form = UserReviewForm()
@@ -712,7 +713,7 @@ def edit_my_review(request, pk):  # 引数を review_id から pk に変更
         form = UserReviewForm(request.POST, instance=review)
         if form.is_valid():
             form.save()
-            messages.success(request, 'レビュー投稿編集できました', extra_tags='review_list')
+            messages.success(request, 'レビュー編集できました', extra_tags='review_list')
             return redirect('travelapp:my_review_detail', review_id=review.id)  # リダイレクト先も review_id から pk に変更
     else:
         form = UserReviewForm(instance=review)

@@ -15,6 +15,16 @@
   </ul>
   {% endif %}
 
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      {% if 'create_review' in message.tags %}
+        <li class="{{ message.tags }}">{{ message }}</li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+  {% endif %}
+
   <h2>{{ tourist_spot.spot_name }}
     <a href="{% url 'travelapp:edit_touristspot' pk=tourist_spot.pk %}" style="margin-left: 15px; font-size: 14px; color: #007bff;">この観光地を編集</a>
     <a href="{% url 'travelapp:create_review' pk=tourist_spot.pk %}" style="margin-left: 15px; font-size: 14px; color: #007bff;">この観光地のクチコミをかく</a>
@@ -263,7 +273,7 @@
 
   .messages li {
     padding: 10px;
-    background-color:rgb(199, 252, 254);
+    background-color:rgb(199, 243, 254);
     border: 1px solidrgb(199, 252, 254);
     border-radius: 6px;
     margin-bottom: 0.5rem;
