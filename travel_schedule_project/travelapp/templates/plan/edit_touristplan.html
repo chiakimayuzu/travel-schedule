@@ -68,9 +68,9 @@
                   <span class="close" onclick="closeModal()">&times;</span>
                   <h2 style="font-size: 20px;">❤️行きたいリストから選択</h2>
                   {% if wanted_spots %}
-                    <ul>
+                    <div class="wanted-spot-grid">
                       {% for spot in wanted_spots %}
-                        <li>
+                        <div class="wanted-spot-item">
                           <input type="checkbox" class="wanted-checkbox"
                                  data-spot-id="{{ spot.id }}"
                                  data-spot-name="{{ spot.spot_name }}"
@@ -90,15 +90,15 @@
                           カテゴリ: {{ spot.category }}<br>
                           住所: {{ spot.prefecture }}{{ spot.address }}<br>
                           平均滞在時間: {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
-                        </li>
+                        </div>
                       {% endfor %}
-                    </ul>
-                    <button type="button" class="btn btn-success confirmSelection"style="background-color: rgb(69, 110, 160); color: white;">プランに追加</button>
-
+                    </div>
+                    <button type="button" class="btn btn-success confirmSelection" style="background-color: rgb(69, 110, 160); color: white;">プランに追加</button>
                   {% else %}
                     <p>行きたいリストはありません。</p>
                   {% endif %}
                 </div>
+                
               </div>
             {% endwith %}
           {% endfor %}
@@ -419,7 +419,44 @@
       margin-left: 10px; /* 削除ボタンと他の要素（もしあれば）の間に10pxの間隔を追加 */
     }
   </style>
+  <style>
+    .wanted-spot-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
   
+    .wanted-spot-item {
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+  </style>
+  <style>
+    /* モーダルの初期状態を非表示に */
+    .modal {
+      display: none; /* モーダルは初期状態では非表示 */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+  
+    .modal-content {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      width: 100%;
+      max-width: 1000px;
+      max-height: 80vh;
+      margin: auto;
+      overflow-y: auto;
+    }
+  </style>  
   
   
   
