@@ -240,7 +240,10 @@ class UserReviewForm(forms.ModelForm):
             raise forms.ValidationError({'review_score': '評価スコアは必須です。'})
 
         if not stay_time_hours or not stay_time_minutes:
-            raise forms.ValidationError({'stay_time_hours': '滞在時間（時間）は必須です。', 'stay_time_minutes': '滞在時間（分）は必須です。'})
+            if not stay_time_hours:
+                raise forms.ValidationError({'stay_time_hours': '滞在時間（時間）は必須です。'})
+            if not stay_time_minutes:
+                raise forms.ValidationError({'stay_time_minutes': '滞在時間（分）は必須です。'})
 
         # stay_time_hours と stay_time_minutes が正しい値かどうかを確認
         if not stay_time_hours.isdigit() or not stay_time_minutes.isdigit():

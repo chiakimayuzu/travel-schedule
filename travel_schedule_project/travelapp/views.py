@@ -567,7 +567,7 @@ def create_review(request, pk):  # 🔹 引数名を pk に変更
     price_choices_dict = dict(REVIEW_PRICE_CHOICES)
 
     # 最頻値の価格帯を取得し、対応する価格帯の文字列に変換
-    most_common_price_str = price_choices_dict.get(most_common_price, "情報なし")
+    most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
 
     # 滞在時間の表示形式（時間と分）
     if stay_time_avg and stay_time_avg > 0:  # stay_time_avg が None または 0 でない場合
@@ -624,27 +624,28 @@ def create_review(request, pk):  # 🔹 引数名を pk に変更
     if request.method == 'POST':
         form = UserReviewForm(request.POST)
         if form.is_valid():
-            # commit=False で一旦保存を止める
-            user_review = form.save(commit=False)
-            user_review.user = request.user
-            user_review.tourist_spot = tourist_spot
-            user_review.save()  # 最終的に保存
+            review = form.save(commit=False)  # インスタンスをまだデータベースに保存しない
 
-            messages.success(request, 'レビュー投稿できました', extra_tags='detail_touristspot')
-            return redirect(reverse('travelapp:detail_touristspot', kwargs={'pk': tourist_spot.pk}))
-        else:
-            print(form.errors)  # フォームエラーを表示（デバッグ用）
+            # stay_time_min を手動で設定
+            stay_time_hours = form.cleaned_data['stay_time_hours']
+            stay_time_minutes = form.cleaned_data['stay_time_minutes']
+            stay_time_min = int(stay_time_hours) * 60 + int(stay_time_minutes)
+            review.stay_time_min = stay_time_min  # stay_time_min を設定
 
+            review.tourist_spot = tourist_spot  # 観光地を設定
+            review.user = request.user  # 現在のログインユーザーを設定
+            review.save()  # 保存
+
+            return redirect('travelapp:detail_touristspot', pk=tourist_spot.pk)
     else:
         form = UserReviewForm()
-
+    
     context = {
-        'form': form,
-        'tourist_spot': tourist_spot
+        'form':form,
+        'tourist_spot':tourist_spot
     }
 
-    # POST送信後のエラーがある場合もエラーメッセージをそのまま表示
-    return render(request, 'reviews/create_review.html', context)  
+    return render(request, 'reviews/create_review.html', context)
 
 @login_required
 def my_review_list(request):       
