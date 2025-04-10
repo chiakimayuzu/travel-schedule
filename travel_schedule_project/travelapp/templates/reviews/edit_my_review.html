@@ -14,7 +14,7 @@
 <div class="back-link">
   <a href="{% url 'travelapp:my_review_detail' review_id=review.id %}" class="back-link">←クチコミ詳細へ戻る</a>
 </div>
-
+<br><span style="color: red;">*は必須です</span>
 <form method="POST">
   {% csrf_token %}
 
@@ -38,7 +38,7 @@
 
   <!-- レビュータイトル -->
   <div class="form-group">
-    <label for="{{ form.review_title.id_for_label }}" class="form-label">レビュータイトル<span style="color: red;">*</span></label>
+    <label for="{{ form.review_title.id_for_label }}" class="form-label">クチコミタイトル<span style="color: red;">*</span></label>
     {{ form.review_title }}
     {% if form.review_title.errors %}
       <div class="error">
@@ -51,7 +51,7 @@
 
   <!-- レビュー内容 -->
   <div class="form-group">
-    <label for="{{ form.review_description.id_for_label }}" class="form-label">レビュー内容<span style="color: red;">*</span></label>
+    <label for="{{ form.review_description.id_for_label }}" class="form-label">クチコミ内容<span style="color: red;">*</span></label>
     {{ form.review_description }}
     {% if form.review_description.errors %}
       <div class="error">
