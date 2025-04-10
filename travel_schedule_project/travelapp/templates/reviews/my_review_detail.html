@@ -62,7 +62,7 @@
     </div>
   </div>
 
-{% block extra_styles %}
+  {% block extra_styles %}
   <style>
     .review-detail-container {
       max-width: 800px;
@@ -172,14 +172,10 @@
       color: #000;
     }
 
-
-
     .delete-button {
       background-color: #ff4d4f;
       color: #fff;
     }
-
-
 
     .back-link {
       margin-top: 30px;
@@ -202,13 +198,19 @@
       }
     }
 
+    .messages {
+      list-style-type: none; /* メッセージ前の「・」を消す */
+      padding-left: 0; /* 左側の余白を削除 */
+    }
+
     .messages li {
       padding: 10px;
-      background-color:rgb(199, 243, 254);
-      border: 1px solidrgb(199, 252, 254);
+      background-color: rgb(199, 243, 254);
+      border: 1px solid rgb(199, 252, 254);
       border-radius: 6px;
       margin-bottom: 0.5rem;
     }
   </style>
 {% endblock %}
+
 {% endblock %}
