@@ -1,95 +1,271 @@
 {% extends "base.html" %}
 
 {% block content %}
-<p><a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">詳細ページに戻る</a></p>
-
-<h1>観光地を編集: {{ tourist_spot.spot_name }}</h1>
-
+<h1 style="font-size: 24px;">「{{ tourist_spot.spot_name }}」を編集</h1>
+<br><p><a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">詳細ページに戻る</a></p>
 <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
+  {% csrf_token %}
 
-    <div>
-        <label for="spot_name">スポット名:</label>
-        {{ form.spot_name }}
-    </div>
-
-    <div>
-        <label for="prefecture">都道府県:</label>
-        {{ form.prefecture }}
-    </div>
-
-    <div>
-        <label for="address">住所:</label>
-        {{ form.address }}
-    </div>
-
-    <div>
-        <label for="tel">電話番号:</label>
-        {{ form.tel }}
-    </div>
-
-    <div>
-        <label for="category">カテゴリー:</label>
-        {{ form.category }}
-    </div>
-
-    <!-- 現在のワーキングデイを表示し、チェックボックスで編集 -->
-    <div>
-        <label for="workingday">ワーキングデイ:</label>
-        {% for day, label in form.workingday.field.choices %}
-            <input type="checkbox" name="workingday" value="{{ day }}"
-                {% if day|stringformat:"i" in current_workingdays %}checked{% endif %}>
-            {{ label }}
+  <div>
+    <label for="{{ form.spot_name.id_for_label }}">観光地名*</label>
+    {{ form.spot_name }}
+    {% if form.spot_name.errors %}
+      <div class="error">
+        {% for error in form.spot_name.errors %}
+          <p>{{ error }}</p>
         {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <label for="{{ form.prefecture.id_for_label }}">都道府県*</label>
+    {{ form.prefecture }}
+    {% if form.prefecture.errors %}
+      <div class="error">
+        {% for error in form.prefecture.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <label for="{{ form.address.id_for_label }}">住所*</label>
+    {{ form.address }}
+    {% if form.address.errors %}
+      <div class="error">
+        {% for error in form.address.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <label for="{{ form.tel.id_for_label }}">電話番号</label>
+    {{ form.tel }}
+    {% if form.tel.errors %}
+      <div class="error">
+        {% for error in form.tel.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <label for="{{ form.category.id_for_label }}">カテゴリ</label>
+    {{ form.category }}
+    {% if form.category.errors %}
+      <div class="error">
+        {% for error in form.category.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <label>営業日</label><br>
+    <div class="workingday-checkboxes">
+    {% for day, label in form.workingday.field.choices %}
+      <label>
+        <input type="checkbox" name="workingday" value="{{ day }}"
+               {% if day|stringformat:"i" in current_workingdays %}checked{% endif %}>
+        {{ label }}
+      </label>
+    {% endfor %}
+  </div></div>
+
+  <div>
+    <label for="{{ form.opening_at.id_for_label }}">営業開始時間</label>
+    {{ form.opening_at }}
+    {% if form.opening_at.errors %}
+      <div class="error">
+        {% for error in form.opening_at.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <label for="{{ form.closing_at.id_for_label }}">営業終了時間</label>
+    {{ form.closing_at }}
+    {% if form.closing_at.errors %}
+      <div class="error">
+        {% for error in form.closing_at.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <label for="{{ form.parking.id_for_label }}">駐車場*</label>
+    {{ form.parking }}
+    {% if form.parking.errors %}
+      <div class="error">
+        {% for error in form.parking.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <label for="keywords">キーワード（カンマ区切り）:</label>
+    <input type="text" name="keywords" id="keywords"
+           value="{% for keyword in current_keywords %}{{ keyword.keyword }}{% if not forloop.last %}, {% endif %}{% endfor %}"
+           placeholder="キーワードをカンマ区切りで入力">
+  </div>
+
+  <div>
+    <label for="{{ form.picture.id_for_label }}">画像:</label><br>
+  
+    {% if tourist_spot.picture %}
+      <p>いまの画像</p>
+      <div>
+        <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}" width="100">
+      </div>
+    {% endif %}
+  
+    <p>変更する場合は画像をアップロードしてください:</p>
+    {{ form.picture }}
+  
+    {% if form.picture.errors %}
+      <div class="error">
+        {% for error in form.picture.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+  
+
+  <div>
+    <label for="{{ form.offical_url.id_for_label }}">公式URL:</label>
+    {{ form.offical_url }}
+    {% if form.offical_url.errors %}
+      <div class="error">
+        {% for error in form.offical_url.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <label for="{{ form.description.id_for_label }}">説明:</label>
+    {{ form.description }}
+    {% if form.description.errors %}
+      <div class="error">
+        {% for error in form.description.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+
+
+
+  <div>
+    <button type="submit"
+    style="display: block !important; width: 100%; padding: 12px; font-size: 16px;
+           background-color:rgb(69, 110, 160); color: white; border: none; border-radius: 6px;">
+    更新
+    </button>
     </div>
 
-    <div>
-        <label for="parking">駐車場:</label>
-        {{ form.parking }}
-    </div>
-
-    <div>
-        <label for="opening_at">開店時間:</label>
-        {{ form.opening_at }}
-    </div>
-
-    <div>
-        <label for="closing_at">閉店時間:</label>
-        {{ form.closing_at }}
-    </div>
-
-    <div>
-        <label for="picture">画像:</label>
-        {{ form.picture }}
-        {% if tourist_spot.picture %}
-            <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}" width="100">
-        {% endif %}
-    </div>
-
-    <div>
-        <label for="description">説明:</label>
-        {{ form.description }}
-    </div>
-
-    <div>
-        <label for="offical_url">公式URL:</label>
-        {{ form.offical_url }}
-    </div>
-
-    <!-- 現在のキーワードを表示して編集 -->
-    <div>
-        <label for="keywords">キーワード (カンマ区切りで編集):</label>
-        <input type="text" name="keywords" id="keywords" value="{% for keyword in current_keywords %}{{ keyword.keyword }}{% if not forloop.last %}, {% endif %}{% endfor %}" placeholder="キーワードをカンマ区切りで入力">
-    </div>
-
-    <button type="submit">保存</button>
 </form>
+
+
+<hr>
 
 <form method="POST" action="{% url 'travelapp:delete_touristspot' pk=tourist_spot.pk %}" onsubmit="return confirm('本当に削除しますか？');">
     {% csrf_token %}
-    <button type="submit" style="background-color: red; color: white;">この観光地を削除する</button>
-</form>
+    <button type="submit"
+      style="display: block !important; width: 100%; padding: 12px; font-size: 16px;
+             background-color: red; color: white; border: none; border-radius: 6px;">
+      この観光地を削除する
+    </button>
+  </form>
+
+<br><p><a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">詳細ページに戻る</a></p>
+
+{% block extra_styles %}
+<style>
+  form > div {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  input[type="text"],
+  input[type="url"],
+  input[type="file"],
+  input[type="tel"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .error {
+    color: red;
+    margin-top: -8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  .workingday-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 1px;  /* ラベルとの間隔を狭くする */
+    margin-bottom: 10px;
+    padding: 0;        /* 上下の余白を無くす */
+  }
 
 
+  .checkbox-inline input[type="checkbox"] {
+    margin-right: 6px;
+  }
+
+
+
+  .messages {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+  }
+
+  .messages li {
+    padding: 10px;
+    background-color:rgb(199, 243, 254);
+    border: 1px solidrgb(199, 252, 254);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+  }
+
+</style>
+{% endblock %}
 
 {% endblock %}

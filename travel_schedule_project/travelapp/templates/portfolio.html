@@ -3,9 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ポートフォリオ</title>
+    <title>トラベルスケジュール</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .header {
+            background-color: #f8e8f8;
+            padding: 20px 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2em;
+            color: #333;
+        }
+        .image-gallery {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .image-gallery img {
+            width: 400px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .description {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .description p {
+            font-size: 1.2em;
+            color: #555;
+            line-height: 1.6;
+        }
+        .links {
+            margin: 20px 0;
+        }
+        .links a {
+            display: block;
+            margin: 5px 0;
+            text-decoration: none;
+            color: #0073e6;
+            font-weight: bold;
+        }
+        img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover; /* 必要に応じて調整 */
+        }
+
+    </style>
 </head>
 <body>
-    ポートフォリオ
+    <div class="header">
+        <h1>CosCharm</h1>
+    </div>
+
+    <div class="image-gallery">
+        <img src="/static/images/portfolio/picture12.png" alt="Picture 8">
+        <img src="/static/images/portfolio/picture13.png" alt="Picture 9">
+        <img src="/static/images/portfolio/picture14.png" alt="Picture 10">
+    </div>
+    
+              
+
+    <div class="description">
+        <p>
+            CosCharmは、コスメを沢山所持していて使いきれていないコスメヲタクの課題を、コスメを管理、メイク方法をシェアすることでサポートするアプリです。
+        </p>
+        <p>
+            このアプリを使用することで、所持しているコスメやそのコスメを使ったメイク方法を管理できます。またユーザー同士でメイク方法を共有・閲覧できるため、コスメの効果的な使い方を学べ、メイクのバリエーションを広げることができます。
+        </p>
+    </div>
+
+    <div class="links">
+        <a href="static/images/portfolio/企画書・画面設計図_田口明香里%E3%80%80%20(2).pdf" target="_blank">企画書・画面設計図</a>
+        <a href="static/images/portfolio/画面遷移図_田口明香里%20(1).svg" target="_blank">画面遷移図</a>
+        <a href="static/images/portfolio/ER図._田口明香里.svg" target="_blank">ER図</a>
+    </div>
+    <a href="{% url 'home' %}">アプリへ</a>
 </body>
-</html>
