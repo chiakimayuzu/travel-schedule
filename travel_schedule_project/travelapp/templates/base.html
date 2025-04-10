@@ -1,206 +1,178 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="utf-8">
-    <!-- Bootstrap 4.3.1 CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  </head>
+<head>
+  <meta charset="utf-8">
+  <!-- Bootstrap 4.3.1 CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   {% block extra_head %}{% endblock %}
-  <body>
-    <header>
-      <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid">
-          <!-- 左上のタイトル -->
-          <a class="navbar-brand" href="{% url 'travelapp:home' %}">トラベルスケジュール</a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent"
-                  aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-  
-          <div class="collapse navbar-collapse" id="navbarContent">
-            <ul class="navbar-nav mr-auto">
-              {% if request.user.is_authenticated %}
-                <li class="nav-item">
-                  <span class="navbar-text">
-                    こんにちは <a href="#" id="user-link">{{ request.user }}</a> さん
-                  </span>
-                </li>
-              {% endif %}
-            </ul>
-  
-            {% if not request.user.is_authenticated %}
-              <!-- ログインボタン（右寄せ） -->
+</head>
+<body class="base-layout">
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'travelapp:home' %}">トラベルスケジュール</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent"
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-              <form action="{% url 'travelapp:login' %}" method="post" class="form-inline ml-auto">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-dark login-btn">ログイン</button>
-              </form>
-            {% else %}
-              <!-- ログアウトボタン（右寄せ） -->
-              <form action="{% url 'travelapp:logout' %}" method="post" class="form-inline ml-auto">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-dark logout-btn">ログアウト</button>
-              </form>
+        <div class="collapse navbar-collapse" id="navbarContent">
+          <ul class="navbar-nav mr-auto">
+            {% if request.user.is_authenticated %}
+              <li class="nav-item">
+                <span class="navbar-text">
+                  こんにちは <a href="#" id="user-link">{{ request.user }}</a> さん
+                </span>
+              </li>
             {% endif %}
-          </div>
-        </div>
-      </nav>
-  
-      {% if request.user.is_authenticated %}
-      <!-- メニューバー -->
-      <div class="container">
-        <div class="menu-links mt-3">
-          <a class="nav-link d-inline-block" href="{% url 'travelapp:home' %}">ホーム</a>
-          <a class="nav-link d-inline-block" href="{% url 'travelapp:schedule' %}">旅行プラン作成</a>
-          <a class="nav-link d-inline-block" href="{% url 'travelapp:touristplan_list' %}">保存した旅行プラン</a>
-          <a class="nav-link d-inline-block" href="{% url 'travelapp:wanted_spot_list' %}">行きたいリスト</a>
-          <a class="nav-link d-inline-block" href="{% url 'travelapp:my_review_list' %}">クチコミリスト</a>
-          <a class="nav-link d-inline-block" href="{% url 'travelapp:regist_touristspot' %}">観光地登録</a>
+          </ul>
+
+          {% if not request.user.is_authenticated %}
+            <form action="{% url 'travelapp:login' %}" method="post" class="form-inline ml-auto">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-dark login-btn">ログイン</button>
+            </form>
+          {% else %}
+            <form action="{% url 'travelapp:logout' %}" method="post" class="form-inline ml-auto">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-dark logout-btn">ログアウト</button>
+            </form>
+          {% endif %}
         </div>
       </div>
-    
-      {% endif %}
-    </header>
-  
-    <main class="container mt-4">
-      {% block content %}{% endblock %}
-    </main>
-    <footer class="text-center mt-4">
-      <p>© トラベルスケジュール</p>
-    </footer>
-  
+    </nav>
 
-    <!-- jQueryを最初に読み込む -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {% if request.user.is_authenticated %}
+    <div class="container">
+      <div class="menu-links mt-3">
+        <a class="nav-link d-inline-block" href="{% url 'travelapp:home' %}">ホーム</a>
+        <a class="nav-link d-inline-block" href="{% url 'travelapp:schedule' %}">旅行プラン作成</a>
+        <a class="nav-link d-inline-block" href="{% url 'travelapp:touristplan_list' %}">保存した旅行プラン</a>
+        <a class="nav-link d-inline-block" href="{% url 'travelapp:wanted_spot_list' %}">行きたいリスト</a>
+        <a class="nav-link d-inline-block" href="{% url 'travelapp:my_review_list' %}">クチコミリスト</a>
+        <a class="nav-link d-inline-block" href="{% url 'travelapp:regist_touristspot' %}">観光地登録</a>
+      </div>
+    </div>
+    {% endif %}
+  </header>
 
-    <!-- その後に必要なスクリプトを読み込む -->
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+  <main class="container mt-4">
+    {% block content %}{% endblock %}
+  </main>
 
-    <script>
-      $(document).ready(function () {
-        console.log("jQueryのバージョン:", $.fn.jquery);
-      });
-    </script>
+  <footer class="text-center mt-4">
+    <p>© トラベルスケジュール</p>
+  </footer>
 
-    <!-- モーダルの表示 -->
-    <script>
-      document.getElementById('user-link').addEventListener('click', function(event) {
-        event.preventDefault();
-        var userModal = new bootstrap.Modal(document.getElementById('userModal'));
-        userModal.show();
-      });
-    </script>
+  <!-- スクリプト類 -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 
+  <script>
+    $(document).ready(function () {
+      console.log("jQueryのバージョン:", $.fn.jquery);
+      const userLink = document.getElementById('user-link');
+      if (userLink) {
+        userLink.addEventListener('click', function (event) {
+          event.preventDefault();
+          var userModal = new bootstrap.Modal(document.getElementById('userModal'));
+          userModal.show();
+        });
+      }
+    });
+  </script>
 
-                  <!-- モーダルの構造 -->
-                  <div class="modal" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
-                     <div class="modal-dialog">
-                        <div class="modal-content">
-                           <div class="modal-header">
-                              <h5 class="modal-title" id="userModalLabel">ユーザー設定</h5>
-                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                 <span aria-hidden="true">&times;</span>
-                              </button>
-                           </div>
-                           <div class="modal-body">
-                              <p><a class="nav-link" href="{% url 'travelapp:change_email' %}">メールアドレス変更</a></p>
-                              <p><a class="nav-link" href="{% url 'travelapp:change_password' %}">パスワード変更</a></p>
-                           </div>
-                           <div class="modal-footer"> 
-                           </div>
-                        </div>
-                     </div>
-                  </div>
+  <!-- モーダル -->
+  <div class="modal" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="userModalLabel">ユーザー設定</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p><a class="nav-link" href="{% url 'travelapp:change_email' %}">メールアドレス変更</a></p>
+          <p><a class="nav-link" href="{% url 'travelapp:change_password' %}">パスワード変更</a></p>
+        </div>
+        <div class="modal-footer"></div>
+      </div>
+    </div>
+  </div>
 
-       <style>
-        header {
-          background-color: #e6f0ff;
-          padding-bottom: 10px; /* 必要に応じて余白も調整 */
-        }
+  <!-- このページ専用のCSS -->
+  <style>
+    .base-layout header {
+      background-color: #e6f0ff;
+      padding-bottom: 10px;
+    }
 
-        .menu-links .nav-link {
-          margin: 0;
-          color:rgb(50, 42, 42);  /* 濃いブラウン */
+    .base-layout .menu-links .nav-link {
+      margin: 0;
+      color: rgb(50, 42, 42);
+    }
 
-        }
-        /* メニューリンクにマウスオーバーした際のアンダーライン */
-        .menu-links .nav-link:hover {
-          text-decoration: underline;
-        }
+    .base-layout .menu-links .nav-link:hover {
+      text-decoration: underline;
+    }
 
+    .base-layout .navbar-brand {
+      margin-bottom: 10px;
+    }
 
-         .navbar-brand {
-            margin-bottm: 10px;
-         }
+    .base-layout .header-info {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 15px;
+    }
 
-         /* ヘッダー部分のレイアウト調整 */
-         .header-info {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-bottom: 15px;
-         }
+    .base-layout .menu-links {
+      display: flex;
+      justify-content: flex-start;
+      gap: 20px;
+      margin-top: 20px;
+    }
 
-         /* メニューリンク */
-         .menu-links {
-            display: flex;
-            justify-content: flex-start; /* 左詰め */
-            gap: 20px; /* メニューリンク間のスペース */
-            margin-top: 20px;
-         }
+    .base-layout #user-link {
+      cursor: pointer;
+      font-weight: bold;
+    }
 
-         .menu-links .nav-link {
-            margin: 0;
-         }
+    .base-layout .logout-btn,
+    .base-layout .login-btn {
+      background-color: black;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+    }
 
-         /* ユーザーリンクのスタイル */
-         #user-link {
-            cursor: pointer;
-            font-weight: bold;
-         }
+    .base-layout .logout-btn:hover,
+    .base-layout .login-btn:hover {
+      background-color: #444;
+    }
 
-         /* ログアウトボタン */
-         .logout-btn, .login-btn {
-            background-color: black;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-         }
+    .base-layout header form {
+      display: flex;
+      margin-left: auto;
+    }
 
-         .logout-btn:hover, .login-btn:hover {
-            background-color: #444;
-         }
+    .base-layout main form {
+      display: block;
+    }
+  </style>
 
-         /* ログイン・ログアウトボタンを右端に配置 */
-         form {
-            display: flex;
-            margin-left: auto;
-         }
-         /* ログイン・ログアウトボタンにのみ適用 */
-header form {
-  display: flex;
-  margin-left: auto;
-}
-
-/* 他のフォームにはflexを適用しないように戻す */
-main form {
-  display: block;
-}
-
-
-      </style>
-   </body>
-   {% block extra_js %}{% endblock %}
+  {% block extra_js %}{% endblock %}
+</body>
 </html>

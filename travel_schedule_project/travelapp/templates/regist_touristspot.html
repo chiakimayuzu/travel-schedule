@@ -19,7 +19,7 @@
     {% csrf_token %}
     
     <div>
-        <label for="{{ form.spot_name.id_for_label }}">観光地名<span style="color: red;">*</span>:</label>
+        <label for="{{ form.spot_name.id_for_label }}">観光地名<span style="color: red;">*</span></label>
         {{ form.spot_name }}
         {% if form.spot_name.errors %}
             <div class="error">{{ form.spot_name.errors }}</div>
@@ -28,7 +28,7 @@
     <p><span id="spot_name_error" style="display:none; color: red;"></span></p>
     
     <div>
-      <label for="{{ form.prefecture.id_for_label }}">都道府県<span style="color: red;">*</span>:</label>
+      <label for="{{ form.prefecture.id_for_label }}">都道府県<span style="color: red;">*</span></label>
       {{ form.prefecture }}
       {% if form.prefecture.errors %}
           <div class="error">{{ form.prefecture.errors }}</div>
@@ -36,7 +36,7 @@
   </div>
 
     <div>
-        <label for="{{ form.address.id_for_label }}">住所<span style="color: red;">*</span>:</label>
+        <label for="{{ form.address.id_for_label }}">住所<span style="color: red;">*</span></label>
         {{ form.address }}
         {% if form.address.errors %}
             <div class="error">{{ form.address.errors }}</div>
@@ -45,7 +45,7 @@
     <p><span id="address_error" style="display:none; color: red;"></span></p>
     
     <div>
-        <label for="{{ form.tel.id_for_label }}">電話番号<span style="color: red;">*</span>:</label>
+        <label for="{{ form.tel.id_for_label }}">電話番号<span style="color: red;">*</span></label>
         {{ form.tel }}
         {% if form.tel.errors %}
             <div class="error">{{ form.tel.errors }}</div>
@@ -53,7 +53,7 @@
     </div>
 
     <div>
-        <label for="{{ form.category.id_for_label }}">カテゴリ<span style="color: red;">*</span>:</label>
+        <label for="{{ form.category.id_for_label }}">カテゴリ<span style="color: red;">*</span></label>
         {{ form.category }}
         {% if form.category.errors %}
             <div class="error">{{ form.category.errors }}</div>
@@ -61,17 +61,22 @@
     </div>
 
     <div>
-      <label for="{{ form.workingday.id_for_label }}">営業日：</label>
+      <label for="{{ form.workingday.id_for_label }}">営業日</label>
       <div class="workingday-checkboxes">
-          {{ form.workingday }}
-          {% if form.workingday.errors %}
-              <div class="error">{{ form.workingday.errors }}</div>
-          {% endif %}
+        {% for checkbox in form.workingday %}
+          <label class="checkbox-inline">
+            {{ checkbox.tag }} {{ checkbox.choice_label }}
+          </label>
+        {% endfor %}
+        {% if form.workingday.errors %}
+          <div class="error">{{ form.workingday.errors }}</div>
+        {% endif %}
       </div>
     </div>
+    
 
     <div>
-        <label for="{{ form.opening_at.id_for_label }}">営業開始時間:</label>
+        <label for="{{ form.opening_at.id_for_label }}">営業開始時間</label>
         {{ form.opening_at }}
         {% if form.opening_at.errors %}
             <div class="error">{{ form.opening_at.errors }}</div>
@@ -79,7 +84,7 @@
     </div>
 
     <div>
-        <label for="{{ form.closing_at.id_for_label }}">営業終了時間:</label>
+        <label for="{{ form.closing_at.id_for_label }}">営業終了時間</label>
         {{ form.closing_at }}
         {% if form.closing_at.errors %}
             <div class="error">{{ form.closing_at.errors }}</div>
@@ -87,7 +92,7 @@
     </div>
 
     <div>
-        <label for="{{ form.parking.id_for_label }}">駐車場<span style="color: red;">*</span>:</label>
+        <label for="{{ form.parking.id_for_label }}">駐車場<span style="color: red;">*</span></label>
         {{ form.parking }}
         {% if form.parking.errors %}
             <div class="error">{{ form.parking.errors }}</div>
@@ -95,7 +100,7 @@
     </div>
 
     <div>
-        <label for="{{ form.keywords.id_for_label }}">キーワード<span style="color: red;">*</span>:</label>
+        <label for="{{ form.keywords.id_for_label }}">キーワード<span style="color: red;">*</span></label>
         {{ form.keywords }}
         <small>{{ form.keywords.help_text }}</small>
         {% if form.keywords.errors %}
@@ -104,7 +109,7 @@
     </div>
 
     <div>
-        <label for="{{ form.picture.id_for_label }}">画像<span style="color: red;">*</span>:</label>
+        <label for="{{ form.picture.id_for_label }}">画像<span style="color: red;">*</span></label>
         {{ form.picture }}
         {% if form.picture.errors %}
             <div class="error">{{ form.picture.errors }}</div>
@@ -112,7 +117,7 @@
     </div>
 
     <div>
-        <label for="{{ form.offical_url.id_for_label }}">公式URL<span style="color: red;">*</span>:</label>
+        <label for="{{ form.offical_url.id_for_label }}">公式URL<span style="color: red;">*</span></label>
         {{ form.offical_url }}
         {% if form.offical_url.errors %}
             <div class="error">{{ form.offical_url.errors }}</div>
@@ -120,7 +125,7 @@
     </div>
 
     <div>
-        <label for="{{ form.description.id_for_label }}">説明<span style="color: red;">*</span>:</label>
+        <label for="{{ form.description.id_for_label }}">説明<span style="color: red;">*</span></label>
         {{ form.description }}
         {% if form.description.errors %}
             <div class="error">{{ form.description.errors }}</div>
@@ -188,12 +193,77 @@ $(document).ready(function() {
       document.getElementById('id_address').addEventListener("input", checkDuplicate);
     });
 </script>
+
+{% block extra_styles %}
 <style>
-  .workingday-checkboxes input {
-    display: inline-block;
-    margin-right: 10px;
+
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    font-size: 16px;
   }
+
+  input[type="text"],
+  input[type="url"],
+  input[type="file"],
+  input[type="tel"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .error {
+    color: red;
+    margin-top: -8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  .workingday-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 1px;  /* ラベルとの間隔を狭くする */
+    margin-bottom: 10px;
+    padding: 0;        /* 上下の余白を無くす */
+  }
+
+
+  .checkbox-inline input[type="checkbox"] {
+    margin-right: 6px;
+  }
+
+
+
+  .messages {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+  }
+
+  .messages li {
+    background-color: #f9dede;
+    color: #a94442;
+    border: 1px solid #ebccd1;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
 </style>
+{% endblock %}
 
 
 {% endblock %}
