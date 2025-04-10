@@ -19,12 +19,13 @@
     {% csrf_token %}
     
     <div>
-        <label for="{{ form.spot_name.id_for_label }}">観光地名<span style="color: red;">*</span></label>
-        {{ form.spot_name }}
-        {% if form.spot_name.errors %}
-            <div class="error">{{ form.spot_name.errors }}</div>
-        {% endif %}
-    </div>
+      <label for="{{ form.spot_name.id_for_label }}">観光地名<span style="color: red;">*</span></label>
+      <input type="text" name="spot_name" id="{{ form.spot_name.id_for_label }}" value="{{ form.spot_name.value|default_if_none:'' }}" placeholder="例：清水寺" class="form-control">
+      {% if form.spot_name.errors %}
+          <div class="error">{{ form.spot_name.errors }}</div>
+      {% endif %}
+  </div>
+  
     <p><span id="spot_name_error" style="display:none; color: red;"></span></p>
     
     <div>
@@ -35,22 +36,24 @@
       {% endif %}
   </div>
 
-    <div>
-        <label for="{{ form.address.id_for_label }}">住所<span style="color: red;">*</span></label>
-        {{ form.address }}
-        {% if form.address.errors %}
-            <div class="error">{{ form.address.errors }}</div>
-        {% endif %}
-    </div>
+  <div>
+    <label for="{{ form.address.id_for_label }}">住所<span style="color: red;">*</span>&nbsp;&nbsp;<small>番地は-でつないでください</small></label>
+    <input type="text" name="address" id="{{ form.address.id_for_label }}" value="{{ form.address.value|default_if_none:'' }}" placeholder="例：京都市東山区清水1-294" class="form-control">
+    {% if form.address.errors %}
+        <div class="error">{{ form.address.errors }}</div>
+    {% endif %}
+</div>
+
     <p><span id="address_error" style="display:none; color: red;"></span></p>
     
     <div>
-        <label for="{{ form.tel.id_for_label }}">電話番号<span style="color: red;">*</span></label>
-        {{ form.tel }}
-        {% if form.tel.errors %}
-            <div class="error">{{ form.tel.errors }}</div>
-        {% endif %}
-    </div>
+      <label for="{{ form.tel.id_for_label }}">電話番号<span style="color: red;">*</span></label>
+      <input type="tel" name="tel" id="{{ form.tel.id_for_label }}" value="{{ form.tel.value|default_if_none:'' }}" placeholder="例：075-551-1234" class="form-control">
+      {% if form.tel.errors %}
+          <div class="error">{{ form.tel.errors }}</div>
+      {% endif %}
+  </div>
+  
 
     <div>
         <label for="{{ form.category.id_for_label }}">カテゴリ<span style="color: red;">*</span></label>
@@ -84,7 +87,7 @@
     </div>
 
     <div>
-        <label for="{{ form.closing_at.id_for_label }}">営業終了時間</label>
+      <label for="{{ form.closing_at.id_for_label }}">営業終了時間</label>
         {{ form.closing_at }}
         {% if form.closing_at.errors %}
             <div class="error">{{ form.closing_at.errors }}</div>
@@ -92,7 +95,7 @@
     </div>
 
     <div>
-        <label for="{{ form.parking.id_for_label }}">駐車場<span style="color: red;">*</span></label>
+      <label for="{{ form.parking.id_for_label }}">駐車場<span style="color: red;">*</span></label>
         {{ form.parking }}
         {% if form.parking.errors %}
             <div class="error">{{ form.parking.errors }}</div>
@@ -100,16 +103,15 @@
     </div>
 
     <div>
-        <label for="{{ form.keywords.id_for_label }}">キーワード<span style="color: red;">*</span><small>   {{ form.keywords.help_text }}</small></label>
+      <label for="{{ form.keywords.id_for_label }}">キーワード<span style="color: red;">*</span><small>&nbsp;&nbsp;{{ form.keywords.help_text }}</small></label>
         {{ form.keywords }}
-        <small>{{ form.keywords.help_text }}</small>
         {% if form.keywords.errors %}
             <div class="error">{{ form.keywords.errors }}</div>
         {% endif %}
     </div>
 
     <div>
-        <label for="{{ form.picture.id_for_label }}">画像<span style="color: red;">*</span></label>
+      <label for="{{ form.picture.id_for_label }}">画像<span style="color: red;">*</span></label>
         {{ form.picture }}
         {% if form.picture.errors %}
             <div class="error">{{ form.picture.errors }}</div>
@@ -117,7 +119,7 @@
     </div>
 
     <div>
-        <label for="{{ form.offical_url.id_for_label }}">公式URL<span style="color: red;">*</span></label>
+      <label for="{{ form.offical_url.id_for_label }}">公式URL<span style="color: red;">*</span></label>
         {{ form.offical_url }}
         {% if form.offical_url.errors %}
             <div class="error">{{ form.offical_url.errors }}</div>
@@ -196,6 +198,9 @@ $(document).ready(function() {
 
 {% block extra_styles %}
 <style>
+  form > div {
+    margin-bottom: 20px;
+  }
 
   label {
     display: block;
