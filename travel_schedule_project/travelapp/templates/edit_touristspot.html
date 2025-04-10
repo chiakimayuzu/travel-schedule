@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 style="font-size: 24px;">「{{ tourist_spot.spot_name }}」を編集</h1>
+<h1 style="font-size: 24px;">「{{ tourist_spot.spot_name }}」を編集<span style="color: red;">(*は必須です)</span></h1></h1>
 <br><p><a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">詳細ページに戻る</a></p>
 <form method="POST" enctype="multipart/form-data">
   {% csrf_token %}
 
   <div>
-    <label for="{{ form.spot_name.id_for_label }}">観光地名*</label>
+    <label for="{{ form.spot_name.id_for_label }}">観光地名<span style="color: red;">*</span></label>
     {{ form.spot_name }}
     {% if form.spot_name.errors %}
       <div class="error">
@@ -19,7 +19,7 @@
   </div>
 
   <div>
-    <label for="{{ form.prefecture.id_for_label }}">都道府県*</label>
+    <label for="{{ form.prefecture.id_for_label }}">都道府県<span style="color: red;">*</span></label>
     {{ form.prefecture }}
     {% if form.prefecture.errors %}
       <div class="error">
@@ -31,7 +31,7 @@
   </div>
 
   <div>
-    <label for="{{ form.address.id_for_label }}">住所*</label>
+    <label for="{{ form.address.id_for_label }}">住所<span style="color: red;">*</span></label>
     {{ form.address }}
     {% if form.address.errors %}
       <div class="error">
@@ -43,7 +43,7 @@
   </div>
 
   <div>
-    <label for="{{ form.tel.id_for_label }}">電話番号</label>
+    <label for="{{ form.tel.id_for_label }}">電話番号<span style="color: red;">*</span></label>
     {{ form.tel }}
     {% if form.tel.errors %}
       <div class="error">
@@ -55,7 +55,7 @@
   </div>
 
   <div>
-    <label for="{{ form.category.id_for_label }}">カテゴリ</label>
+    <label for="{{ form.category.id_for_label }}">カテゴリ<span style="color: red;">*</span></label>
     {{ form.category }}
     {% if form.category.errors %}
       <div class="error">
@@ -103,7 +103,7 @@
   </div>
 
   <div>
-    <label for="{{ form.parking.id_for_label }}">駐車場*</label>
+    <label for="{{ form.parking.id_for_label }}">駐車場<span style="color: red;">*</span></label>
     {{ form.parking }}
     {% if form.parking.errors %}
       <div class="error">
@@ -115,14 +115,14 @@
   </div>
 
   <div>
-    <label for="keywords">キーワード（カンマ区切り）:</label>
+    <label for="keywords">キーワード（カンマ区切り）<span style="color: red;">*</span><small>&nbsp;&nbsp;{{ form.keywords.help_text }}</small></label>
     <input type="text" name="keywords" id="keywords"
            value="{% for keyword in current_keywords %}{{ keyword.keyword }}{% if not forloop.last %}, {% endif %}{% endfor %}"
-           placeholder="キーワードをカンマ区切りで入力">
+           placeholder="例：海,山,温泉">
   </div>
 
   <div>
-    <label for="{{ form.picture.id_for_label }}">画像:</label><br>
+    <label for="{{ form.picture.id_for_label }}">画像<span style="color: red;">*</span></label><br>
   
     {% if tourist_spot.picture %}
       <p>いまの画像</p>
@@ -145,7 +145,7 @@
   
 
   <div>
-    <label for="{{ form.offical_url.id_for_label }}">公式URL:</label>
+    <label for="{{ form.offical_url.id_for_label }}">公式URL<span style="color: red;">*</span></label>
     {{ form.offical_url }}
     {% if form.offical_url.errors %}
       <div class="error">
@@ -157,7 +157,7 @@
   </div>
 
   <div>
-    <label for="{{ form.description.id_for_label }}">説明:</label>
+    <label for="{{ form.description.id_for_label }}">説明<span style="color: red;">*</span></label>
     {{ form.description }}
     {% if form.description.errors %}
       <div class="error">

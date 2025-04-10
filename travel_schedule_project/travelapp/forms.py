@@ -173,9 +173,7 @@ class TouristSpotForm(forms.ModelForm):
         model = TouristSpot
         fields = ['spot_name', 'prefecture', 'address', 'tel', 'category', 'workingday', 'parking', 
                   'opening_at', 'closing_at', 'picture', 'description', 'offical_url', 'keywords']
-        widgets = {
-            'picture': forms.FileInput(),  # ← ここでClearableFileInputを無効化
-        }
+
         
     def clean_picture(self):
         picture = self.cleaned_data.get('picture')
