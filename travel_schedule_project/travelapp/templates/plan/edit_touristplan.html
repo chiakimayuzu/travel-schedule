@@ -34,40 +34,40 @@
           </tr>
         </thead>
         <tbody>
-          {% for visit in visit_date %}
-          {% with modal_counter=forloop.counter %}
-            <tr class="visit-row">
-              <!-- 訪問日セルに data-visit 属性を追加 -->
-              <td data-visit="{{ visit }}">{{ visit }}</td>
-              <td>
-                <ul id="selectedSpot{{ modal_counter }}" class="selected-spot sortable">
-                  {% for spot in selected_spots %}
-                    {% if spot.visit_date == visit %}
-                      <li class="sortable-item" data-spot-id="{{ spot.id }}" data-spot-name="{{ spot.spot_name }}" data-lat="{{ spot.lat }}" data-lng="{{ spot.lng }}">
-                        {% if spot.picture %}
-                          <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width:100px; height:auto;"><br>
-                        {% endif %}
-                        {{ spot.spot_name }}
-                        <br>{{ spot.prefecture }} {{ spot.address }}<br>
-                        <!-- 滞在時間がない場合は「情報なし」と表示 -->
-                        平均滞在時間: 
-                        {% if spot.staytime_hours|default:"0" == "0" and spot.staytime_minutes|default:"0" == "0" %}
-                          情報なし
-                        {% else %}
-                          {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
-                        {% endif %}
-                        <span class="drag-handle">↕️</span>
-                        <button type="button" class="delete-spot btn btn-danger btn-sm">削除</button>
-                      </li>
-                    {% endif %}
-                  {% endfor %}
-                </ul>
-                <br>
-                <a href="#" class="openWantedSpotModal" data-modal-id="wantedSpotModal{{ modal_counter }}" data-target-id="selectedSpot{{ modal_counter }}">
-                  行きたいリストから選択
-                </a>
-              </td>
-            </tr>
+{% for visit in visit_date %}
+  {% with modal_counter=forloop.counter %}
+    <tr class="visit-row">
+      <!-- 訪問日セルに data-visit 属性を追加 -->
+      <td data-visit="{{ visit }}">{{ visit }}</td>
+      <td>
+        <ul id="selectedSpot{{ modal_counter }}" class="selected-spot sortable">
+          {% for spot in selected_spots %}
+            {% if spot.visit_date == visit %}
+              <li class="sortable-item" data-spot-id="{{ spot.id }}" data-spot-name="{{ spot.spot_name }}" data-lat="{{ spot.lat }}" data-lng="{{ spot.lng }}">
+                {% if spot.picture %}
+                  <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width:100px; height:auto;"><br>
+                {% endif %}
+                {{ spot.spot_name }}
+                <br>{{ spot.prefecture }} {{ spot.address }}<br>
+                <!-- 滞在時間がない場合は「情報なし」と表示 -->
+                平均滞在時間: 
+                {% if spot.staytime_hours|default:"0" == "0" and spot.staytime_minutes|default:"0" == "0" %}
+                  情報なし
+                {% else %}
+                  {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
+                {% endif %}
+                <span class="drag-handle">↕️</span>
+                <button type="button" class="delete-spot btn btn-danger btn-sm">削除</button>
+              </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+        <br>
+        <a href="#" class="openWantedSpotModal" data-modal-id="wantedSpotModal{{ modal_counter }}" data-target-id="selectedSpot{{ modal_counter }}">
+          行きたいリストから選択
+        </a>
+      </td>
+    </tr>
 
               <div id="wantedSpotModal{{ modal_counter }}" class="modal">
                 <div class="modal-content">
