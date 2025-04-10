@@ -237,7 +237,7 @@ class UserReviewForm(forms.ModelForm):
         stay_time_minutes = cleaned_data.get('stay_time_minutes')
 
         if not review_score:
-            raise forms.ValidationError({'review_score': '評価スコアは必須です。'})
+            raise forms.ValidationError({'review_score': '評価は必須です。'})
 
         if not stay_time_hours or not stay_time_minutes:
             if not stay_time_hours:
@@ -267,8 +267,7 @@ class UserReviewForm(forms.ModelForm):
 
         if stay_time_min <= 0:
             raise forms.ValidationError({
-                'stay_time_hours': '滞在時間（時間）は0以上の値を設定してください。',
-                'stay_time_minutes': '滞在時間（分）は0以上の値を設定してください。',
+                'stay_time_hours': '滞在時間は0以上の値を設定してください。',
             })
         cleaned_data['stay_time_min'] = stay_time_min
 

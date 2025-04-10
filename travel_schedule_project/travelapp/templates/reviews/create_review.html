@@ -17,7 +17,7 @@
     <a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}" class="back-link-btn">←観光施設詳細画面へ戻る</a>
   </div>
 
-  <br>{% if form.review_score.errors %}
+  {% if form.review_score.errors %}
   <div class="error">
     {% for error in form.review_score.errors %}
       <p>{{ error }}</p>
@@ -25,14 +25,9 @@
   </div>
 {% endif %}
 
-
-
-{% if form.stay_time_hours.errors or form.stay_time_minutes.errors %}
+{% if form.stay_time_hours.errors %}
 <div class="error">
   {% for error in form.stay_time_hours.errors %}
-    <p>{{ error }}</p>
-  {% endfor %}
-  {% for error in form.stay_time_minutes.errors %}
     <p>{{ error }}</p>
   {% endfor %}
 </div>
@@ -43,21 +38,13 @@
 
 <!-- 評価スコア -->
 <br><div class="form-group">
-  <label for="{{ form.review_score.id_for_label }}" class="form-label">評価スコア<span style="color: red;">*</span></label>
+  <label for="{{ form.review_score.id_for_label }}" class="form-label">評価<span style="color: red;">*</span></label>
   <div class="rating-stars" id="rating-stars">
     {% for i in "12345" %}
       <span class="star" data-value="{{ i }}">&#9733;</span>
     {% endfor %}
   </div>
   <input type="hidden" name="review_score" value="{{ form.review_score.value|default:0 }}">
-  {% if form.review_score.errors %}
-    <div class="error">
-      {% for error in form.review_score.errors %}
-        <p>{{ error }}</p>
-      {% endfor %}
-    </div>
-  {% endif %}
-</div>
 
     <!-- レビュータイトル -->
     <div class="form-group">
@@ -105,23 +92,6 @@
     {{ form.stay_time_hours }} 時 {{ form.stay_time_minutes }} 分
   </div>
 
-  <!-- 滞在時間（時間）のエラー表示 -->
-  {% if form.stay_time_hours.errors %}
-    <div class="error">
-      {% for error in form.stay_time_hours.errors %}
-        <p>{{ error }}</p>
-      {% endfor %}
-    </div>
-  {% endif %}
-  
-  <!-- 滞在時間（分）のエラー表示 -->
-  {% if form.stay_time_minutes.errors %}
-    <div class="error">
-      {% for error in form.stay_time_minutes.errors %}
-        <p>{{ error }}</p>
-      {% endfor %}
-    </div>
-  {% endif %}
 </div>
     <!-- 送信ボタン -->
     <button type="submit" class="submit-button">作成</button>
@@ -243,6 +213,11 @@ input, select, textarea {
 
   .star:hover {
     transform: scale(1.2);
+  }
+  .error p {
+    color: red;
+    font-size: 14px;
+    margin: 5px 0;
   }
 
 </style>

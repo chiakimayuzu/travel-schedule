@@ -328,6 +328,8 @@ def detail_touristspot(request, pk):
 
     # 各平均値を計算
     review_score_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('review_score'))['review_score__avg']
+    # 小数点第一位まで丸める
+    review_score_avg = round(review_score_avg, 1) if review_score_avg is not None else 0
     price_avg = UserReview.objects.filter(tourist_spot=tourist_spot).values('review_price')
     stay_time_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('stay_time_min'))['stay_time_min__avg']
 
@@ -424,6 +426,8 @@ def edit_touristspot(request, pk):
 
     # 各平均値を計算
     review_score_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('review_score'))['review_score__avg']
+    # 小数点第一位まで丸める
+    review_score_avg = round(review_score_avg, 1) if review_score_avg is not None else 0    
     price_avg = UserReview.objects.filter(tourist_spot=tourist_spot).values('review_price')
     stay_time_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('stay_time_min'))['stay_time_min__avg']
 
@@ -551,6 +555,8 @@ def create_review(request, pk):  # 🔹 引数名を pk に変更
 
     # 各平均値を計算
     review_score_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('review_score'))['review_score__avg']
+    # 小数点第一位まで丸める
+    review_score_avg = round(review_score_avg, 1) if review_score_avg is not None else 0
     price_avg = UserReview.objects.filter(tourist_spot=tourist_spot).values('review_price')
     stay_time_avg = UserReview.objects.filter(tourist_spot=tourist_spot).aggregate(Avg('stay_time_min'))['stay_time_min__avg']
 
