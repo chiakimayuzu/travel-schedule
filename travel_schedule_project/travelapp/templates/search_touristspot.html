@@ -8,7 +8,7 @@
       <input type="text" name="query" id="query" value="{{ request.GET.query }}" placeholder="例：世界遺産、京都">
     </div>
     
-    <div class="search-category">
+    <br><div class="search-category">
       <select name="category" id="category">
           <option value="">カテゴリを選択</option>
           <option value="1" {% if request.GET.category == '1' %}selected{% endif %}>神社/仏閣/歴史的建造物</option>
@@ -28,10 +28,10 @@
       </select>
     </div>
     
-    <button type="submit" class="search-btn">検索</button>
+    <br><button type="submit" class="search-btn">検索</button>
   </form>
 
-  <br><br><h1>検索結果:</h1>
+
   <div class="sort-options">
     {% if request.GET.sort == '-created_at' %}
       <span class="selected">登録が新しい順</span>
@@ -71,7 +71,7 @@
     {% endif %}
   </div>
 
-{% block extra_styles %}
+  {% block extra_styles %}
   <style>
     .heading {
       font-size: 24px;
@@ -82,15 +82,17 @@
 
     .search-form {
       display: flex;
-      gap: 20px;
+      justify-content: flex-start; /* 左詰め */
+      align-items: center; /* 垂直方向に中央揃え */
+      gap: 20px; /* 各要素の間隔 */
       max-width: 800px;
       margin: 0 auto;
-      justify-content: flex-start; /* 左詰め */
     }
 
     .search-input,
-    .search-category {
-      width: 100%;
+    .search-category,
+    .search-btn {
+      flex: 1; /* 各要素が均等に広がる */
     }
 
     .search-input input[type="text"],
@@ -112,7 +114,7 @@
       cursor: pointer;
       max-width: 120px;
       align-self: flex-start;
-      white-space: nowrap; /* 追加 */
+      white-space: nowrap;
     }
 
     .search-btn:hover {
@@ -165,5 +167,7 @@
     }
   </style>
 {% endblock %}
+
+
 
 {% endblock %}

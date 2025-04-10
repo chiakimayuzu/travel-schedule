@@ -212,7 +212,7 @@ class UserReviewForm(forms.ModelForm):
         },
     )
 
-    review_score = forms.IntegerField(widget=forms.HiddenInput())
+    review_score = forms.IntegerField(widget=forms.HiddenInput(),required=True)
 
     class Meta:
         model = UserReview
