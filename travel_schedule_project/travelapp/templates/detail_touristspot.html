@@ -51,9 +51,30 @@
         <img src="{{ tourist_spot.picture.url }}" alt="{{ tourist_spot.spot_name }}">
       </div>
 
-      <div id="map" style="height: 400px; width: 100%; margin-top: 1rem;"></div>
+      <h3>最新のクチコミ</h3>
+      <p>
+        <a href="{% url 'travelapp:review_list' pk=tourist_spot.pk %}">
+            この観光地のすべてのクチコミを見る
+        </a>
+      </p>
+
+      {% if reviews %}
+        <ul>
+          {% for review in reviews %}
+            <li>
+              <strong>{{ review.review_title }}</strong>
+              <p>{{ review.review_description }}</p>
+              <p>投稿者: {{ review.user.username }}</p>
+              <p>投稿日: {{ review.created_at|date:"Y年m月d日 H:i" }}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>まだクチコミはありません。</p>
+      {% endif %}
     </div>
 
+    <!-- 2つの全角スペースを開けて右側にテーブルを表示 -->
     <div class="spot-info-right">
       <table class="spot-info-table">
         <tr>
@@ -124,53 +145,31 @@
     </div>
   </div>
 
-  <h3>最新のクチコミ</h3>
-  <p>
-    <a href="{% url 'travelapp:review_list' pk=tourist_spot.pk %}">
-        この観光地のすべてのクチコミを見る
-    </a>
-  </p>
-
-  {% if reviews %}
-    <ul>
-      {% for review in reviews %}
-        <li>
-          <strong>{{ review.review_title }}</strong>
-          <p>{{ review.review_description }}</p>
-          <p>投稿者: {{ review.user.username }}</p>
-          <p>投稿日: {{ review.created_at|date:"Y年m月d日 H:i" }}</p>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>まだクチコミはありません。</p>
-  {% endif %}
-
   <a class="nav-link d-inline-block" href="{% url 'travelapp:home' %}">ホームへ</a>
+  <div id="map"></div>
+ <!-- Google Maps APIの読み込み -->
+ <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
 
-  <!-- Google Maps APIの読み込み -->
-  <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+ <!-- 地図を初期化するための JavaScript -->
+ <script>
+   function initMap() {
+     // 観光地の緯度経度を設定
+     var location = { lat: {{ tourist_spot.latitude }}, lng: {{ tourist_spot.longitude }} };
+     
+     // 地図の設定
+     var map = new google.maps.Map(document.getElementById('map'), {
+       zoom: 15,
+       center: location
+     });
 
-  <!-- 地図を初期化するための JavaScript -->
-  <script>
-    function initMap() {
-      // 観光地の緯度経度を設定
-      var location = { lat: {{ tourist_spot.latitude }}, lng: {{ tourist_spot.longitude }} };
-      
-      // 地図の設定
-      var map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 15,
-        center: location
-      });
-
-      // ピンを地図に追加
-      var marker = new google.maps.Marker({
-        position: location,
-        map: map,
-        title: "{{ tourist_spot.spot_name }}"
-      });
-    }
-  </script>
+     // ピンを地図に追加
+     var marker = new google.maps.Marker({
+       position: location,
+       map: map,
+       title: "{{ tourist_spot.spot_name }}"
+     });
+   }
+ </script>
 
   <style>
     /* 星のコンテナ */
