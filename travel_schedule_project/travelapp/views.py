@@ -634,12 +634,16 @@ def create_review(request, pk):  # 🔹 引数名を pk に変更
             return redirect(reverse('travelapp:detail_touristspot', kwargs={'pk': tourist_spot.pk}))
         else:
             print(form.errors)  # フォームエラーを表示（デバッグ用）
+
     else:
         form = UserReviewForm()
+
     context = {
         'form': form,
         'tourist_spot': tourist_spot
     }
+
+    # POST送信後のエラーがある場合もエラーメッセージをそのまま表示
     return render(request, 'reviews/create_review.html', context)  
 
 @login_required

@@ -198,7 +198,7 @@ class UserReviewForm(forms.ModelForm):
     stay_time_hours = forms.ChoiceField(
         choices=[(i, str(i)) for i in range(0, 25)],  # 0～24時間
         label="滞在時間（時間）",
-        required=True,  # 必須に設定
+        required=True,
         error_messages={
             'required': '滞在時間（時間）を入力してください。',
         },
@@ -206,13 +206,13 @@ class UserReviewForm(forms.ModelForm):
     stay_time_minutes = forms.ChoiceField(
         choices=[(i, str(i)) for i in range(0, 60, 10)],  # 0～50分（10分刻み）
         label="滞在時間（分）",
-        required=True,  # 必須に設定
+        required=True,
         error_messages={
             'required': '滞在時間（分）を入力してください。',
         },
     )
 
-    review_score = forms.IntegerField(widget=forms.HiddenInput(),required=True)
+    review_score = forms.IntegerField(widget=forms.HiddenInput(), required=True)
 
     class Meta:
         model = UserReview
@@ -226,19 +226,48 @@ class UserReviewForm(forms.ModelForm):
         if self.instance and self.instance.pk:  # インスタンスがある場合
             hours = self.instance.stay_time_min // 60
             minutes = (self.instance.stay_time_min % 60)
-            # 初期値を設定
             self.fields['stay_time_hours'].initial = hours
             self.fields['stay_time_minutes'].initial = minutes
 
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        hours = int(self.cleaned_data.get('stay_time_hours', 0))
-        minutes = int(self.cleaned_data.get('stay_time_minutes', 0))
-        instance.stay_time_min = hours * 60 + minutes
-        if commit:
-            instance.save()
-        return instance
+    def clean(self):
+        cleaned_data = super().clean()
 
+        review_score = cleaned_data.get('review_score')
+        stay_time_hours = cleaned_data.get('stay_time_hours')
+        stay_time_minutes = cleaned_data.get('stay_time_minutes')
+
+        if not review_score:
+            raise forms.ValidationError({'review_score': '評価スコアは必須です。'})
+
+        if not stay_time_hours or not stay_time_minutes:
+            raise forms.ValidationError({'stay_time_hours': '滞在時間（時間）は必須です。', 'stay_time_minutes': '滞在時間（分）は必須です。'})
+
+        # stay_time_hours と stay_time_minutes が正しい値かどうかを確認
+        if not stay_time_hours.isdigit() or not stay_time_minutes.isdigit():
+            raise forms.ValidationError({
+                'stay_time_hours': '滞在時間（時間）は数字で入力してください。',
+                'stay_time_minutes': '滞在時間（分）は数字で入力してください。',
+            })
+
+        stay_time_hours = int(stay_time_hours)
+        stay_time_minutes = int(stay_time_minutes)
+
+        # 滞在時間が0より大きいことを確認
+        if stay_time_hours < 0 or stay_time_minutes < 0:
+            raise forms.ValidationError({
+                'stay_time_hours': '滞在時間（時間）は0以上の値を設定してください。',
+                'stay_time_minutes': '滞在時間（分）は0以上の値を設定してください。',
+            })
+
+        # stay_time_min を計算
+        stay_time_min = stay_time_hours * 60 + stay_time_minutes
+
+        if stay_time_min <= 0:
+            raise forms.ValidationError('滞在時間は0より大きい値を設定してください。')
+
+        cleaned_data['stay_time_min'] = stay_time_min
+
+        return cleaned_data
 
 
 
