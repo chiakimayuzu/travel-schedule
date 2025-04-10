@@ -104,7 +104,8 @@
   <div class="stay-time">
     {{ form.stay_time_hours }} 時 {{ form.stay_time_minutes }} 分
   </div>
-  
+
+  <!-- 滞在時間（時間）のエラー表示 -->
   {% if form.stay_time_hours.errors %}
     <div class="error">
       {% for error in form.stay_time_hours.errors %}
@@ -113,6 +114,7 @@
     </div>
   {% endif %}
   
+  <!-- 滞在時間（分）のエラー表示 -->
   {% if form.stay_time_minutes.errors %}
     <div class="error">
       {% for error in form.stay_time_minutes.errors %}
@@ -121,7 +123,6 @@
     </div>
   {% endif %}
 </div>
-
     <!-- 送信ボタン -->
     <button type="submit" class="submit-button">作成</button>
   </form>

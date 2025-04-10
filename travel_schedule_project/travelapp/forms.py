@@ -266,8 +266,10 @@ class UserReviewForm(forms.ModelForm):
         stay_time_min = stay_time_hours * 60 + stay_time_minutes
 
         if stay_time_min <= 0:
-            raise forms.ValidationError('滞在時間は0より大きい値を設定してください。')
-
+            raise forms.ValidationError({
+                'stay_time_hours': '滞在時間（時間）は0以上の値を設定してください。',
+                'stay_time_minutes': '滞在時間（分）は0以上の値を設定してください。',
+            })
         cleaned_data['stay_time_min'] = stay_time_min
 
         return cleaned_data
