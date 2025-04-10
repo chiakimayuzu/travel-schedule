@@ -100,7 +100,7 @@
     </div>
 
     <div>
-        <label for="{{ form.keywords.id_for_label }}">キーワード<span style="color: red;">*</span></label>
+        <label for="{{ form.keywords.id_for_label }}">キーワード<span style="color: red;">*</span><small>   {{ form.keywords.help_text }}</small></label>
         {{ form.keywords }}
         <small>{{ form.keywords.help_text }}</small>
         {% if form.keywords.errors %}
