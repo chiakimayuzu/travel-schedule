@@ -66,9 +66,9 @@
     </div>
 
     <div class="image-gallery">
-        <img src="/static/images/portfolio/picture12.png" alt="Picture 8">
-        <img src="/static/images/portfolio/picture13.png" alt="Picture 9">
-        <img src="/static/images/portfolio/picture14.png" alt="Picture 10">
+        {% load static %}
+        <img src="{% static 'portfolio/アプリ用1.jpg' %}" alt="Picture 1">
+        <img src="{% static 'portfolio/アプリ用2.jpg' %}" alt="Picture 2">
     </div>
     
               
@@ -83,9 +83,12 @@
     </div>
 
     <div class="links">
-        <a href="static/images/portfolio/企画書・画面設計図_田口明香里%E3%80%80%20(2).pdf" target="_blank">企画書・画面設計図</a>
-        <a href="static/images/portfolio/画面遷移図_田口明香里%20(1).svg" target="_blank">画面遷移図</a>
-        <a href="static/images/portfolio/ER図._田口明香里.svg" target="_blank">ER図</a>
+        {% load static %}
+        <a href="{% static 'portfolio/企画書【竹内千明】.pdf' %}" target="_blank">企画書</a>
+        <a href="{% static 'portfolio/画面設計図.pdf' %}" target="_blank">画面設計図</a>
+        <a href="{% static 'portfolio/画面遷移図.drawio.pdf' %}" target="_blank">画面遷移図</a>
+        <a href="{% static 'portfolio/ER図.drawio (4).pdf' %}" target="_blank">ER図</a>
+
     </div>
     <a href="{% url 'travelapp:home' %}">アプリへ</a>
 </body>
