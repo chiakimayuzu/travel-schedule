@@ -88,6 +88,7 @@
                        data-staytime-minutes="{{ spot.staytime_minutes }}"
                        data-lat="{{ spot.lat }}"
                        data-lng="{{ spot.lng }}"
+                       {# 同じ visit_date に対して、すでに追加されている観光地ならチェックを保持 #}
                        {% for date, names in selected_spot_names_by_date.items %}
                          {% if date == visit_date and spot.spot_name in names %}
                            checked
@@ -114,6 +115,7 @@
         {% endif %}
       </div>
     </div>
+    
               
                 
               </div>
@@ -133,8 +135,7 @@
   <br><script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
   <div id="map" style="height: 500px;"></div>
 
-  <!-- JavaScript部分 -->
-<!-- JavaScript部分 -->
+<!-- JavaScript部分 --> 
 <script>
   // ページ読み込み時に全ての選択済みリストに対してSortableを初期化
   document.addEventListener("DOMContentLoaded", function() {
@@ -159,8 +160,27 @@
     }
   });
 
+  // モーダルを開く際に、選択済みリストの状態を反映する処理を追加
   function openModal(modalId) {
-    document.getElementById(modalId).style.display = 'block';
+    var modal = document.getElementById(modalId);
+    modal.style.display = 'block';
+    
+    // currentTargetId はモーダルを開くリンククリック時に設定されている前提です
+    var selectedList = document.getElementById(currentTargetId);
+    if (selectedList) {
+      // 選択済みリストから、追加済みの spotId を収集
+      var addedSpotIds = [];
+      selectedList.querySelectorAll('.sortable-item').forEach(function(item){
+        addedSpotIds.push(item.getAttribute('data-spot-id'));
+      });
+      // モーダル内のすべてのチェックボックスについて、spotId が既に追加済みならチェックを付ける
+      modal.querySelectorAll('.wanted-checkbox').forEach(function(checkbox){
+        var spotId = checkbox.getAttribute('data-spot-id');
+        if (addedSpotIds.indexOf(spotId) !== -1) {
+          checkbox.checked = true;
+        }
+      });
+    }
   }
   
   function closeModal() {
@@ -262,9 +282,9 @@
           // フォームに追加
           this.appendChild(inputSpot);
           this.appendChild(inputVisit);
-        }.bind(this));  // thisはフォーム要素
+        }.bind(this));  // this はフォーム要素
       }
-    }.bind(this));  // thisはフォーム要素
+    }.bind(this));  // this はフォーム要素
   });
 
 
