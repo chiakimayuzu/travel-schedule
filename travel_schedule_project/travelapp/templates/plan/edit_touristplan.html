@@ -226,16 +226,25 @@
         listItem.setAttribute("data-lat", spotLat);
         listItem.setAttribute("data-lng", spotLng);
 
-        listItem.innerHTML = `
-          <strong>${spotName}</strong><br>
-          ${spotPicture ? `<img src="${spotPicture}" alt="${spotName}" style="width: 100px; height: auto;"><br>` : ''}
-          カテゴリ: ${spotCategory}<br>
-          都道府県: ${spotPrefecture}<br>
-          住所: ${spotAddress}<br>
-          平均滞在時間: ${spotStaytimeHours}時間${spotStaytimeMinutes}分
-          <span class="drag-handle">↕️</span>
-          <button type="button" class="delete-spot btn btn-danger btn-sm">削除</button>
-        `;
+        // 滞在時間の表示を条件に応じて変更
+let staytimeDisplay = "情報なし";
+if (
+  (spotStaytimeHours !== "0" && spotStaytimeHours !== "" && spotStaytimeHours !== null) ||
+  (spotStaytimeMinutes !== "0" && spotStaytimeMinutes !== "" && spotStaytimeMinutes !== null)
+) {
+  staytimeDisplay = `${spotStaytimeHours || 0}時間${spotStaytimeMinutes || 0}分`;
+}
+
+listItem.innerHTML = `
+  <strong>${spotName}</strong><br>
+  ${spotPicture ? `<img src="${spotPicture}" alt="${spotName}" style="width: 100px; height: auto;"><br>` : ''}
+  カテゴリ: ${spotCategory}<br>
+  都道府県: ${spotPrefecture}<br>
+  住所: ${spotAddress}<br>
+  平均滞在時間: ${staytimeDisplay}
+  <span class="drag-handle">↕️</span>
+  <button type="button" class="delete-spot btn btn-danger btn-sm">削除</button>
+`;
 
         selectedList.appendChild(listItem);
       });
