@@ -69,47 +69,51 @@
       </td>
     </tr>
 
-              <div id="wantedSpotModal{{ modal_counter }}" class="modal">
-                <div class="modal-content">
-                  <span class="close" onclick="closeModal()">&times;</span>
-                  <h2 style="font-size: 20px;">❤️行きたいリストから選択</h2>
-                  {% if wanted_spots %}
-                    <div class="wanted-spot-grid">
-                      {% for spot in wanted_spots %}
-                        <div class="wanted-spot-item">
-                          <input type="checkbox" class="wanted-checkbox"
-                                 data-spot-id="{{ spot.id }}"
-                                 data-spot-name="{{ spot.spot_name }}"
-                                 data-picture="{{ spot.picture }}"
-                                 data-category="{{ spot.category }}"
-                                 data-prefecture="{{ spot.prefecture }}"
-                                 data-address="{{ spot.address }}"
-                                 data-staytime-hours="{{ spot.staytime_hours }}"
-                                 data-staytime-minutes="{{ spot.staytime_minutes }}"
-                                 data-lat="{{ spot.lat }}"
-                                 data-lng="{{ spot.lng }}"
-                                 {% if spot.spot_name in selected_spot_names %} checked {% endif %}>
-                          <strong>{{ spot.spot_name }}</strong><br>
-                          {% if spot.picture %}
-                            <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width: 100px; height: auto;"><br>
-                          {% endif %}
-                          カテゴリ: {{ spot.category }}<br>
-                          住所: {{ spot.prefecture }}{{ spot.address }}<br>
-                          平均滞在時間: 
-                          {% if spot.staytime_hours|default:"0" == "0" and spot.staytime_minutes|default:"0" == "0" %}
-                            情報なし
-                          {% else %}
-                            {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
-                          {% endif %}
-                        </div>
-                      {% endfor %}
-                    </div>
-                    <button type="button" class="btn btn-success confirmSelection" style="background-color: rgb(69, 110, 160); color: white;">プランに追加</button>
-                  {% else %}
-                    <p>行きたいリストはありません。</p>
-                  {% endif %}
-                </div>
+    <div id="wantedSpotModal{{ modal_counter }}" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2 style="font-size: 20px;">❤️行きたいリストから選択</h2>
+        {% if wanted_spots %}
+          <div class="wanted-spot-grid">
+            {% for spot in wanted_spots %}
+              <div class="wanted-spot-item">
+                <input type="checkbox" class="wanted-checkbox"
+                       data-spot-id="{{ spot.id }}"
+                       data-spot-name="{{ spot.spot_name }}"
+                       data-picture="{{ spot.picture }}"
+                       data-category="{{ spot.category }}"
+                       data-prefecture="{{ spot.prefecture }}"
+                       data-address="{{ spot.address }}"
+                       data-staytime-hours="{{ spot.staytime_hours }}"
+                       data-staytime-minutes="{{ spot.staytime_minutes }}"
+                       data-lat="{{ spot.lat }}"
+                       data-lng="{{ spot.lng }}"
+                       {% for date, names in selected_spot_names_by_date.items %}
+                         {% if date == visit_date and spot.spot_name in names %}
+                           checked
+                         {% endif %}
+                       {% endfor %}>
+                <strong>{{ spot.spot_name }}</strong><br>
+                {% if spot.picture %}
+                  <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width: 100px; height: auto;"><br>
+                {% endif %}
+                カテゴリ: {{ spot.category }}<br>
+                住所: {{ spot.prefecture }}{{ spot.address }}<br>
+                平均滞在時間: 
+                {% if spot.staytime_hours|default:"0" == "0" and spot.staytime_minutes|default:"0" == "0" %}
+                  情報なし
+                {% else %}
+                  {{ spot.staytime_hours }}時間{{ spot.staytime_minutes }}分
+                {% endif %}
               </div>
+            {% endfor %}
+          </div>
+          <button type="button" class="btn btn-success confirmSelection" style="background-color: rgb(69, 110, 160); color: white;">プランに追加</button>
+        {% else %}
+          <p>行きたいリストはありません。</p>
+        {% endif %}
+      </div>
+    </div>
               
                 
               </div>
@@ -130,137 +134,139 @@
   <div id="map" style="height: 500px;"></div>
 
   <!-- JavaScript部分 -->
-  <script>
-    // ページ読み込み時に全ての選択済みリストに対してSortableを初期化
-    document.addEventListener("DOMContentLoaded", function() {
-      document.querySelectorAll('.selected-spot').forEach(function(list) {
-        new Sortable(list, { handle: ".drag-handle", animation: 150 });
-      });
+<!-- JavaScript部分 -->
+<script>
+  // ページ読み込み時に全ての選択済みリストに対してSortableを初期化
+  document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll('.selected-spot').forEach(function(list) {
+      new Sortable(list, { handle: ".drag-handle", animation: 150 });
     });
+  });
 
-    // 削除ボタンのクリックイベント（動的に追加されたものも対象）
-    document.addEventListener("click", function(e) {
-      if (e.target.classList.contains("delete-spot")) {
-        // 削除対象のli要素を取得して削除
-        var li = e.target.closest("li.sortable-item");
-        if(li) {
-          var spotId = li.getAttribute("data-spot-id");
-          li.remove();
-          // モーダル内の同じスポットのチェックボックスをオフにする
-          document.querySelectorAll('.wanted-checkbox[data-spot-id="' + spotId + '"]').forEach(function(checkbox) {
-            checkbox.checked = false;
-          });
-        }
-      }
-    });
-
-    function openModal(modalId) {
-      document.getElementById(modalId).style.display = 'block';
-    }
-    
-    function closeModal() {
-      document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
-    }
-
-    // モーダルを開く
-    document.querySelectorAll('.openWantedSpotModal').forEach(function (link) {
-      link.addEventListener('click', function (e) {
-        e.preventDefault();
-        currentTargetId = this.getAttribute('data-target-id');
-        var modalId = this.getAttribute('data-modal-id');
-        openModal(modalId);
-      });
-    });
-
-    // モーダル内の「選択完了」ボタン押下時の処理
-    document.querySelectorAll('.confirmSelection').forEach(function (button) {
-      button.addEventListener('click', function () {
-        var modal = this.closest('.modal');
-        var checkedItems = modal.querySelectorAll('.wanted-checkbox:checked');
-
-        var selectedList = document.getElementById(currentTargetId);
-        selectedList.innerHTML = "";  // リストをクリア
-
-        checkedItems.forEach(function (checkbox) {
-          var spotId = checkbox.getAttribute('data-spot-id');
-          var spotName = checkbox.getAttribute('data-spot-name');
-          var spotPicture = checkbox.getAttribute('data-picture');
-          var spotCategory = checkbox.getAttribute('data-category');
-          var spotPrefecture = checkbox.getAttribute('data-prefecture');
-          var spotAddress = checkbox.getAttribute('data-address');
-          var spotStaytimeHours = checkbox.getAttribute('data-staytime-hours');
-          var spotStaytimeMinutes = checkbox.getAttribute('data-staytime-minutes');
-          var spotLat = checkbox.getAttribute('data-lat');
-          var spotLng = checkbox.getAttribute('data-lng');
-
-          // liタグにdata属性を設定する
-          var listItem = document.createElement("li");
-          listItem.classList.add("sortable-item");
-          listItem.setAttribute("data-spot-id", spotId);
-          listItem.setAttribute("data-spot-name", spotName);
-          listItem.setAttribute("data-lat", spotLat);
-          listItem.setAttribute("data-lng", spotLng);
-
-          listItem.innerHTML = `
-            <strong>${spotName}</strong><br>
-            ${spotPicture ? `<img src="${spotPicture}" alt="${spotName}" style="width: 100px; height: auto;"><br>` : ''}
-            カテゴリ: ${spotCategory}<br>
-            都道府県: ${spotPrefecture}<br>
-            住所: ${spotAddress}<br>
-            平均滞在時間: ${spotStaytimeHours}時間${spotStaytimeMinutes}分
-            <span class="drag-handle">↕️</span>
-            <button type="button" class="delete-spot btn btn-danger btn-sm">削除</button>
-          `;
-
-          selectedList.appendChild(listItem);
+  // 削除ボタンのクリックイベント（動的に追加されたものも対象）
+  document.addEventListener("click", function(e) {
+    if (e.target.classList.contains("delete-spot")) {
+      // 削除対象のli要素を取得して削除
+      var li = e.target.closest("li.sortable-item");
+      if(li) {
+        var spotId = li.getAttribute("data-spot-id");
+        li.remove();
+        // モーダル内の同じスポットのチェックボックスをオフにする
+        document.querySelectorAll('.wanted-checkbox[data-spot-id="' + spotId + '"]').forEach(function(checkbox) {
+          checkbox.checked = false;
         });
+      }
+    }
+  });
 
-        closeModal();
-        // モーダル内で並び替えが行われた後は、再初期化
-        new Sortable(selectedList, { handle: ".drag-handle", animation: 150 });
-        
-        // 選択リストの変更をマップに反映
-        updateMapMarkers(currentTargetId);
+  function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+  }
+  
+  function closeModal() {
+    document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
+  }
+
+  // モーダルを開く
+  document.querySelectorAll('.openWantedSpotModal').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      currentTargetId = this.getAttribute('data-target-id');
+      var modalId = this.getAttribute('data-modal-id');
+      openModal(modalId);
+    });
+  });
+
+  // モーダル内の「選択完了」ボタン押下時の処理
+  document.querySelectorAll('.confirmSelection').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var modal = this.closest('.modal');
+      var checkedItems = modal.querySelectorAll('.wanted-checkbox:checked');
+
+      var selectedList = document.getElementById(currentTargetId);
+      selectedList.innerHTML = "";  // リストをクリア
+
+      checkedItems.forEach(function (checkbox) {
+        var spotId = checkbox.getAttribute('data-spot-id');
+        var spotName = checkbox.getAttribute('data-spot-name');
+        var spotPicture = checkbox.getAttribute('data-picture');
+        var spotCategory = checkbox.getAttribute('data-category');
+        var spotPrefecture = checkbox.getAttribute('data-prefecture');
+        var spotAddress = checkbox.getAttribute('data-address');
+        var spotStaytimeHours = checkbox.getAttribute('data-staytime-hours');
+        var spotStaytimeMinutes = checkbox.getAttribute('data-staytime-minutes');
+        var spotLat = checkbox.getAttribute('data-lat');
+        var spotLng = checkbox.getAttribute('data-lng');
+
+        // liタグにdata属性を設定する
+        var listItem = document.createElement("li");
+        listItem.classList.add("sortable-item");
+        listItem.setAttribute("data-spot-id", spotId);
+        listItem.setAttribute("data-spot-name", spotName);
+        listItem.setAttribute("data-lat", spotLat);
+        listItem.setAttribute("data-lng", spotLng);
+
+        listItem.innerHTML = `
+          <strong>${spotName}</strong><br>
+          ${spotPicture ? `<img src="${spotPicture}" alt="${spotName}" style="width: 100px; height: auto;"><br>` : ''}
+          カテゴリ: ${spotCategory}<br>
+          都道府県: ${spotPrefecture}<br>
+          住所: ${spotAddress}<br>
+          平均滞在時間: ${spotStaytimeHours}時間${spotStaytimeMinutes}分
+          <span class="drag-handle">↕️</span>
+          <button type="button" class="delete-spot btn btn-danger btn-sm">削除</button>
+        `;
+
+        selectedList.appendChild(listItem);
       });
+
+      closeModal();
+      // モーダル内で並び替えが行われた後は、再初期化
+      new Sortable(selectedList, { handle: ".drag-handle", animation: 150 });
+      
+      // 選択リストの変更をマップに反映
+      updateMapMarkers(currentTargetId);
+    });
+  });
+
+  // フォーム送信時に、各行の訪問日とその日のスポットIDを個別のhidden inputとして追加する
+  document.getElementById('touristplanForm').addEventListener('submit', function (e) {
+    // すでに追加されたhidden inputがあれば削除する
+    var existingInputs = document.querySelectorAll('.dynamic-hidden');
+    existingInputs.forEach(function(input){
+      input.remove();
     });
 
-    // フォーム送信時に、各行の訪問日とその日のスポットIDを個別のhidden inputとして追加する
-    document.getElementById('touristplanForm').addEventListener('submit', function (e) {
-      // すでに追加されたhidden inputがあれば削除する
-      var existingInputs = document.querySelectorAll('.dynamic-hidden');
-      existingInputs.forEach(function(input){
-        input.remove();
-      });
+    // 各行（訪問日ごと）の処理
+    document.querySelectorAll('.visit-row').forEach(function(row) {
+      // 1列目のセルから訪問日を取得（data-visit属性）
+      var visitDate = row.querySelector('td[data-visit]').getAttribute('data-visit');
+      // その行内の selected-spot リストを取得
+      var spotList = row.querySelector('.selected-spot');
+      if (spotList) {
+        // 各スポットについてhidden inputを作成
+        spotList.querySelectorAll('.sortable-item').forEach(function(item) {
+          var spotId = item.getAttribute('data-spot-id');
+          // hidden input for spot id
+          var inputSpot = document.createElement('input');
+          inputSpot.type = 'hidden';
+          inputSpot.name = 'selected_spot_ids';
+          inputSpot.value = spotId;
+          inputSpot.classList.add('dynamic-hidden');
+          // hidden input for visit date (同じ訪問日を対応するスポットに設定)
+          var inputVisit = document.createElement('input');
+          inputVisit.type = 'hidden';
+          inputVisit.name = 'visit_dates';
+          inputVisit.value = visitDate;
+          inputVisit.classList.add('dynamic-hidden');
+          // フォームに追加
+          this.appendChild(inputSpot);
+          this.appendChild(inputVisit);
+        }.bind(this));  // thisはフォーム要素
+      }
+    }.bind(this));  // thisはフォーム要素
+  });
 
-      // 各行（訪問日ごと）の処理
-      document.querySelectorAll('.visit-row').forEach(function(row) {
-        // 1列目のセルから訪問日を取得（data-visit属性）
-        var visitDate = row.querySelector('td[data-visit]').getAttribute('data-visit');
-        // その行内の selected-spot リストを取得
-        var spotList = row.querySelector('.selected-spot');
-        if (spotList) {
-          // 各スポットについてhidden inputを作成
-          spotList.querySelectorAll('.sortable-item').forEach(function(item) {
-            var spotId = item.getAttribute('data-spot-id');
-            // hidden input for spot id
-            var inputSpot = document.createElement('input');
-            inputSpot.type = 'hidden';
-            inputSpot.name = 'selected_spot_ids';
-            inputSpot.value = spotId;
-            inputSpot.classList.add('dynamic-hidden');
-            // hidden input for visit date (同じ訪問日を対応するスポットに設定)
-            var inputVisit = document.createElement('input');
-            inputVisit.type = 'hidden';
-            inputVisit.name = 'visit_dates';
-            inputVisit.value = visitDate;
-            inputVisit.classList.add('dynamic-hidden');
-            // フォームに追加
-            this.appendChild(inputSpot);
-            this.appendChild(inputVisit);
-          }.bind(this));  // thisはフォーム要素
-        }
-      }.bind(this));  // thisはフォーム要素
-    });
 
     // 以降はGoogle Map関連の処理
     let map;
