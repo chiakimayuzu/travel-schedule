@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('travel_schedule/', include('travelapp.urls')),  # travelappのURLをインクルード
+    path('', include('travelapp.urls')),  # travelappのURLをインクルード
 ]
 
 # 開発環境で静的ファイルを提供する設定
