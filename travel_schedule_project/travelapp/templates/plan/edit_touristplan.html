@@ -45,12 +45,12 @@
             {% if spot.visit_date == visit %}
               <li class="sortable-item" data-spot-id="{{ spot.id }}" data-spot-name="{{ spot.spot_name }}" data-lat="{{ spot.lat }}" data-lng="{{ spot.lng }}">
                 {% if spot.picture %}
-                  <img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width:100px; height:auto;"><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<img src="{{ spot.picture }}" alt="{{ spot.spot_name }}" style="width:100px; height:auto;"><br>
                 {% endif %}
-                {{ spot.spot_name }}
-                <br>{{ spot.prefecture }} {{ spot.address }}<br>
+                &nbsp;&nbsp;&nbsp;{{ spot.spot_name }}
+                <br>&nbsp;&nbsp;&nbsp;{{ spot.prefecture }} {{ spot.address }}<br>
                 <!-- 滞在時間がない場合は「情報なし」と表示 -->
-                平均滞在時間: 
+                &nbsp;&nbsp;&nbsp;平均滞在時間: 
                 {% if spot.staytime_hours|default:"0" == "0" and spot.staytime_minutes|default:"0" == "0" %}
                   情報なし
                 {% else %}
