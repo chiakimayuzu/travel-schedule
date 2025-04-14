@@ -51,11 +51,19 @@
     locale: "ja",
     onClose: function(selectedDates) {
       if (selectedDates.length === 2) {
-        document.getElementById("start_date").value = selectedDates[0].toISOString().split('T')[0];
-        document.getElementById("end_date").value = selectedDates[1].toISOString().split('T')[0];
-        document.getElementById("schedule-range").value =
-          selectedDates[0].toISOString().split('T')[0] + ' to ' +
-          selectedDates[1].toISOString().split('T')[0];
+        const formatDate = (date) => {
+          const year = date.getFullYear();
+          const month = ('0' + (date.getMonth() + 1)).slice(-2);
+          const day = ('0' + date.getDate()).slice(-2);
+          return `${year}-${month}-${day}`;
+        };
+
+        const start = formatDate(selectedDates[0]);
+        const end = formatDate(selectedDates[1]);
+
+        document.getElementById("start_date").value = start;
+        document.getElementById("end_date").value = end;
+        document.getElementById("schedule-range").value = `${start} to ${end}`;
       }
     }
   });
