@@ -20,7 +20,7 @@
 
         <div class="review-info">
           <!-- レビュータイトルクリックでmy_review_detailへ遷移 -->
-          <p>クチコミタイトル：
+          <p>クチコミタイトル： 
           <a href="{% url 'travelapp:my_review_detail' review_id=review.id %}">{{ review.review_title }}</a></p>
 
           <p>更新日: {{ review.updated_at|date:"Y年m月d日 H:i" }}</p>
@@ -87,7 +87,7 @@
 
   .edit-button {
     display: inline-block;
-    background-color:rgb(206, 228, 248);
+    background-color: rgb(206, 228, 248);
     color: #000 !important; /* 常に黒文字 */
     padding: 6px 12px;
     border-radius: 6px;
@@ -97,9 +97,16 @@
     transition: background-color 0.2s ease;
   }
 
+  /* 編集ボタンのホバー時にアンダーラインを無効化 */
   .edit-button:hover {
     background-color: rgb(176, 200, 225); /* ホバー時に少し暗く */
     cursor: pointer;
+    text-decoration: none; /* アンダーラインを削除 */
+  }
+
+  /* aタグ全体に対してもアンダーラインを無効化 */
+  .edit-button, .edit-button:visited {
+    text-decoration: none;
   }
 
   .delete-button {
@@ -119,3 +126,4 @@
 </style>
 {% endblock %}
 {% endblock %}
+
