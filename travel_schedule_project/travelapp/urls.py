@@ -3,7 +3,7 @@ from .views import (
     CreateSchedule, EditTouristPlanView, RegistAccountView, 
     TouristSpotSearchView, TouristplanList, check_username, create_review, delete_touristspot, edit_my_review, home,
     LoginView,LogoutView,change_password,change_email,
-    PortfolioView, my_review_detail, my_review_list,regist_touristspot,check_dupe_tourist_spot,
+     my_review_detail, my_review_list,regist_touristspot,check_dupe_tourist_spot,
     detail_touristspot,edit_touristspot, review_list, update_touristplan_order, wanted_spot, wanted_spot_list, 
     )   
 # from .views import ModalWantedSpotView
@@ -19,7 +19,6 @@ urlpatterns = [
     path('search_touristspot/', TouristSpotSearchView.as_view(), name='search_touristspot'), 
     path('change_email/', change_email, name='change_email'),#メールアドレス変更view
     path('change_password/', change_password, name='change_password'),  # パスワード変更view
-    path('', PortfolioView.as_view(), name='portfolio'),
     path('regist_touristspot/', regist_touristspot, name='regist_touristspot'),
     path('check_dupe_tourist_spot/', check_dupe_tourist_spot, name='check_dupe_tourist_spot'),
     path('detail_touristspot/<int:pk>/', detail_touristspot, name='detail_touristspot'),

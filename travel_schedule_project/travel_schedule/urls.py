@@ -19,9 +19,12 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 
+from travelapp.views import PortfolioView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('travelapp.urls')),  # travelappのURLをインクルード
+    path('travel_schedule/', include('travelapp.urls')),  # travelappのURLをインクルード
+    path('', PortfolioView.as_view(), name='portfolio'),
 ]
 
 # 開発環境で静的ファイルを提供する設定

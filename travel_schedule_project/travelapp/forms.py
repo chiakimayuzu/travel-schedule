@@ -194,6 +194,10 @@ class TouristSpotForm(forms.ModelForm):
             raise forms.ValidationError("少なくとも1つのキーワードを入力してください")  # ★1つ以上のキーワードが必要
         if len(keywords_list) > 10:
             raise forms.ValidationError("1つの観光地に登録できるキーワードは10個までです")  # ★最大10個まで
+            # 各キーワードが30文字以内であることをチェック
+        for kw in keywords_list:
+            if len(kw) > 30:
+                raise forms.ValidationError(f"キーワード '{kw}' は30文字以内で入力してください")
         return keywords_list  # ★cleaned_data にリストとして保存
 
 
