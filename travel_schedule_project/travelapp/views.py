@@ -507,7 +507,7 @@ def edit_touristspot(request, pk):
 
         if form.is_valid():
             # 新しいキーワードの処理
-            new_keywords = request.POST.get('keywords').split(',')
+            new_keywords = request.POST.getlist('keywords')
             new_keywords = [kw.strip() for kw in new_keywords if kw.strip()]
             
             # 現在のキーワードを削除

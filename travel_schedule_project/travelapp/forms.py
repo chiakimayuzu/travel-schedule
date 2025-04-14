@@ -199,6 +199,10 @@ class TouristSpotForm(forms.ModelForm):
         for kw in keywords_list:
             if len(kw) > 30:
                 raise forms.ValidationError(f"キーワード '{kw}' は30文字以内で入力してください")
+            
+        # 重複チェック
+        if len(set(keywords_list)) != len(keywords_list):
+            raise forms.ValidationError("同じキーワードが複数入力されています。重複しないようにしてください")
 
         # 必要なら cleaned_data に保存
         cleaned_data['keywords'] = keywords_list
