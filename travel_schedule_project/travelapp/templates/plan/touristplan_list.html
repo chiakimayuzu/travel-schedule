@@ -17,16 +17,17 @@
   <div style="margin-bottom: 20px;">
     並び替え:
 
-    {% if sort_by == 'start_date' %}
-      <span style="color: gray; margin-right: 10px;">開始日順</span>
-    {% else %}
-      <a href="{% url 'travelapp:touristplan_list' %}?sort=start_date" style="margin-right: 10px;">開始日順</a>
-    {% endif %}
-    │
+
     {% if sort_by == '-start_date' %}
       <span style="color: gray; margin-right: 10px;">開始日逆順</span>
     {% else %}
       <a href="{% url 'travelapp:touristplan_list' %}?sort=-start_date" style="margin-right: 10px;">開始日逆順</a>
+    {% endif %}
+    │
+    {% if sort_by == 'start_date' %}
+      <span style="color: gray; margin-right: 10px;">開始日順</span>
+    {% else %}
+      <a href="{% url 'travelapp:touristplan_list' %}?sort=start_date" style="margin-right: 10px;">開始日順</a>
     {% endif %}
     │
     {% if sort_by == '-created_at' %}

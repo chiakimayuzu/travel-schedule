@@ -884,8 +884,8 @@ class TouristplanList(LoginRequiredMixin, View):
         # ログインユーザーの旅行プランを取得
         queryset = TouristPlan.objects.filter(user=request.user)
         
-        # GETパラメータ 'sort' によって並び替えを切り替え（デフォルトはstart_date順）
-        sort_by = request.GET.get('sort', 'start_date')
+        # GETパラメータ 'sort' によって並び替えを切り替え（デフォルトは-start_date順）
+        sort_by = request.GET.get('sort', '-start_date')
         
         if sort_by == 'start_date':
             queryset = queryset.order_by('start_date')  # 開始日順 (昇順)
