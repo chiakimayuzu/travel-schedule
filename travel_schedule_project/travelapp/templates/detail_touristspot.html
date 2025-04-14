@@ -119,7 +119,9 @@
         </tr>
         <tr>
           <th>営業時間</th>
-          <td>{{ tourist_spot.opening_at }} - {{ tourist_spot.closing_at }}</td>
+          <td>
+            {{ tourist_spot.opening_at|default:"不明" }} - {{ tourist_spot.closing_at|default:"不明" }}
+          </td>
         </tr>
         <tr>
           <th>公式URL</th>
