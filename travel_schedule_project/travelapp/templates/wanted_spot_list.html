@@ -13,9 +13,13 @@
           {% endif %}
         </a>
         <p style="margin: 10px 0; font-weight: bold;">{{ item.tourist_spot.spot_name }}</p>
+
+
+
+        
         <form method="post" style="display: flex; justify-content: center;" onsubmit="return confirm('本当に削除しますか？');">
           {% csrf_token %}
-          <button type="submit" name="delete" value="{{ item.id }}" style="background-color: #ff6b6b; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">
+          <button type="submit" name="delete" value="{{ item.id }}" class="delete-btn">
             削除
           </button>
         </form>
@@ -24,6 +28,24 @@
       <p>行きたいリストにまだアイテムがありません。</p>
     {% endfor %}
   </div>
+
+<style>
+  .delete-btn {
+    background-color: red;
+    color: white;
+    border: none; /* 枠線をなしに */
+    padding: 8px 12px; 
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .delete-btn:hover {
+    background-color: darkred; /* ホバー時の背景色 */
+    cursor: pointer;
+  }
+</style>
 {% endblock %}
 
 

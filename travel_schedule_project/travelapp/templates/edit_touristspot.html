@@ -172,11 +172,7 @@
 
 
   <div>
-    <button type="submit"
-    style="display: block !important; width: 100%; padding: 12px; font-size: 16px;
-           background-color:rgb(69, 110, 160); color: white; border: none; border-radius: 6px;">
-    更新
-    </button>
+    <button type="submit" class="update-btn">更新</button>
     </div>
 
 </form>
@@ -185,13 +181,12 @@
 <hr>
 
 <form method="POST" action="{% url 'travelapp:delete_touristspot' pk=tourist_spot.pk %}" onsubmit="return confirm('本当に削除しますか？');">
-    {% csrf_token %}
-    <button type="submit"
-      style="display: block !important; width: 100%; padding: 12px; font-size: 16px;
-             background-color: red; color: white; border: none; border-radius: 6px;">
-      この観光地を削除する
-    </button>
-  </form>
+  {% csrf_token %}
+  <button type="submit" class="delete-btn">
+    この観光地を削除する
+  </button>
+</form>
+
 
 <br><p><a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">詳細ページに戻る</a></p>
 
@@ -270,7 +265,49 @@
     line-height: 1.5;   /* ラベルとのバランスを取る */
     background-color: white;
   }
+  /* ボタンのスタイル調整 */
+  .update-btn {
+      background-color:rgb(69, 110, 160);
+      color: white;
+      border: none;
+      padding: 10px 20px; /* ボタンのパディング */
+      height: 50px; /* 明示的に高さを設定 */
+      border-radius: 5px;
+      cursor: pointer;
+      max-width: 120px; /* ボタンの最大幅 */
+      align-self: flex-start; /* ボタンを左寄せ */
+  }
 
+  .update-btn:hover {
+    background-color: rgb(89, 130, 180);
+    cursor: pointer;
+}
+
+.delete-btn {
+  background-color: red;
+  color: white;
+  border: none; /* 枠線をなしに */
+  padding: 12px 20px; /* 横幅に余裕を持たせるためのパディング */
+  font-size: 16px; /* フォントサイズ */
+  height: 50px; /* 明示的に高さを設定 */
+  border-radius: 6px;
+  cursor: pointer;
+  max-width: 250px; /* 最大幅を設定 */
+  align-self: flex-start; /* ボタンを左寄せ */
+  width: 100%; /* ボタンの幅を親要素に合わせる */
+  transition: background-color 0.3s; /* 背景色変更のトランジション */
+  white-space: nowrap; /* テキストを折り返さず1行に */
+  text-overflow: ellipsis; /* テキストが長すぎる場合は省略する */
+  overflow: hidden; /* テキストがはみ出さないように */
+  outline: none; /* フォーカス時の枠線を消す */
+}
+
+.delete-btn:hover {
+  background-color: darkred; /* ホバー時の背景色 */
+  cursor: pointer;
+}
+
+  
 </style>
 {% endblock %}
 

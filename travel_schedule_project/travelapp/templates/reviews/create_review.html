@@ -94,7 +94,7 @@
 
 </div>
     <!-- 送信ボタン -->
-    <button type="submit" class="submit-button">クチコミ投稿</button>
+    <button type="submit" class="review-button">クチコミ投稿</button>
   </form>
 
 <!-- ⭐ JS for star rating -->
@@ -183,7 +183,7 @@ input, select, textarea {
     border: 1px solid #ddd;
     width: 120px;  /* 幅を小さく */
   }
-  .submit-button {
+  .review-button {
     background-color: rgb(76, 167, 175);
     color: white;
     padding: 12px 20px;
@@ -192,6 +192,11 @@ input, select, textarea {
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .review-button:hover {
+    background-color: rgb(56, 137, 145); /* ホバー時に少し暗くする */
+
   }
 
   .rating-stars {

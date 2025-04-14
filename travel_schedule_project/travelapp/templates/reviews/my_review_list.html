@@ -97,6 +97,11 @@
     transition: background-color 0.2s ease;
   }
 
+  .edit-button:hover {
+    background-color: rgb(176, 200, 225); /* ホバー時に少し暗く */
+    cursor: pointer;
+  }
+
   .delete-button {
     background-color: #ff4d4f;
     color: #fff;
@@ -105,6 +110,11 @@
     border-radius: 6px;
     cursor: pointer;
     font-size: 13px;
+  }
+
+  .delete-button:hover {
+    background-color: darkred; /* ホバー時の背景色 */
+    cursor: pointer;
   }
 </style>
 {% endblock %}

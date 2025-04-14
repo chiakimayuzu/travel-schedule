@@ -136,12 +136,8 @@
 
     <br>
     <div>
-      <button type="submit"
-      style="display: block !important; width: 100%; padding: 12px; font-size: 16px;
-             background-color:rgb(69, 110, 160); color: white; border: none; border-radius: 6px;">
-      登録
-      </button>
-      </div>
+      <button type="submit" class="save-button">登録</button>
+    </div>
       
 </form>
 
@@ -270,6 +266,23 @@ $(document).ready(function() {
     height: auto;       /* 高さをautoにすることで潰れを防ぐ */
     line-height: 1.5;   /* ラベルとのバランスを取る */
     background-color: white;
+  }
+
+  .save-button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: rgb(69, 110, 160);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .save-button:hover {
+    background-color: rgb(89, 130, 180); /* ホバー時に背景色変更 */
   }
 
 </style>

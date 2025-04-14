@@ -70,20 +70,20 @@
       padding: 20px;
       font-family: sans-serif;
     }
-
+  
     .review-detail-box {
       background-color: #f9f9f9;
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
-
+  
     .spot-name {
       margin-bottom: 10px;
       font-size: 22px;
       color: #333;
     }
-
+  
     .spot-image {
       width: 100%;
       height: auto;
@@ -92,22 +92,22 @@
       border-radius: 10px;
       margin-bottom: 16px;
     }
-
+  
     .review-title {
       font-size: 18px;
       font-weight: bold;
       margin-top: 10px;
     }
-
+  
     .review-description {
       margin-bottom: 12px;
       color: #555;
     }
-
+  
     .review-score {
       margin: 10px 0;
     }
-
+  
     /* 星の共通スタイル */
     .star {
       font-size: 30px;
@@ -115,17 +115,17 @@
       position: relative;
       display: inline-block;
     }
-    
+  
     /* 塗りつぶしの星 */
     .star.filled {
       color: gold; /* 完全に塗りつぶし */
     }
-    
+  
     /* 半分塗りつぶしの星 */
     .star.half {
       position: relative;
     }
-    
+  
     /* 半分塗りつぶしの星 - 背景をグレーに */
     .star.half::before {
       content: '★'; /* 星の形 */
@@ -135,27 +135,27 @@
       overflow: hidden;
       color: gold; /* 左半分をゴールド */
     }
-    
+  
     /* 完全な空の星も背景をグレーにする */
     .star.empty {
       color: #ccc; /* グレーに設定 */
       position: relative;
     }
-    
+  
     /* 空の星をグレー背景に */
     .star.empty::before {
       content: '★'; /* 星の形 */
       position: absolute;
       left: 0;
       color: #ccc; /* 全体をグレーに塗りつぶす */
-    }  
-
+    }
+  
     .review-buttons {
       margin-top: 20px;
       display: flex;
       gap: 20px;
     }
-
+  
     .edit-button,
     .delete-button {
       padding: 8px 16px;
@@ -164,45 +164,54 @@
       text-decoration: none;
       border: none;
       cursor: pointer;
-      transition: background-color 0.2s ease;
+      transition: background-color 0.3s ease;
     }
-
+  
     .edit-button {
       background-color: rgb(206, 228, 248);
       color: #000;
     }
-
+  
     .delete-button {
       background-color: #ff4d4f;
       color: #fff;
     }
-
+  
+    /* ボタンにホバー効果 */
+    .edit-button:hover {
+      background-color: rgb(162, 202, 227); /* 編集ボタンのホバー時背景色 */
+    }
+  
+    .delete-button:hover {
+      background-color: darkred; /* 削除ボタンのホバー時背景色 */
+    }
+  
     .back-link {
       margin-top: 30px;
       font-size: 14px;
     }
-
+  
     .back-link a {
       color: #555;
       text-decoration: none;
     }
-
+  
     .back-link a:hover {
       text-decoration: underline;
     }
-
+  
     @media (max-width: 600px) {
       .review-buttons {
         flex-direction: column;
         gap: 10px;
       }
     }
-
+  
     .messages {
       list-style-type: none; /* メッセージ前の「・」を消す */
       padding-left: 0; /* 左側の余白を削除 */
     }
-
+  
     .messages li {
       padding: 10px;
       background-color: rgb(199, 243, 254);
@@ -211,6 +220,7 @@
       margin-bottom: 0.5rem;
     }
   </style>
-{% endblock %}
-
+  {% endblock %}
+  
+  
 {% endblock %}
