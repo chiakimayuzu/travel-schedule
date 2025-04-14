@@ -29,11 +29,11 @@ class UserLoginForm(forms.Form):
             # メールアドレスを使ってユーザーを取得
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            raise ValidationError("ユーザーが見つかりません。")
+            raise forms.ValidationError("ユーザーが見つかりません")
 
         # パスワードを確認
         if not user.check_password(password):
-            raise ValidationError("パスワードが間違っています。")
+            raise forms.ValidationError("パスワードが間違っています")
 
         self.user = user  # 認証されたユーザーをフォームにセット
         return cleaned_data     

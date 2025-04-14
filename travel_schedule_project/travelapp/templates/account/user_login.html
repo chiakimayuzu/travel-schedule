@@ -23,11 +23,13 @@
         <a href="{% url 'travelapp:regist_account' %}">新規登録画面へ</a>
     </form>
 
-    {% if form.is_bound and form.non_field_errors %}
-        <div class="error">
-            {{ form.non_field_errors }}
-        </div>
-    {% endif %}
+    {% if request.method == "POST" and form_errors %}
+    <div class="error">
+      {% for error in form_errors %}
+        <p>{{ error }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
 </body>
 </html>
 

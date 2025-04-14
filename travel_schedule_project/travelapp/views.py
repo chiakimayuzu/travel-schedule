@@ -81,17 +81,21 @@ class RegistAccountView(View):
 class LoginView(View):
     def get(self, request):
         form = UserLoginForm()
-        return render(request, "account/user_login.html", {"form": form})
+        return render(request, "account/user_login.html", {
+            "form": form,
+            # form_errors は渡さない
+        })
 
     def post(self, request):
         form = UserLoginForm(request.POST)
         if form.is_valid():
-            # form.user を使ってユーザー情報を取得
             user = form.user
             login(request, user)
             return redirect("travelapp:home")
-        return render(request, "account/user_login.html", {"form": form})
-
+        return render(request, "account/user_login.html", {
+            "form": form,
+            "form_errors": form.non_field_errors()
+        })
 
 class LogoutView(View):
     def get(self, request, *args, **kwargs):
@@ -114,7 +118,7 @@ def change_email(request):
             request.user.email = form.cleaned_data['new_email']
             request.user.save()
             # 成功メッセージを追加してリダイレクト
-            messages.success(request, '観光地登録できました', extra_tags='change_email')
+            messages.success(request, 'メールアドレス変更できました', extra_tags='change_email')
             return redirect('travelapp:change_email')  # プロフィールページなどの適切なリダイレクト先に変更してください
     else:
         form = ChangeEmailForm(user=request.user)
@@ -130,7 +134,7 @@ def change_password(request):
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)  # パスワード変更後もログイン状態を保持
-            messages.success(request, '観光地登録できました', extra_tags='change_password') # 成功メッセージが同じページに表示されるようにします
+            messages.success(request, 'パスワード変更できました', extra_tags='change_password') # 成功メッセージが同じページに表示されるようにします
             return redirect('travelapp:change_password')  
     else:
         form = PasswordChangeForm(user=request.user)
