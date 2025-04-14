@@ -102,13 +102,22 @@
         {% endif %}
     </div>
 
-    <div>
-      <label for="{{ form.keywords.id_for_label }}">キーワード<span style="color: red;">*</span><small>&nbsp;&nbsp;{{ form.keywords.help_text }}</small></label>
-        {{ form.keywords }}
-        {% if form.keywords.errors %}
-            <div class="error">{{ form.keywords.errors }}</div>
-        {% endif %}
+    <div id="keyword-container">
+      <label>キーワード<span style="color: red;">*</span>
+        <small>&nbsp;&nbsp;最大10個まで追加可能</small>
+      </label>
+      <div class="keyword-field">
+        <input type="text" name="keywords" class="keyword-input">
+        <button type="button" class="remove-btn">✕</button>
+      </div>
     </div>
+    
+    <button type="button" id="add-keyword-btn">＋ キーワードを追加</button>
+    
+    {% if form.non_field_errors %}
+      <div class="error">{{ form.non_field_errors }}</div>
+    {% endif %}
+    
 
     <div>
       <label for="{{ form.picture.id_for_label }}">画像<span style="color: red;">*</span></label>
@@ -190,6 +199,29 @@ $(document).ready(function() {
       document.getElementById('id_spot_name').addEventListener("input", checkDuplicate);
       document.getElementById('id_address').addEventListener("input", checkDuplicate);
     });
+</script>
+<script>
+  const container = document.getElementById('keyword-container');
+  const addBtn = document.getElementById('add-keyword-btn');
+
+  addBtn.addEventListener('click', () => {
+    const keywordFields = container.querySelectorAll('.keyword-field');
+    if (keywordFields.length >= 10) return alert("キーワードは最大10個までです");
+
+    const newField = document.createElement('div');
+    newField.className = 'keyword-field';
+    newField.innerHTML = `
+      <input type="text" name="keywords" class="keyword-input">
+      <button type="button" class="remove-btn">✕</button>
+    `;
+    container.appendChild(newField);
+  });
+
+  container.addEventListener('click', (e) => {
+    if (e.target.classList.contains('remove-btn')) {
+      e.target.parentElement.remove();
+    }
+  });
 </script>
 
 {% block extra_styles %}

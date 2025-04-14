@@ -322,7 +322,7 @@ def detail_touristspot(request, pk):
     working_days = []
     if tourist_spot.workingday:
         # workingdayのデータをカンマ区切りで分割して、曜日名に変換
-        working_days = [day_mapping.get(int(day), day) for day in tourist_spot.workingday.split(",")]
+        working_days = [day_mapping.get(int(day), day) for day in tourist_spot.workingday.split(",") if day.strip().isdigit()]
 
     # TouristSpotKeyword から keyword を取得
     keywords = TouristSpotKeyword.objects.filter(tourist_spot=tourist_spot).values_list('keyword__keyword', flat=True)
@@ -420,7 +420,7 @@ def edit_touristspot(request, pk):
     working_days = []
     if tourist_spot.workingday:
         # workingdayのデータをカンマ区切りで分割して、曜日名に変換
-        working_days = [day_mapping.get(int(day), day) for day in tourist_spot.workingday.split(",")]
+        working_days = [day_mapping.get(int(day), day) for day in tourist_spot.workingday.split(",") if day.strip().isdigit()]
 
     # TouristSpotKeyword から keyword を取得
     keywords = TouristSpotKeyword.objects.filter(tourist_spot=tourist_spot).values_list('keyword__keyword', flat=True)

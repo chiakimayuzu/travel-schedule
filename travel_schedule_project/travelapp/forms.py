@@ -163,9 +163,9 @@ class TouristSpotForm(forms.ModelForm):
 )
 
     keywords = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例: 海, 山, 温泉'}),  # ★自由入力可能なテキストボックスに変更
-        required=True,  # ★1つ以上のキーワードが必須
-        help_text="カンマ（,）区切りで複数のキーワードを入力できます / 1つの観光地に登録できるキーワードは10個までです"
+        widget=forms.TextInput(attrs={'class': 'keyword-input'}),
+        required=True,
+        help_text="最大10個まで。1つの入力欄につき1キーワード。"
     )
 
 
@@ -187,19 +187,22 @@ class TouristSpotForm(forms.ModelForm):
             return [int(day) for day in workingdays]  # 数値のリストに変換
         return []
 
-    def clean_keywords(self):
-        keywords_text = self.cleaned_data.get('keywords')
-        keywords_list = [kw.strip() for kw in keywords_text.split(',') if kw.strip()]  # ★カンマ区切りでリスト化
+    def clean(self):
+        cleaned_data = super().clean()
+        keywords = self.data.getlist('keywords')  # POSTデータから複数取得
+        keywords_list = [kw.strip() for kw in keywords if kw.strip()]
+
         if len(keywords_list) == 0:
-            raise forms.ValidationError("少なくとも1つのキーワードを入力してください")  # ★1つ以上のキーワードが必要
+            raise forms.ValidationError("少なくとも1つのキーワードを入力してください")
         if len(keywords_list) > 10:
-            raise forms.ValidationError("1つの観光地に登録できるキーワードは10個までです")  # ★最大10個まで
-            # 各キーワードが30文字以内であることをチェック
+            raise forms.ValidationError("キーワードは10個までです")
         for kw in keywords_list:
             if len(kw) > 30:
                 raise forms.ValidationError(f"キーワード '{kw}' は30文字以内で入力してください")
-        return keywords_list  # ★cleaned_data にリストとして保存
 
+        # 必要なら cleaned_data に保存
+        cleaned_data['keywords'] = keywords_list
+        return cleaned_data
 
 
 class UserReviewForm(forms.ModelForm):
