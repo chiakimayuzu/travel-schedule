@@ -48,7 +48,8 @@
             display: block;
             margin: 5px 0;
             text-decoration: none;
-            color: #0073e6;
+            color: #004080; /* 深みのある青 */
+            text-decoration: underline;
             font-weight: bold;
         }
         img {
@@ -58,6 +59,24 @@
             object-fit: cover; /* 必要に応じて調整 */
         }
 
+
+        .app-button {
+            display: inline-block;
+            background-color: rgb(69, 110, 160);
+            color: white;
+            padding: 10px 20px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            margin-bottom: 30px;
+        }
+    
+        .app-button:hover {
+            background-color: rgb(89, 130, 180);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -90,5 +109,5 @@
         <a href="{% static 'portfolio/ER図.drawio (4).pdf' %}" target="_blank">ER図</a>
 
     </div>
-    <a href="{% url 'travelapp:home' %}">アプリへ</a>
+    <a href="{% url 'travelapp:home' %}" class="app-button">アプリへ</a>
 </body>
