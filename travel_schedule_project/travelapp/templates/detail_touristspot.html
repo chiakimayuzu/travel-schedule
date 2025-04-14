@@ -73,7 +73,7 @@
           {% for review in reviews %}
             <li>
               <strong>{{ review.review_title }}</strong>
-              <p>{{ review.review_description }}</p>
+              <p>{{ review.review_description|linebreaks }}</p> <!-- linebreaksフィルターを追加 -->
               <p>投稿者: {{ review.user.username }}</p>
               <p>投稿日: {{ review.created_at|date:"Y年m月d日 H:i" }}</p>
             </li>
