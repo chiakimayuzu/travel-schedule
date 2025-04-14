@@ -114,11 +114,26 @@
     {% endif %}
   </div>
 
-  <div>
-    <label for="keywords">キーワード（カンマ区切り）<span style="color: red;">*</span><small>&nbsp;&nbsp;{{ form.keywords.help_text }}</small></label>
-    <input type="text" name="keywords" id="keywords"
-           value="{% for keyword in current_keywords %}{{ keyword.keyword }}{% if not forloop.last %}, {% endif %}{% endfor %}"
-           placeholder="例：海,山,温泉">
+  <div id="keyword-container">
+    <label>キーワード<span style="color: red;">*</span>
+      <small>&nbsp;&nbsp;最大10個まで追加可能</small>
+    </label>
+    
+    <!-- 既存のキーワードを表示 -->
+    {% for keyword in current_keywords %}
+      <div class="keyword-field">
+        <input type="text" name="keywords" class="keyword-input" value="{{ keyword.keyword }}">
+        <button type="button" class="remove-btn">✕</button>
+      </div>
+    {% endfor %}
+    
+    <!-- 追加用の空の入力フィールドを1つだけ表示 -->
+    {% if current_keywords|length < 10 %}
+      <div class="keyword-field">
+        <input type="text" name="keywords" class="keyword-input" placeholder="新しいキーワード">
+        <button type="button" class="remove-btn">✕</button>
+      </div>
+    {% endif %}
   </div>
 
   <div>
@@ -189,7 +204,31 @@
 
 
 <br><p><a href="{% url 'travelapp:detail_touristspot' pk=tourist_spot.pk %}">詳細ページに戻る</a></p>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const keywordContainer = document.getElementById('keyword-container');
+    
+    // "削除"ボタンの処理
+    keywordContainer.addEventListener('click', function(event) {
+      if (event.target.classList.contains('remove-btn')) {
+        const keywordField = event.target.closest('.keyword-field');
+        keywordField.remove();
+      }
+    });
 
+    // "新しいキーワード"のフィールド追加
+    const keywordFields = document.querySelectorAll('.keyword-input');
+    if (keywordFields.length < 10) {
+      const newKeywordField = document.createElement('div');
+      newKeywordField.classList.add('keyword-field');
+      newKeywordField.innerHTML = `
+        <input type="text" name="keywords" class="keyword-input" placeholder="新しいキーワード">
+        <button type="button" class="remove-btn">✕</button>
+      `;
+      keywordContainer.appendChild(newKeywordField);
+    }
+  });
+</script>
 {% block extra_styles %}
 <style>
   form > div {
