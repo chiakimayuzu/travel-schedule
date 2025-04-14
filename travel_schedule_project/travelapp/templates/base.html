@@ -171,6 +171,24 @@
     .base-layout main form {
       display: block;
     }
+    .base-layout #user-link {
+      cursor: pointer;
+      font-weight: bold;
+      color: #007bff; /* ブートストラップのリンク色と同じ */
+      text-decoration: underline;
+    }
+
+    .base-layout header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1030; /* Bootstrap のナビバーと干渉しないよう高めの値に */
+      background-color: #e6f0ff;
+      padding-bottom: 10px;
+    }
+    .base-layout main {
+      padding-top: 150px; /* ヘッダー + メニューリンクの高さを想定して調整 */
+    }
   </style>
 
   {% block extra_js %}{% endblock %}
