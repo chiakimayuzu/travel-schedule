@@ -31,7 +31,7 @@
           </ul>
 
           {% if not request.user.is_authenticated %}
-            <form action="{% url 'travelapp:login' %}" method="post" class="form-inline ml-auto">
+            <form action="{% url 'travelapp:login' %}" method="get" class="form-inline ml-auto">
               {% csrf_token %}
               <button type="submit" class="btn btn-dark login-btn">ログイン</button>
             </form>

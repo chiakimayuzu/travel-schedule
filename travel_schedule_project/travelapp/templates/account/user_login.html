@@ -21,9 +21,9 @@
         <button type="submit">ログイン</button>
 
         <a href="{% url 'travelapp:regist_account' %}">新規登録画面へ</a>
-    </form>
 
-    {% if request.method == "POST" and form_errors %}
+
+    {% if form_errors|length > 0 %}
     <div class="error">
       {% for error in form_errors %}
         <p>{{ error }}</p>
