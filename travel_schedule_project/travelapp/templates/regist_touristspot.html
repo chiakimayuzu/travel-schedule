@@ -265,6 +265,12 @@ $(document).ready(function() {
     border-radius: 6px;
     margin-bottom: 0.5rem;
   }
+  input[type="file"] {
+    padding: 6px 10px;  /* 高さや左右の余白を調整 */
+    height: auto;       /* 高さをautoにすることで潰れを防ぐ */
+    line-height: 1.5;   /* ラベルとのバランスを取る */
+    background-color: white;
+  }
 
 </style>
 {% endblock %}
