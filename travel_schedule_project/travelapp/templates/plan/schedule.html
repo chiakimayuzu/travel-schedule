@@ -6,16 +6,16 @@
 <form method="post" action="{% url 'travelapp:schedule' %}" style="max-width: 500px; margin-left: 20px;">
   {% csrf_token %}
 
-<!-- 旅行日程 -->
-<div style="display: block !important; margin-bottom: 20px;">
-  <label for="schedule-range" style="display: block !important; margin-bottom: 8px;">旅行日程</label>
-  <div style="display: flex; align-items: center;">
-    <input type="text" id="schedule-range" name="schedule_range"
-           placeholder="日付を選択してください" readonly
-           style="flex: 1; padding: 10px; margin-right: 10px;">
-    <span id="calendar-icon" style="cursor: pointer; font-size: 20px;">📆</span>
+  <!-- 旅行日程 -->
+  <div style="display: block !important; margin-bottom: 20px;">
+    <label for="schedule-range" style="display: block !important; margin-bottom: 8px;">旅行日程</label>
+    <div style="display: flex; align-items: center;">
+      <input type="text" id="schedule-range" name="schedule_range"
+             placeholder="日付を選択してください" readonly
+             style="flex: 1; padding: 10px; margin-right: 10px;">
+      <span id="calendar-icon" style="cursor: pointer; font-size: 20px;">📆</span>
+    </div>
   </div>
-</div>
   <input type="hidden" name="start_date" id="start_date">
   <input type="hidden" name="end_date" id="end_date">
 
@@ -28,12 +28,8 @@
   </div>
 
   <!-- スケジュール作成ボタン -->
-  <div style="display: block !important; margin-top: 30px;">
-    <button type="submit"
-        style="display: block !important; width: 100%; padding: 12px; font-size: 16px;
-               background-color:rgb(69, 110, 160); color: white; border: none; border-radius: 6px;">
-  スケジュール作成
-</button>
+  <br><button type="submit" class="schedule-btn">スケジュール作成</button>
+
   </div>
 </form>
 
@@ -72,4 +68,25 @@
     calendar.open();
   });
 </script>
+
+<style>
+  /* ボタンのスタイル調整 */
+  .schedule-btn {
+      background-color: rgb(69, 110, 160);
+      color: white;
+      border: none;
+      padding: 12px 30px; /* 横幅を広げるためにパディングを調整 */
+      height: 50px; /* 高さを設定 */
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%; /* ボタンが横幅いっぱいに広がる */
+      text-align: center; /* ボタン内のテキストを中央寄せ */
+  }
+
+  .schedule-btn:hover {
+    background-color: rgb(89, 130, 180);
+    cursor: pointer;
+  }
+</style>
 {% endblock %}
+
