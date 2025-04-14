@@ -115,12 +115,12 @@
   </div>
 
   <div>
-    <label for="keywords">キーワード（カンマ区切り）<span style="color: red;">*</span><small>&nbsp;&nbsp;{{ form.keywords.help_text }}</small></label>
-    <input type="text" name="keywords" id="keywords"
-           value="{% for keyword in current_keywords %}{{ keyword.keyword }}{% if not forloop.last %}, {% endif %}{% endfor %}"
-           placeholder="例：海,山,温泉">
+    <label>キーワード（最大10個）<span style="color: red;">*</span><small>&nbsp;&nbsp;{{ form.keywords.help_text }}</small></label>
+    
+    {% for i in 0|to:10 %}
+      <input type="text" name="keywords" value="{% if current_keywords|length > i %}{{ current_keywords.i.keyword }}{% endif %}" placeholder="キーワード {{ i|add:1 }}" style="display:block; margin-bottom:5px;">
+    {% endfor %}
   </div>
-
   <div>
     <label for="{{ form.picture.id_for_label }}">画像<span style="color: red;">*</span></label><br>
   
