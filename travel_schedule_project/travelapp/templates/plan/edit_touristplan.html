@@ -317,6 +317,7 @@ listItem.innerHTML = `
       {% endfor %}
       
       setListClickHandlers();
+      setDeleteButtonHandlers(); 
     }
 
     function addMarker(position, spotId, title, address, stayHours, stayMinutes) {
@@ -372,6 +373,7 @@ listItem.innerHTML = `
         addMarker({lat: lat, lng: lng}, spotId, spotName, "", 0, 0);
       });
       setListClickHandlers();
+      setDeleteButtonHandlers(); 
     }
 
     function setListClickHandlers() {
@@ -389,6 +391,32 @@ listItem.innerHTML = `
         });
       });
     }
+
+    // マーカーを削除する関数
+function removeMarker(spotId) {
+  const markerIndex = markers.findIndex(m => m.spotId === spotId);
+  if (markerIndex !== -1) {
+    markers[markerIndex].setMap(null); // マップから削除
+    markers.splice(markerIndex, 1);    // 配列からも削除
+  }
+}
+
+// 削除ボタンにイベントをつける
+function setDeleteButtonHandlers() {
+  document.querySelectorAll('.delete-spot').forEach(button => {
+    button.addEventListener('click', function() {
+      const item = this.closest('.sortable-item'); // 一番近いスポット要素を取得
+      const spotId = item.getAttribute('data-spot-id');
+
+      // DOMから削除
+      item.remove();
+
+      // マップのマーカー削除
+      removeMarker(spotId);
+    });
+  });
+}
+
 
     google.maps.event.addDomListener(window, 'load', initMap);
   </script>
