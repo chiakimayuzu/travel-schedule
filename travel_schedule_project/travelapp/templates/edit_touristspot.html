@@ -209,7 +209,7 @@
   document.addEventListener('DOMContentLoaded', function() {
     const keywordContainer = document.getElementById('keyword-container');
     const addKeywordBtn = document.getElementById('add-keyword-btn');
-
+  
     // キーワード追加
     addKeywordBtn.addEventListener('click', function() {
       const keywordFields = keywordContainer.querySelectorAll('.keyword-field');
@@ -217,7 +217,7 @@
         alert('キーワードは最大10個までです');
         return;
       }
-
+  
       const newField = document.createElement('div');
       newField.classList.add('keyword-field');
       newField.innerHTML = `
@@ -225,16 +225,32 @@
         <button type="button" class="remove-btn">✕</button>
       `;
       keywordContainer.appendChild(newField);
+  
+      // 追加後にボタンの状態を更新
+      updateKeywordCount();
     });
-
+  
     // 削除ボタン処理
     keywordContainer.addEventListener('click', function(event) {
       if (event.target.classList.contains('remove-btn')) {
         const field = event.target.closest('.keyword-field');
         field.remove();
+        
+        // 削除後にボタンの状態を更新
+        updateKeywordCount();
       }
     });
+  
+    // キーワード数が最大10個になったら、ボタンを無効化
+    function updateKeywordCount() {
+      const keywordFields = keywordContainer.querySelectorAll('.keyword-field');
+      addKeywordBtn.disabled = keywordFields.length >= 10;
+    }
+  
+    // 初期状態のボタン状態をチェック
+    updateKeywordCount();
   });
+  
 </script>
 {% block extra_styles %}
 <style>
