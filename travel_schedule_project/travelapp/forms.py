@@ -164,7 +164,7 @@ class TouristSpotForm(forms.ModelForm):
 
     keywords = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'keyword-input'}),
-        required=True,
+        required=False,
         help_text="最大10個まで。1つの入力欄につき1キーワード。"
     )
 
@@ -189,8 +189,11 @@ class TouristSpotForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        keywords = self.data.getlist('keywords')  # POSTデータから複数取得
+        keywords = self.data.getlist('keywords')
+        print("Raw keywords:", keywords)
+
         keywords_list = [kw.strip() for kw in keywords if kw.strip()]
+        print("Cleaned keywords_list:", keywords_list)
 
         if len(keywords_list) == 0:
             raise forms.ValidationError("少なくとも1つのキーワードを入力してください")
@@ -199,12 +202,9 @@ class TouristSpotForm(forms.ModelForm):
         for kw in keywords_list:
             if len(kw) > 30:
                 raise forms.ValidationError(f"キーワード '{kw}' は30文字以内で入力してください")
-            
-        # 重複チェック
         if len(set(keywords_list)) != len(keywords_list):
             raise forms.ValidationError("同じキーワードが複数入力されています。重複しないようにしてください")
 
-        # 必要なら cleaned_data に保存
         cleaned_data['keywords'] = keywords_list
         return cleaned_data
 

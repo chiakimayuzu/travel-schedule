@@ -6,6 +6,7 @@
 <form method="POST" enctype="multipart/form-data">
   {% csrf_token %}
 
+
   <div>
     <label for="{{ form.spot_name.id_for_label }}">観光地名<span style="color: red;">*</span></label>
     {{ form.spot_name }}
@@ -130,14 +131,14 @@
   
   <!-- キーワード追加ボタン -->
   <button type="button" id="add-keyword-btn">＋ キーワードを追加</button>
-  
-  {% if form.non_field_errors %}
+
+  <br>{% if form.non_field_errors %}
   <div class="error">{{ form.non_field_errors }}</div>
 {% endif %}
   
 
   <div>
-    <label for="{{ form.picture.id_for_label }}">画像<span style="color: red;">*</span></label><br>
+    <br><label for="{{ form.picture.id_for_label }}">画像<span style="color: red;">*</span></label><br>
   
     {% if tourist_spot.picture %}
       <p>いまの画像</p>
@@ -351,6 +352,56 @@
   background-color: darkred; /* ホバー時の背景色 */
   cursor: pointer;
 }
+.keyword-field {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.keyword-input {
+  flex: 1;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-right: 8px;
+}
+
+.remove-btn {
+  background-color: #ff5c5c;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.remove-btn:hover {
+  background-color: #e03e3e;
+}
+
+#add-keyword-btn {
+  background-color: #b0b0b0;  /* 柔らかいグレー */
+  color: #fff;
+  font-size: 14px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 8px;
+}
+
+#add-keyword-btn:hover {
+  background-color: #999999;  /* ホバーで少し濃く */
+}
+#add-keyword-btn {
+  margin-bottom: 10px;
+}
+
 
   
 </style>
