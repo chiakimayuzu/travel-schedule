@@ -101,16 +101,20 @@
       background-color: #ffe6e6;
     }
   
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 30px;
-    }
-  
     table th, table td {
       border: 1px solid #ccc;
       padding: 12px 10px;
       text-align: left;
+    }
+  
+    /* 日程列の幅を倍にする（20% → 40%） */
+    table td:nth-child(2), table th:nth-child(2) {
+      width: 50%;  /* 日程列の幅を40%に変更 */
+    }
+  
+    /* プラン名列の幅を調整（残りのスペースを占める） */
+    table td:nth-child(3), table th:nth-child(3) {
+      width: 60%;  /* プラン名列の幅を調整 */
     }
   
     table thead {
