@@ -3,7 +3,7 @@
 {% block title %}📩メールアドレス変更{% endblock %}
 
 {% block content %}
-<h1 style="font-size: 24px;">📩メールアドレス変更</h1>
+<br><h1 style="font-size: 24px;">📩メールアドレス変更</h1>
 <form method="POST" action="{% url 'travelapp:change_email' %}" class="centered-form">
     {% csrf_token %}
     <div class="form-group">
