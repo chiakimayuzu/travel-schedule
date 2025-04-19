@@ -74,8 +74,9 @@
     <div id="wantedSpotModal{{ modal_counter }}" class="modal">
       <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
-        <h2 style="font-size: 20px;">❤️行きたいリストから選択</h2>
+
         {% if wanted_spots %}
+        <h2 style="font-size: 20px;">❤️行きたいリストから選択</h2>
           <div class="wanted-spot-grid">
             {% for spot in wanted_spots %}
               <div class="wanted-spot-item">
@@ -113,11 +114,10 @@
           </div>
           <br><button type="button" class="btn btn-success confirmSelection" style="background-color: rgb(69, 110, 160); color: white;">プランに追加</button>
         {% else %}
-          <p>行きたいリストはありません。</p>
-          <br><p>🔎<a href="{% url 'travelapp:home' %}" style="text-decoration: underline;">ホーム画面</a>から観光地を探す</p>
+        <h2 style="font-size: 20px;">❤️行きたいリストはありません</h2>
+        <br><p style="color: gray;">観光地を検索して「行きたい」ボタンを押すとリストに追加されます</p>
+          <br><p><a href="{% url 'travelapp:home' %}" class="search-btn">🔎観光地を探す</a></p>
 
-          {% load static %}
-          <img src="{% static 'sample/サンプル.png' %}" alt="Picture 1" width="800" height="auto">
         {% endif %}
       </div>
     </div>
@@ -531,6 +531,25 @@ function setDeleteButtonHandlers() {
 
     .drag-handle:hover {
       font-size: 34px;  /* ホバー時にアイコンが大きくなる */
+    }
+
+    .search-btn {
+      background-color: #ff4d6d;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 16px;
+      text-decoration: none; /* リンクの下線を消す（必要に応じて） */
+      display: inline-block;
+    }
+  
+    /* 行きたいボタン hover */
+    .search-btn:hover {
+      background-color: #ff6b81;
+      color: white;
+      text-decoration: none; 
     }
   </style>  
   
