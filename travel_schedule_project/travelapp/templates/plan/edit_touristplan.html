@@ -113,7 +113,10 @@
           </div>
           <br><button type="button" class="btn btn-success confirmSelection" style="background-color: rgb(69, 110, 160); color: white;">プランに追加</button>
         {% else %}
-          <p>行きたいリストはありません。</p>
+          <br><p>行きたいリストはありません。</p>
+
+          {% load static %}
+          <img src="{% static 'sample/サンプル.png' %}" alt="Picture 1" width="800" height="auto">
         {% endif %}
       </div>
     </div>
