@@ -105,8 +105,9 @@
     text-decoration: none; /* アンダーラインを削除 */
   }
 
-  /* aタグ全体に対してもアンダーラインを無効化 */
-  .edit-button, .edit-button:visited {
+  a.edit-button,
+  a.edit-button:visited,
+  a.edit-button:hover {
     text-decoration: none;
   }
 
@@ -123,6 +124,7 @@
   .delete-button:hover {
     background-color: darkred; /* ホバー時の背景色 */
     cursor: pointer;
+    text-decoration: none; /* アンダーラインを削除 */
   }
 </style>
 {% endblock %}
