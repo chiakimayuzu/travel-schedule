@@ -173,13 +173,36 @@ class TouristSpotForm(forms.ModelForm):
         model = TouristSpot
         fields = ['spot_name', 'prefecture', 'address', 'tel', 'category', 'workingday', 'parking', 
                   'opening_at', 'closing_at', 'picture', 'description', 'offical_url', 'keywords']
-
+    
+    def clean_spot_name(self):
+        spot_name = self.cleaned_data['spot_name']
+        if len(spot_name) > 50:
+            raise forms.ValidationError("観光地名は50文字以内で入力してください。")
+        return spot_name
+    
     def clean_address(self):
         address = self.cleaned_data['address']
-        # 全角数字や全角ハイフン（−）が含まれていたらエラー
+    
+        # ① 文字数チェック
+        if len(address) > 100:
+            raise forms.ValidationError("住所は100文字以内で入力してください。")
+
+        # ② 全角数字や全角ハイフンが含まれていたらエラー
         if any(char in address for char in '０１２３４５６７８９−ー'):
             raise forms.ValidationError("住所の番地部分は半角数字と半角ハイフン（-）のみを使用してください。")
+    
         return address
+    
+    def clean_offical_url(self):
+        url = self.cleaned_data['offical_url']
+
+        # ① 文字数チェック
+        if len(url) > 100:
+            raise forms.ValidationError("公式URLは100文字以内で入力してください。")
+
+        return url
+    
+
 
 
 
@@ -304,6 +327,12 @@ class UserReviewForm(forms.ModelForm):
         cleaned_data['stay_time_min'] = stay_time_min
 
         return cleaned_data
+    
+    def clean_review_title(self):
+        title = self.cleaned_data.get('review_title')
+        if len(title) < 50:
+           raise forms.ValidationError("レビュータイトルは50文字以上で入力してください。")
+        return title
 
 
 
