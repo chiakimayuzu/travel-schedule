@@ -359,7 +359,7 @@ def detail_touristspot(request, pk):
     price_choices_dict = dict(REVIEW_PRICE_CHOICES)
 
     # 最頻値の価格帯を取得し、対応する価格帯の文字列に変換
-    most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
+    most_common_price_str = price_choices_dict.get(most_common_price, "情報なし")
 
     # 滞在時間の表示形式（時間と分
     if stay_time_avg and stay_time_avg > 0:  # stay_time_avg が None または 0 でない場合
@@ -586,7 +586,7 @@ def create_review(request, pk):  # 🔹 引数名を pk に変更
     price_choices_dict = dict(REVIEW_PRICE_CHOICES)
 
     # 最頻値の価格帯を取得し、対応する価格帯の文字列に変換
-    most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
+    most_common_price_str = price_choices_dict.get(most_common_price, "情報なし")
 
     # 滞在時間の表示形式（時間と分）
     if stay_time_avg and stay_time_avg > 0:  # stay_time_avg が None または 0 でない場合
@@ -790,11 +790,22 @@ def wanted_spot(request, tourist_spot_id):
     price_choices_dict = dict(REVIEW_PRICE_CHOICES)
 
     # 最頻値の価格帯を取得し、対応する価格帯の文字列に変換
-    most_common_price_str = price_choices_dict.get(most_common_price, "価格情報なし")
+    most_common_price_str = price_choices_dict.get(most_common_price, "情報なし")
 
     # 滞在時間の表示形式（時間と分）
     stay_time_hours = int(stay_time_avg) // 60
     stay_time_minutes = int(stay_time_avg) % 60
+
+    # 滞在時間の表示形式（時間と分）
+    if stay_time_avg and stay_time_avg > 0:  # stay_time_avg が None または 0 でない場合
+        stay_time_hours = int(stay_time_avg) // 60
+        stay_time_minutes = int(stay_time_avg) % 60
+        stay_time_display = f"{stay_time_hours}時間 {stay_time_minutes}分"
+    else:
+        stay_time_display = "情報なし"  # 情報がない場合は「情報なし」と表示
+        stay_time_hours = None  # 変数を None に設定してエラーを防止
+        stay_time_minutes = None 
+    
 
     # クチコミ件数を取得
     review_count = UserReview.objects.filter(tourist_spot=tourist_spot).count()
@@ -831,6 +842,7 @@ def wanted_spot(request, tourist_spot_id):
             'stay_time_minutes': stay_time_minutes, # 滞在時間（分）
             'most_common_price': most_common_price_str, # 価格帯（最頻値）
             'review_count': review_count,   # クチコミ件数
+            'stay_time_display':stay_time_display,
             'error_message': "この機能を利用するにはログインしてください。",
         })
 
