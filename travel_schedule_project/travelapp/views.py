@@ -291,7 +291,16 @@ def check_username(request):  # 入力されたusernameが既に存在するか�
 
     return JsonResponse({'username_exists': username_exists})  # exists が True ならusernameが存在、エラー表示
 
+def check_email(request):  # 入力されたusernameが既に存在するかを確認
+    email = request.GET.get('email')  # フォームの入力値を取得
 
+    Users = get_user_model()
+
+    email_exists = False
+    if email:
+        email_exists = Users.objects.filter(email=email).exists()  # usernameが既に存在するか確認
+
+    return JsonResponse({'email_exists': email_exists})  # exists が True ならemailが存在、エラー表示
 
 def check_dupe_tourist_spot(request):
     spot_name = request.GET.get('spot_name', '').strip()

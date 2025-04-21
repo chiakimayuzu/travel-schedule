@@ -14,7 +14,7 @@ from django.forms import formset_factory, modelformset_factory
 from .models import TouristPlan
 from django import forms
 from .models import UserReview
-
+import re
 
 class UserLoginForm(forms.Form):
     email = forms.EmailField(label='メールアドレス', widget=forms.TextInput(attrs={'placeholder': '例:xxx@example.com'}))
@@ -199,9 +199,18 @@ class TouristSpotForm(forms.ModelForm):
             raise forms.ValidationError("少なくとも1つのキーワードを入力してください")
         if len(keywords_list) > 10:
             raise forms.ValidationError("キーワードは10個までです")
+        
+        # 禁止したい記号や句読点のリスト
+        forbidden_chars_pattern = r"[。、，．！？!?\(\)\[\]{}<>「」『』【】・…]"
         for kw in keywords_list:
             if len(kw) > 30:
                 raise forms.ValidationError(f"キーワード '{kw}' は30文字以内で入力してください")
+            
+            # 句読点（。、）が含まれていたらエラー
+            if re.search(forbidden_chars_pattern, kw):
+                raise forms.ValidationError(
+                f"キーワード '{kw}' に使用できない文字（句読点・記号など）が含まれています"
+            )
         if len(set(keywords_list)) != len(keywords_list):
             raise forms.ValidationError("同じキーワードが複数入力されています。重複しないようにしてください")
 
