@@ -174,7 +174,15 @@ class TouristSpotForm(forms.ModelForm):
         fields = ['spot_name', 'prefecture', 'address', 'tel', 'category', 'workingday', 'parking', 
                   'opening_at', 'closing_at', 'picture', 'description', 'offical_url', 'keywords']
 
-        
+    def clean_address(self):
+        address = self.cleaned_data['address']
+        # 全角数字や全角ハイフン（−）が含まれていたらエラー
+        if any(char in address for char in '０１２３４５６７８９−ー'):
+            raise forms.ValidationError("住所の番地部分は半角数字と半角ハイフン（-）のみを使用してください。")
+        return address
+
+
+
     def clean_picture(self):
         picture = self.cleaned_data.get('picture')
         if not picture:
@@ -201,7 +209,7 @@ class TouristSpotForm(forms.ModelForm):
             raise forms.ValidationError("キーワードは10個までです")
         
         # 禁止したい記号や句読点のリスト
-        forbidden_chars_pattern = r"[。、，．！？!?\(\)\[\]{}<>「」『』【】・…]"
+        forbidden_chars_pattern = r"[。、，．！？!?\(\)\[\]{}<>「」『』【】・…,.]"
         for kw in keywords_list:
             if len(kw) > 30:
                 raise forms.ValidationError(f"キーワード '{kw}' は30文字以内で入力してください")

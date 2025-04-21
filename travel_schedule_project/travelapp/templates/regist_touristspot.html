@@ -37,7 +37,7 @@
   </div>
 
   <div>
-    <label for="{{ form.address.id_for_label }}">住所<span style="color: red;">*</span>&nbsp;&nbsp;<small>番地は-でつないでください</small></label>
+    <label for="{{ form.address.id_for_label }}">住所<span style="color: red;">*</span>&nbsp;&nbsp;<small>番地は半角数字と-を使って入力してください</small></label>
     <input type="text" name="address" id="{{ form.address.id_for_label }}" value="{{ form.address.value|default_if_none:'' }}" placeholder="例：京都市東山区清水1-294" class="form-control">
     {% if form.address.errors %}
         <div class="error">{{ form.address.errors }}</div>
@@ -114,9 +114,13 @@
     <button type="button" id="add-keyword-btn">＋ キーワードを追加</button>
 
     
-    {% if form.non_field_errors %}
-      <div class="error">{{ form.non_field_errors }}</div>
-    {% endif %}
+    <br>{% if form.non_field_errors %}
+    <div class="error">
+      {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
     
 
     <div>

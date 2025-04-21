@@ -32,7 +32,7 @@
   </div>
 
   <div>
-    <label for="{{ form.address.id_for_label }}">住所<span style="color: red;">*</span></label>
+    <label for="{{ form.address.id_for_label }}">住所<span style="color: red;">*</span>&nbsp;&nbsp;<small>番地は半角数字と-を使って入力してください</small></label>
     {{ form.address }}
     {% if form.address.errors %}
       <div class="error">
@@ -133,7 +133,11 @@
   <button type="button" id="add-keyword-btn">＋ キーワードを追加</button>
 
   <br>{% if form.non_field_errors %}
-  <div class="error">{{ form.non_field_errors }}</div>
+  <div class="error">
+    {% for error in form.non_field_errors %}
+      <p>{{ error }}</p>
+    {% endfor %}
+  </div>
 {% endif %}
   
 
