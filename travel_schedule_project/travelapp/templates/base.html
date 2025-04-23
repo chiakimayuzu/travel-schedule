@@ -7,8 +7,44 @@
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
   <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+  <style>
+    .travelapp-base-modal .modal-dialog {
+      max-width: 500px;
+      margin: 1.75rem auto;
+    }
+
+    .travelapp-base-modal .modal-content {
+      border-radius: 0.3rem;
+    }
+
+    .travelapp-base-modal .modal-header {
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #e1e1e1;
+    }
+
+    .travelapp-base-modal .modal-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+
+    .travelapp-base-modal .close {
+      font-size: 1.5rem;
+      color: #000;
+    }
+
+    .travelapp-base-modal .modal-footer {
+      background-color: #f8f9fa;
+      border-top: 1px solid #e1e1e1;
+    }
+
+    .travelapp-base-modal .modal-body {
+      padding: 20px;
+    }
+  </style>
   {% block extra_head %}{% endblock %}
 </head>
+
 <body class="base-layout">
   <header>
     <nav class="navbar navbar-expand-lg navbar-light">
@@ -91,7 +127,7 @@
   </script>
 
   <!-- モーダル -->
-  <div class="base-modal modal" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+  <div class="travelapp-base-modal modal" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -108,7 +144,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- このページ専用のCSS -->
   <style>
     .base-layout header {
@@ -191,6 +227,12 @@
     .base-layout main {
       padding-top: 120px; /* ヘッダー + メニューリンクの高さを想定して調整 */
     }
+
+    .travelapp-base-modal.modal {
+  display: none;
+}
+
+
   </style>
 
   {% block extra_js %}{% endblock %}

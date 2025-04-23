@@ -71,7 +71,7 @@
 
     
 
-    <div id="wantedSpotModal{{ modal_counter }}" class="modal">
+    <div id="wantedSpotModal{{ modal_counter }}" class="modal touristplan-modal">
       <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
 
@@ -426,135 +426,203 @@ function setDeleteButtonHandlers() {
 
     google.maps.event.addDomListener(window, 'load', initMap);
   </script>
+  {% block extra_styles %}
+<!-- CSS部分 -->
 
-  <!-- CSS部分 -->
-  <style>
-    .sortable { list-style: none; padding: 0; }
-    .sortable-item { display: flex; align-items: center; padding: 5px; border: 1px solid #ddd; margin: 5px 0; background: #f9f9f9; cursor: grab; }
-    .drag-handle { margin-left: auto; cursor: grab; }
-    .delete-spot { margin-left: 5px; }
-    .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
-    .modal-content { background-color: #fff; margin: 15% auto; padding: 20px; width: 80%; max-width: 500px; border-radius: 4px; }
-    .close { position: absolute; top: 10px; right: 10px; font-size: 28px; cursor: pointer; }
-    .selected-item { background-color: #ADD8E6; border: 2px solid #ADD8E6; }
+<style>
+  .sortable { list-style: none; padding: 0; }
+  .sortable-item { display: flex; align-items: center; padding: 5px; border: 1px solid #ddd; margin: 5px 0; background: #f9f9f9; cursor: grab; }
+  .drag-handle { margin-left: auto; cursor: grab; }
+  .delete-spot { margin-left: 5px; }
 
-    .save-button {
-      background-color: rgb(69, 110, 160);  /* ボタンの背景色 */
-      color: white;                         /* 文字色を白に */
-      border: none;
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .save-button:hover {
-      background-color: rgb(89, 130, 180);
-      cursor: pointer;
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1050; /* ここを調整 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
   }
-    
 
-    .back-link {
-      color: #555;              /* 通常の文字色 */
-      text-decoration: none;    /* アンダーバーなし */
-      font-size: 16px;
-      transition: text-decoration 0.2s ease;
-    }
+  /* base.html のモーダルスタイルを適用 */
+  .travelapp-base-modal .modal-dialog {
+    max-width: 500px;
+    margin: 1.75rem auto;
+  }
+
+  .travelapp-base-modal .modal-content {
+    border-radius: 0.3rem;
+  }
+
+  .travelapp-base-modal .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e1e1e1;
+  }
+
+  .travelapp-base-modal .modal-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
+
+  .travelapp-base-modal .close {
+    font-size: 1.5rem;
+    color: #000;
+  }
+
+  .travelapp-base-modal .modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #e1e1e1;
+  }
+
+  .travelapp-base-modal .modal-body {
+    padding: 20px;
+  }
+
+  .save-button {
+    background-color: rgb(69, 110, 160);  
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .save-button:hover {
+    background-color: rgb(89, 130, 180);
+  }
+
+  .back-link {
+    color: #555;
+    text-decoration: none;
+    font-size: 16px;
+    transition: text-decoration 0.2s ease;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+    color: #555;
+  }
+
+  .sortable-item {
+    display: flex;
+    align-items: center;
+  }
+
+  .drag-handle {
+    margin-right: 20px;
+  }
+
+  .delete-spot {
+    margin-left: 10px;
+  }
+
+  .wanted-spot-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+
+  .wanted-spot-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+
+  /* モーダルの特別なスタイル */
+  .touristplan-modal {
+    z-index: 1050; /* 最前面に配置 */
+    display: none; /* 初期状態は非表示 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .touristplan-modal .modal-dialog {
+    max-width: 800px;
+    margin: 1.75rem auto;
+  }
+
+  .touristplan-modal .modal-content {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    width: 100%;
+    max-width: 1000px;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 1px solid #888;
   
-    .back-link:hover {
-      text-decoration: underline; /* ホバー時にアンダーライン追加 */
-      color: #555;                /* 色は変更しない */
-    }
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* ← 中央に移動 */
+  }
 
-    .sortable-item {
-      display: flex;
-      align-items: center;
-    }
-  
-    .drag-handle {
-      margin-right: 20px; /* ↕️と削除ボタンの間に10pxの間隔を追加 */
-    }
-  
-    .delete-spot {
-      margin-left: 10px; /* 削除ボタンと他の要素（もしあれば）の間に10pxの間隔を追加 */
-    }
+  .touristplan-modal .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e1e1e1;
+    position: relative; /* ×ボタンを右上に配置するために調整 */
+  }
 
-    .wanted-spot-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
-    }
-  
-    .wanted-spot-item {
-      border: 1px solid #ccc;
-      padding: 10px;
-      border-radius: 8px;
-      background-color: #f9f9f9;
-    }
+  /* ×ボタンを右上に配置 */
+  .touristplan-modal .close {
+    font-size: 1.5rem;
+    color: #000;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+  }
 
+  .touristplan-modal .modal-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
 
-    .modal {
-      z-index: 9999;
-      display: none; /* モーダルは初期状態では非表示 */
-      position: fixed;
-      top: 50px;  /* 上すぎる問題を修正 */
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.5);
-    }
-    
-    .modal-content {
-      background-color: white;
-      border-radius: 10px;
-      padding: 20px;
-      width: 100%;
-      max-width: 1000px;
-      max-height: 80vh;
-      overflow-y: auto;
-      border: 1px solid #888;
-    
-      position: absolute;
-      top: 20%;
-      left: 50%;
-      transform: translate(-50%, -50%); /* ← 中央に移動 */
-      overflow-x: hidden;  /* 横スクロール防止 */
-    }
+  .touristplan-modal .modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #e1e1e1;
+  }
 
+  .touristplan-modal .modal-body {
+    padding: 20px;
+  }
 
-    .base-layout, .base-layout main, .base-layout main form {
-      overflow: visible !important;
-      position: static !important;
-    }
+  .drag-handle {
+    font-size: 28px;
+  }
 
-    .drag-handle{
-      font-size: 28px;
-    }
+  .drag-handle:hover {
+    font-size: 34px;
+  }
 
-    .drag-handle:hover {
-      font-size: 34px;  /* ホバー時にアイコンが大きくなる */
-    }
+  .search-btn {
+    background-color: #ff4d6d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
+  }
 
-    .search-btn {
-      background-color: #ff4d6d;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 16px;
-      text-decoration: none; /* リンクの下線を消す（必要に応じて） */
-      display: inline-block;
-    }
-  
-    /* 行きたいボタン hover */
-    .search-btn:hover {
-      background-color: #ff6b81;
-      color: white;
-      text-decoration: none; 
-    }
-  </style>  
-  
+  .search-btn:hover {
+    background-color: #ff6b81;
+    color: white;
+    text-decoration: none;
+  }
+</style>
+
   
   
 {% endblock %}
-
+{% endblock %}
