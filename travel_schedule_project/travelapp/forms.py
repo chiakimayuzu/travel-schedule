@@ -330,8 +330,8 @@ class UserReviewForm(forms.ModelForm):
     
     def clean_review_title(self):
         title = self.cleaned_data.get('review_title')
-        if len(title) < 50:
-           raise forms.ValidationError("レビュータイトルは50文字以上で入力してください。")
+        if len(title) > 50:
+           raise forms.ValidationError("レビュータイトルは50文字以内で入力してください。")
         return title
 
 
