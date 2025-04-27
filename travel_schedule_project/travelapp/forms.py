@@ -133,7 +133,7 @@ class TouristSpotForm(forms.ModelForm):
     #select2 は Django の標準機能ではなく、Select2 という JavaScript ライブラリのクラス名
 
     category = forms.ChoiceField(
-        required=False,
+        required=True,
         choices=[('', 'カテゴリを選択')] + CATEGORY_CHOICES,
         label='カテゴリ',
         initial='',
